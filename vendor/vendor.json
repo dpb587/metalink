@@ -1,0 +1,64 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "I2DDeog8ML55A+drYgods2s4Y5Q=",
+			"path": "github.com/bmatcuk/doublestar",
+			"revision": "dd6a6f0a8cdfaaa88b08cf26cf1bc7d69003ee13",
+			"revisionTime": "2016-09-23T20:37:36Z"
+		},
+		{
+			"checksumSHA1": "TNDMHCARKW4X2p4lc0PjO9v65p4=",
+			"path": "github.com/charlievieth/fs",
+			"revision": "0551949e78554adf0c59760e2442c4ec2324ca56",
+			"revisionTime": "2016-12-02T02:26:21Z"
+		},
+		{
+			"checksumSHA1": "hVaAqWsEqhrGNMk+3gHm6JOU8ts=",
+			"path": "github.com/cloudfoundry/bosh-utils/crypto",
+			"revision": "f6c3861b0dcf980b8cf20a6842559392e2647a8e",
+			"revisionTime": "2017-02-17T23:56:05Z"
+		},
+		{
+			"checksumSHA1": "FnR1zvUvK6aui2XELTqvuhY/T4g=",
+			"path": "github.com/cloudfoundry/bosh-utils/errors",
+			"revision": "f6c3861b0dcf980b8cf20a6842559392e2647a8e",
+			"revisionTime": "2017-02-17T23:56:05Z"
+		},
+		{
+			"checksumSHA1": "TbzNl200lJFg2rpZ4V6rG8Dxvdc=",
+			"path": "github.com/cloudfoundry/bosh-utils/logger",
+			"revision": "f6c3861b0dcf980b8cf20a6842559392e2647a8e",
+			"revisionTime": "2017-02-17T23:56:05Z"
+		},
+		{
+			"checksumSHA1": "c0HRWOcZvWzurVQRikkImD06t/I=",
+			"path": "github.com/cloudfoundry/bosh-utils/logger/loggerfakes",
+			"revision": "f6c3861b0dcf980b8cf20a6842559392e2647a8e",
+			"revisionTime": "2017-02-17T23:56:05Z"
+		},
+		{
+			"checksumSHA1": "r9+KjtLjoNlMx9/7eJq+fkkisLw=",
+			"path": "github.com/cloudfoundry/bosh-utils/system",
+			"revision": "f6c3861b0dcf980b8cf20a6842559392e2647a8e",
+			"revisionTime": "2017-02-17T23:56:05Z"
+		},
+		{
+			"path": "github.com/cloudfoundry/bosh-utils/system/cryptofakes",
+			"revision": ""
+		},
+		{
+			"path": "github.com/cloudfoundry/bosh-utils/system/systemfakes",
+			"revision": "",
+			"tree": true
+		},
+		{
+			"checksumSHA1": "HyzJVpU83/duL9rjkQ4fGE0cw5Q=",
+			"path": "github.com/jessevdk/go-flags",
+			"revision": "460c7bb0abd6e927f2767cadc91aa6ef776a98b4",
+			"revisionTime": "2017-02-12T22:02:46Z"
+		}
+	],
+	"rootPath": "github.com/dpb587/blob-receipt"
+}
