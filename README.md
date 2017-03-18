@@ -44,13 +44,17 @@ Or further configure the blob downloading with...
  * a specific source URI using `--source=https://...`
 
 
+## Notes
+
+ * review the [schema](schema.json) for details on the data format
+
+
 ## Roadmap
 
  * ci/coverage
  * unit tests for cli/cmd/verify.go
  * other integration tests
  * implement download command
- * receipt file json spec
 
 
 ## License

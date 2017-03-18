@@ -9,5 +9,5 @@ import (
 
 func TestIntegration(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "github.com/dpb587/blob-receipt/internal/integration")
+	RunSpecs(t, "github.com/dpb587/blob-receipt/cli/internal/integration")
 }

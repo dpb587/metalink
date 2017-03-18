@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "properties": {
+    "digest": {
+      "description": "Checksum digests which can be used to verify the blob",
+      "properties": {
+        "md5": {
+          "type": "string"
+        },
+        "sha1": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "sha512": {
+          "type": "string"
+        }
+      }
+    },
+    "metadata": {
+      "description": "Arbitrary key-value pairs further describing the blob. Keys should be namespaced.",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "description": "A unique key for the metadata value",
+            "type": "string"
+          },
+          "value": {
+            "description": "Matadata value",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "name": {
+      "description": "The file name",
+      "type": "string"
+    },
+    "origin": {
+      "description": "Authoritative locations where this blob can be found. Multiple locations and protocols may be listed.",
+      "items": {
+        "uri": {
+          "description": "The URI where the blob may be found.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri"
+      ],
+      "type": "array"
+    },
+    "size": {
+      "description": "The file size in bytes",
+      "type": "number"
+    },
+    "time": {
+      "description": "The creation time of the blob",
+      "format": "date-time",
+      "type": "string"
+    }
+  }
+}
