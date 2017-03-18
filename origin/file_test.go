@@ -14,7 +14,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("FileSystem", func() {
+var _ = Describe("File", func() {
 	var subject Origin
 	var fs *boshsysfakes.FakeFileSystem
 
@@ -24,21 +24,21 @@ var _ = Describe("FileSystem", func() {
 		fs.WriteFileString("/somewhere/useful", "something useful")
 	})
 
-	Describe("CreateFileSystem", func() {
+	Describe("CreateFile", func() {
 		It("expands paths", func() {
 			fs.ExpandPathExpanded = "/root/somewhere"
 
-			subject, err := CreateFileSystem(fs, "~/somewhere")
+			subject, err := CreateFile(fs, "~/somewhere")
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(subject).ToNot(BeNil())
-			Expect(subject.String()).To(Equal("/root/somewhere"))
+			Expect(subject.ReaderURI()).To(Equal("file:///root/somewhere"))
 		})
 
 		It("errors when expansion fails", func() {
 			fs.ExpandPathErr = errors.New("fake-err-1")
 
-			_, err := CreateFileSystem(fs, "~/somewhere")
+			_, err := CreateFile(fs, "~/somewhere")
 
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("Expanding path"))
@@ -47,7 +47,7 @@ var _ = Describe("FileSystem", func() {
 
 	Describe("Digest", func() {
 		It("opens for reading", func() {
-			subject, _ = CreateFileSystem(fs, "/somewhere/useful")
+			subject, _ = CreateFile(fs, "/somewhere/useful")
 
 			digest, err := subject.Digest(boshcry.DigestAlgorithmSHA1)
 
@@ -59,7 +59,7 @@ var _ = Describe("FileSystem", func() {
 		It("errors gracefully", func() {
 			fs.OpenFileErr = errors.New("fake-err")
 
-			subject, _ = CreateFileSystem(fs, "/somewhere/useful")
+			subject, _ = CreateFile(fs, "/somewhere/useful")
 
 			_, err := subject.Digest(boshcry.DigestAlgorithmSHA1)
 
@@ -71,7 +71,7 @@ var _ = Describe("FileSystem", func() {
 
 	Describe("Name", func() {
 		It("gives the base name", func() {
-			subject, _ = CreateFileSystem(fs, "/somewhere/useful")
+			subject, _ = CreateFile(fs, "/somewhere/useful")
 
 			value, err := subject.Name()
 
@@ -82,7 +82,7 @@ var _ = Describe("FileSystem", func() {
 
 	Describe("Size", func() {
 		It("gives the size", func() {
-			subject, _ = CreateFileSystem(fs, "/somewhere/useful")
+			subject, _ = CreateFile(fs, "/somewhere/useful")
 
 			value, err := subject.Size()
 
@@ -95,7 +95,7 @@ var _ = Describe("FileSystem", func() {
 				StatErr: errors.New("fake-err"),
 			})
 
-			subject, _ = CreateFileSystem(fs, "/somewhere/useful")
+			subject, _ = CreateFile(fs, "/somewhere/useful")
 
 			_, err := subject.Size()
 
@@ -107,7 +107,7 @@ var _ = Describe("FileSystem", func() {
 	XDescribe("Time", func() {
 		// @todo fakefs doesn't seem to track time
 		It("gives the time", func() {
-			subject, _ = CreateFileSystem(fs, "/somewhere/useful")
+			subject, _ = CreateFile(fs, "/somewhere/useful")
 
 			value, err := subject.Time()
 
@@ -122,7 +122,7 @@ var _ = Describe("FileSystem", func() {
 				StatErr: errors.New("fake-err"),
 			})
 
-			subject, _ = CreateFileSystem(fs, "/somewhere/useful")
+			subject, _ = CreateFile(fs, "/somewhere/useful")
 
 			_, err := subject.Time()
 
@@ -133,7 +133,7 @@ var _ = Describe("FileSystem", func() {
 
 	Describe("Reader", func() {
 		It("opens for reading", func() {
-			subject, _ = CreateFileSystem(fs, "/somewhere/useful")
+			subject, _ = CreateFile(fs, "/somewhere/useful")
 
 			reader, err := subject.Reader()
 
@@ -147,7 +147,7 @@ var _ = Describe("FileSystem", func() {
 		It("errors gracefully", func() {
 			fs.OpenFileErr = errors.New("fake-err")
 
-			subject, _ = CreateFileSystem(fs, "/somewhere/useful")
+			subject, _ = CreateFile(fs, "/somewhere/useful")
 
 			_, err := subject.Reader()
 

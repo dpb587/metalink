@@ -21,10 +21,10 @@ var _ = Describe("DefaultFactory", func() {
 
 	Describe("New", func() {
 		It("handles files", func() {
-			origin, err := subject.New("/some/tarmac")
+			origin, err := subject.New("file:///some/tarmac")
 
 			Expect(err).ToNot(HaveOccurred())
-			Expect(origin.String()).To(Equal("/some/tarmac"))
+			Expect(origin.ReaderURI()).To(Equal("file:///some/tarmac"))
 		})
 	})
 })

@@ -15,6 +15,12 @@
 			"revisionTime": "2016-12-02T02:26:21Z"
 		},
 		{
+			"checksumSHA1": "0f32+6qnbQ5sAlrjKEGvAR3RQhI=",
+			"path": "github.com/cheggaaa/pb",
+			"revision": "bd1f886442f85613c68401483d34fc7ed9d70ca7",
+			"revisionTime": "2017-03-06T11:29:58Z"
+		},
+		{
 			"checksumSHA1": "hVaAqWsEqhrGNMk+3gHm6JOU8ts=",
 			"path": "github.com/cloudfoundry/bosh-utils/crypto",
 			"revision": "f6c3861b0dcf980b8cf20a6842559392e2647a8e",
@@ -58,6 +64,42 @@
 			"path": "github.com/jessevdk/go-flags",
 			"revision": "460c7bb0abd6e927f2767cadc91aa6ef776a98b4",
 			"revisionTime": "2017-02-12T22:02:46Z"
+		},
+		{
+			"checksumSHA1": "MNkKJyk2TazKMJYbal5wFHybpyA=",
+			"path": "github.com/mattn/go-runewidth",
+			"revision": "14207d285c6c197daabb5c9793d63e7af9ab2d50",
+			"revisionTime": "2017-02-01T02:35:40Z"
+		},
+		{
+			"checksumSHA1": "P0w8y+42MVrMMe/jf9B6JAtvU14=",
+			"path": "github.com/minio/minio-go",
+			"revision": "44eb0f6189997931fd71c9a4f60fa11e3850f4dd",
+			"revisionTime": "2017-03-17T07:37:17Z"
+		},
+		{
+			"checksumSHA1": "neH34/65OXeKHM/MlV8MbhcdFBc=",
+			"path": "github.com/minio/minio-go/pkg/policy",
+			"revision": "44eb0f6189997931fd71c9a4f60fa11e3850f4dd",
+			"revisionTime": "2017-03-17T07:37:17Z"
+		},
+		{
+			"checksumSHA1": "m/6/na9lVtamkfmIdIOi5pdccgw=",
+			"path": "github.com/minio/minio-go/pkg/s3signer",
+			"revision": "44eb0f6189997931fd71c9a4f60fa11e3850f4dd",
+			"revisionTime": "2017-03-17T07:37:17Z"
+		},
+		{
+			"checksumSHA1": "gRnCFKb4x83GBLVUZXoOjujd+U0=",
+			"path": "github.com/minio/minio-go/pkg/s3utils",
+			"revision": "44eb0f6189997931fd71c9a4f60fa11e3850f4dd",
+			"revisionTime": "2017-03-17T07:37:17Z"
+		},
+		{
+			"checksumSHA1": "maUy+dbN6VfTTnfErrAW2lLit1w=",
+			"path": "github.com/minio/minio-go/pkg/set",
+			"revision": "44eb0f6189997931fd71c9a4f60fa11e3850f4dd",
+			"revisionTime": "2017-03-17T07:37:17Z"
 		}
 	],
 	"rootPath": "github.com/dpb587/blob-receipt"

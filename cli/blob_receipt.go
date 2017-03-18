@@ -19,16 +19,28 @@ func main() {
 	originFactory := origin.NewDefaultFactory(fs)
 	storageFactory := storage.NewDefaultFactory(fs)
 
+	verifier := cmd.Verify{
+		OriginFactory:  originFactory,
+		StorageFactory: storageFactory,
+	}
+
 	c := struct {
-		Create cmd.Create `command:"create" description:"Create or update a receipt for a given blob"`
-		Verify cmd.Verify `command:"verify" description:"Verify size and digest of a receipt match a given blob"`
-		// Download cmd.Download `command:"download" description:"Download (and verify) from a receipt to a local file"`
+		Create   cmd.Create   `command:"create" description:"Create or update a receipt for a given blob"`
+		Verify   cmd.Verify   `command:"verify" description:"Verify size and digest of a receipt match a given blob"`
+		Download cmd.Download `command:"download" description:"Download from a receipt to a local file"`
+		Upload   cmd.Upload   `command:"upload" description:"Upload a blob to a new origin"`
 	}{
 		Create: cmd.Create{
 			OriginFactory:  originFactory,
 			StorageFactory: storageFactory,
 		},
-		Verify: cmd.Verify{
+		Verify: verifier,
+		Download: cmd.Download{
+			OriginFactory:  originFactory,
+			StorageFactory: storageFactory,
+			VerifyCommand:  verifier,
+		},
+		Upload: cmd.Upload{
 			OriginFactory:  originFactory,
 			StorageFactory: storageFactory,
 		},

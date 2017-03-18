@@ -6,17 +6,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cheggaaa/pb"
 	boshcry "github.com/cloudfoundry/bosh-utils/crypto"
 	"github.com/dpb587/blob-receipt/origin"
 )
 
 type FakeOrigin struct {
-	StringStub        func() string
-	stringMutex       sync.RWMutex
-	stringArgsForCall []struct{}
-	stringReturns     struct {
-		result1 string
-	}
 	DigestStub        func(boshcry.Algorithm) (boshcry.Digest, error)
 	digestMutex       sync.RWMutex
 	digestArgsForCall []struct {
@@ -47,39 +42,30 @@ type FakeOrigin struct {
 		result1 time.Time
 		result2 error
 	}
-	ReaderStub        func() (io.Reader, error)
+	ReaderStub        func() (io.ReadCloser, error)
 	readerMutex       sync.RWMutex
 	readerArgsForCall []struct{}
 	readerReturns     struct {
-		result1 io.Reader
+		result1 io.ReadCloser
 		result2 error
+	}
+	ReaderURIStub        func() string
+	readerURIMutex       sync.RWMutex
+	readerURIArgsForCall []struct{}
+	readerURIReturns     struct {
+		result1 string
+	}
+	WriteFromStub        func(origin.Origin, *pb.ProgressBar) error
+	writeFromMutex       sync.RWMutex
+	writeFromArgsForCall []struct {
+		arg1 origin.Origin
+		arg2 *pb.ProgressBar
+	}
+	writeFromReturns struct {
+		result1 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
-}
-
-func (fake *FakeOrigin) String() string {
-	fake.stringMutex.Lock()
-	fake.stringArgsForCall = append(fake.stringArgsForCall, struct{}{})
-	fake.recordInvocation("String", []interface{}{})
-	fake.stringMutex.Unlock()
-	if fake.StringStub != nil {
-		return fake.StringStub()
-	}
-	return fake.stringReturns.result1
-}
-
-func (fake *FakeOrigin) StringCallCount() int {
-	fake.stringMutex.RLock()
-	defer fake.stringMutex.RUnlock()
-	return len(fake.stringArgsForCall)
-}
-
-func (fake *FakeOrigin) StringReturns(result1 string) {
-	fake.StringStub = nil
-	fake.stringReturns = struct {
-		result1 string
-	}{result1}
 }
 
 func (fake *FakeOrigin) Digest(arg1 boshcry.Algorithm) (boshcry.Digest, error) {
@@ -190,7 +176,7 @@ func (fake *FakeOrigin) TimeReturns(result1 time.Time, result2 error) {
 	}{result1, result2}
 }
 
-func (fake *FakeOrigin) Reader() (io.Reader, error) {
+func (fake *FakeOrigin) Reader() (io.ReadCloser, error) {
 	fake.readerMutex.Lock()
 	fake.readerArgsForCall = append(fake.readerArgsForCall, struct{}{})
 	fake.recordInvocation("Reader", []interface{}{})
@@ -207,19 +193,74 @@ func (fake *FakeOrigin) ReaderCallCount() int {
 	return len(fake.readerArgsForCall)
 }
 
-func (fake *FakeOrigin) ReaderReturns(result1 io.Reader, result2 error) {
+func (fake *FakeOrigin) ReaderReturns(result1 io.ReadCloser, result2 error) {
 	fake.ReaderStub = nil
 	fake.readerReturns = struct {
-		result1 io.Reader
+		result1 io.ReadCloser
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *FakeOrigin) ReaderURI() string {
+	fake.readerURIMutex.Lock()
+	fake.readerURIArgsForCall = append(fake.readerURIArgsForCall, struct{}{})
+	fake.recordInvocation("ReaderURI", []interface{}{})
+	fake.readerURIMutex.Unlock()
+	if fake.ReaderURIStub != nil {
+		return fake.ReaderURIStub()
+	}
+	return fake.readerURIReturns.result1
+}
+
+func (fake *FakeOrigin) ReaderURICallCount() int {
+	fake.readerURIMutex.RLock()
+	defer fake.readerURIMutex.RUnlock()
+	return len(fake.readerURIArgsForCall)
+}
+
+func (fake *FakeOrigin) ReaderURIReturns(result1 string) {
+	fake.ReaderURIStub = nil
+	fake.readerURIReturns = struct {
+		result1 string
+	}{result1}
+}
+
+func (fake *FakeOrigin) WriteFrom(arg1 origin.Origin, arg2 *pb.ProgressBar) error {
+	fake.writeFromMutex.Lock()
+	fake.writeFromArgsForCall = append(fake.writeFromArgsForCall, struct {
+		arg1 origin.Origin
+		arg2 *pb.ProgressBar
+	}{arg1, arg2})
+	fake.recordInvocation("WriteFrom", []interface{}{arg1, arg2})
+	fake.writeFromMutex.Unlock()
+	if fake.WriteFromStub != nil {
+		return fake.WriteFromStub(arg1, arg2)
+	}
+	return fake.writeFromReturns.result1
+}
+
+func (fake *FakeOrigin) WriteFromCallCount() int {
+	fake.writeFromMutex.RLock()
+	defer fake.writeFromMutex.RUnlock()
+	return len(fake.writeFromArgsForCall)
+}
+
+func (fake *FakeOrigin) WriteFromArgsForCall(i int) (origin.Origin, *pb.ProgressBar) {
+	fake.writeFromMutex.RLock()
+	defer fake.writeFromMutex.RUnlock()
+	return fake.writeFromArgsForCall[i].arg1, fake.writeFromArgsForCall[i].arg2
+}
+
+func (fake *FakeOrigin) WriteFromReturns(result1 error) {
+	fake.WriteFromStub = nil
+	fake.writeFromReturns = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeOrigin) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.stringMutex.RLock()
-	defer fake.stringMutex.RUnlock()
 	fake.digestMutex.RLock()
 	defer fake.digestMutex.RUnlock()
 	fake.nameMutex.RLock()
@@ -230,6 +271,10 @@ func (fake *FakeOrigin) Invocations() map[string][][]interface{} {
 	defer fake.timeMutex.RUnlock()
 	fake.readerMutex.RLock()
 	defer fake.readerMutex.RUnlock()
+	fake.readerURIMutex.RLock()
+	defer fake.readerURIMutex.RUnlock()
+	fake.writeFromMutex.RLock()
+	defer fake.writeFromMutex.RUnlock()
 	return fake.invocations
 }
 

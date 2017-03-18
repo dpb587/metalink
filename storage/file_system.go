@@ -28,7 +28,6 @@ func CreateFileSystem(fs boshsys.FileSystem, path string) (Storage, error) {
 	}, nil
 }
 
-// @todo path or absolute path
 func (s FileSystem) String() string {
 	return s.path
 }

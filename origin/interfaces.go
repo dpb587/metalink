@@ -4,19 +4,21 @@ import (
 	"io"
 	"time"
 
+	"github.com/cheggaaa/pb"
 	boshcry "github.com/cloudfoundry/bosh-utils/crypto"
 )
 
 //go:generate counterfeiter . Origin
 type Origin interface {
-	String() string
-
 	Digest(boshcry.Algorithm) (boshcry.Digest, error)
 	Name() (string, error)
 	Size() (uint64, error)
 	Time() (time.Time, error)
 
-	Reader() (io.Reader, error)
+	Reader() (io.ReadCloser, error)
+	ReaderURI() string
+
+	WriteFrom(Origin, *pb.ProgressBar) error
 }
 
 //go:generate counterfeiter . OriginFactory

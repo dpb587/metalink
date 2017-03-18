@@ -41,7 +41,15 @@ Or further configure the receipt verification with...
 
 Or further configure the blob downloading with...
 
- * a specific source URI using `--source=https://...`
+ * a specific source URI using `--origin=https://...`
+
+**Upload** a blob to another origin and add to receipt...
+
+    $ blob-receipt upload path/to/receipt.json s3://endpoint/bucket/new/origin/blob.tgz path/to/blob.tgz
+
+Or further configure the blob uploading with...
+
+ * ignoring the origin in the receipt using `--skip-receipt-update`
 
 
 ## Notes
