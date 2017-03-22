@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "K4ks8YKQ9QV4zXmtLDA+W18HHHg=",
+			"path": "github.com/Masterminds/semver",
+			"revision": "312afcd0e81e5cf81fdc3cfd0e8504ae031521c8",
+			"revisionTime": "2017-03-13T21:47:05Z"
+		},
+		{
 			"checksumSHA1": "I2DDeog8ML55A+drYgods2s4Y5Q=",
 			"path": "github.com/bmatcuk/doublestar",
 			"revision": "dd6a6f0a8cdfaaa88b08cf26cf1bc7d69003ee13",
