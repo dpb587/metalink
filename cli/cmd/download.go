@@ -13,6 +13,7 @@ import (
 
 type Download struct {
 	Origin []string     `long:"origin" description:"Specific origin(s) to use" default-mask:"automatic"`
+	Digest []string     `long:"digest" description:"Specific digest(s) to verify" default-mask:"strongest available"`
 	Args   DownloadArgs `positional-args:"true" required:"true"`
 
 	OriginFactory  origin.OriginFactory   `no-flag:"true"`
@@ -66,6 +67,7 @@ func (c *Download) Execute(_ []string) error {
 
 		progress.Finish()
 
+		c.VerifyCommand.Digest = c.Digest
 		c.VerifyCommand.Args.ReceiptPath = c.Args.ReceiptPath
 		c.VerifyCommand.Args.BlobPath = c.Args.BlobPath
 

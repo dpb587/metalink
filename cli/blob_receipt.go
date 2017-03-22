@@ -28,6 +28,7 @@ func main() {
 		Create   cmd.Create   `command:"create" description:"Create or update a receipt for a given blob"`
 		Verify   cmd.Verify   `command:"verify" description:"Verify size and digest of a receipt match a given blob"`
 		Download cmd.Download `command:"download" description:"Download from a receipt to a local file"`
+		Dump     cmd.Dump     `command:"dump" description:"Dump specific fields from a receipt"`
 		Upload   cmd.Upload   `command:"upload" description:"Upload a blob to a new origin"`
 	}{
 		Create: cmd.Create{
@@ -39,6 +40,9 @@ func main() {
 			OriginFactory:  originFactory,
 			StorageFactory: storageFactory,
 			VerifyCommand:  verifier,
+		},
+		Dump: cmd.Dump{
+			StorageFactory: storageFactory,
 		},
 		Upload: cmd.Upload{
 			OriginFactory:  originFactory,

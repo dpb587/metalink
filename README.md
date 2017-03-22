@@ -6,6 +6,8 @@ For receipt files that contain digests, metadata, and source information about b
 ## Installation
 
     $ go get github.com/dpb587/blob-receipt
+    $ cd $GOPATH/src/github.com/dpb587/blob-receipt
+    $ go build -o blob-receipt cli/blob_receipt.go
 
 
 ## Usage
@@ -55,14 +57,6 @@ Or further configure the blob uploading with...
 ## Notes
 
  * review the [schema](schema.json) for details on the data format
-
-
-## Roadmap
-
- * ci/coverage
- * unit tests for cli/cmd/verify.go
- * other integration tests
- * implement download command
 
 
 ## License
