@@ -1,4 +1,4 @@
-package blobreceipt
+package metalink
 
 import (
 	"encoding/xml"

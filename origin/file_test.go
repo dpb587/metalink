@@ -4,7 +4,7 @@ import (
 	"errors"
 	"io/ioutil"
 
-	. "github.com/dpb587/blob-receipt/origin"
+	. "github.com/dpb587/metalink/origin"
 
 	boshcry "github.com/cloudfoundry/bosh-utils/crypto"
 	boshsysfakes "github.com/cloudfoundry/bosh-utils/system/systemfakes"

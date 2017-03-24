@@ -9,5 +9,5 @@ import (
 
 func TestArgs(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "github.com/dpb587/blob-receipt/cli/args")
+	RunSpecs(t, "github.com/dpb587/metalink/cli/args")
 }

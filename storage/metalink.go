@@ -6,29 +6,29 @@ import (
 	"io/ioutil"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
-	"github.com/dpb587/blob-receipt"
+	"github.com/dpb587/metalink"
 )
 
-func ReadMetalink(r io.Reader) (blobreceipt.Metalink, error) {
+func ReadMetalink(r io.Reader) (metalink.Metalink, error) {
 	// sort.Sort(blobReceiptMetadataByKey(r.Metadata))
 	// sort.Sort(blobReceiptOriginByURI(r.Origin))
 
 	data, err := ioutil.ReadAll(r)
 	if err != nil {
-		return blobreceipt.Metalink{}, bosherr.WrapError(err, "Reading XML")
+		return metalink.Metalink{}, bosherr.WrapError(err, "Reading XML")
 	}
 
-	meta4 := blobreceipt.Metalink{}
+	meta4 := metalink.Metalink{}
 
 	err = xml.Unmarshal(data, &meta4)
 	if err != nil {
-		return blobreceipt.Metalink{}, bosherr.WrapError(err, "Unmarshaling XML")
+		return metalink.Metalink{}, bosherr.WrapError(err, "Unmarshaling XML")
 	}
 
 	return meta4, nil
 }
 
-func WriteMetalink(w io.Writer, r blobreceipt.Metalink) error {
+func WriteMetalink(w io.Writer, r metalink.Metalink) error {
 	// sort.Sort(blobReceiptMetadataByKey(r.Metadata))
 	// sort.Sort(blobReceiptOriginByURI(r.Origin))
 

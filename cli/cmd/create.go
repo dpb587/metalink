@@ -3,7 +3,7 @@ package cmd
 import (
 	"errors"
 
-	blobreceipt "github.com/dpb587/blob-receipt"
+	"github.com/dpb587/metalink"
 )
 
 type Create struct {
@@ -18,5 +18,5 @@ func (c *Create) Execute(_ []string) error {
 		return errors.New("Metalink file already exists")
 	}
 
-	return c.Meta4.Put(blobreceipt.Metalink{Generator: "metalink.dpb587.github.io/0.0.0"})
+	return c.Meta4.Put(metalink.Metalink{Generator: "metalink.dpb587.github.io/0.0.0"})
 }

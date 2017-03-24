@@ -4,7 +4,7 @@ package originfakes
 import (
 	"sync"
 
-	"github.com/dpb587/blob-receipt/origin"
+	"github.com/dpb587/metalink/origin"
 )
 
 type FakeOriginFactory struct {

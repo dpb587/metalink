@@ -5,10 +5,9 @@ import (
 	"time"
 
 	"github.com/cheggaaa/pb"
-	blobreceipt "github.com/dpb587/blob-receipt"
-	"github.com/dpb587/blob-receipt/origin"
-
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/dpb587/metalink"
+	"github.com/dpb587/metalink/origin"
 )
 
 type FileUpload struct {
@@ -62,7 +61,7 @@ func (c *FileUpload) Execute(_ []string) error {
 
 	file.URLs = append(
 		file.URLs,
-		blobreceipt.URL{
+		metalink.URL{
 			Location: c.Location,
 			Priority: c.Priority,
 			URL:      uri,

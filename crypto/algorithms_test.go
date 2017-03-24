@@ -1,7 +1,7 @@
 package crypto_test
 
 import (
-	. "github.com/dpb587/blob-receipt/crypto"
+	. "github.com/dpb587/metalink/crypto"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

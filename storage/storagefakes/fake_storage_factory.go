@@ -4,7 +4,7 @@ package storagefakes
 import (
 	"sync"
 
-	"github.com/dpb587/blob-receipt/storage"
+	"github.com/dpb587/metalink/storage"
 )
 
 type FakeStorageFactory struct {

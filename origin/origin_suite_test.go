@@ -9,5 +9,5 @@ import (
 
 func TestOrigin(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "github.com/dpb587/blob-receipt/origin")
+	RunSpecs(t, "github.com/dpb587/metalink/origin")
 }

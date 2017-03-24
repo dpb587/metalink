@@ -1,7 +1,7 @@
 package origin_test
 
 import (
-	. "github.com/dpb587/blob-receipt/origin"
+	. "github.com/dpb587/metalink/origin"
 
 	boshsysfakes "github.com/cloudfoundry/bosh-utils/system/systemfakes"
 

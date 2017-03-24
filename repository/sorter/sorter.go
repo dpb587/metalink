@@ -3,7 +3,7 @@ package sorter
 import (
 	"sort"
 
-	"github.com/dpb587/blob-receipt/repository"
+	"github.com/dpb587/metalink/repository"
 )
 
 func Sort(results []repository.BlobReceipt, via Sorter) {

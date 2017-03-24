@@ -1,6 +1,6 @@
 package cmd
 
-import "github.com/dpb587/blob-receipt/cli/args"
+import "github.com/dpb587/metalink/cli/args"
 
 type SetPublished struct {
 	Meta4

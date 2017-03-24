@@ -5,9 +5,9 @@ import (
 	"path"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
-	"github.com/dpb587/blob-receipt"
-	"github.com/dpb587/blob-receipt/crypto"
-	"github.com/dpb587/blob-receipt/origin"
+	"github.com/dpb587/metalink"
+	"github.com/dpb587/metalink/crypto"
+	"github.com/dpb587/metalink/origin"
 )
 
 type ImportFile struct {
@@ -34,10 +34,10 @@ func (c *ImportFile) Execute(_ []string) error {
 		fileName = path.Base(c.Args.Path)
 	}
 
-	file := blobreceipt.File{
+	file := metalink.File{
 		Name:    fileName,
 		Version: c.Version,
-		Hashes:  []blobreceipt.Hash{},
+		Hashes:  []metalink.Hash{},
 	}
 
 	for fileIdx, existingFile := range meta4.Files {
@@ -79,7 +79,7 @@ func (c *ImportFile) Execute(_ []string) error {
 
 		file.Hashes = append(
 			file.Hashes,
-			blobreceipt.Hash{
+			metalink.Hash{
 				Type: crypto.GetDigestType(algorithm.Name()),
 				Hash: crypto.GetDigestHash(digest),
 			},

@@ -1,10 +1,10 @@
 package repository
 
-import blobreceipt "github.com/dpb587/blob-receipt"
+import "github.com/dpb587/metalink"
 
 type BlobReceipt struct {
 	Repository BlobReceiptRepository   `json:"repository"`
-	Receipt    blobreceipt.BlobReceipt `json:"receipt"`
+	Receipt    metalink.BlobReceipt `json:"receipt"`
 }
 
 type BlobReceiptRepository struct {

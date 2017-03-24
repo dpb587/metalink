@@ -1,6 +1,6 @@
 package cmd
 
-import "github.com/dpb587/blob-receipt"
+import "github.com/dpb587/metalink"
 
 type FileSetURL struct {
 	Meta4File
@@ -29,7 +29,7 @@ func (c *FileSetURL) Execute(_ []string) error {
 
 	file.URLs = append(
 		file.URLs,
-		blobreceipt.URL{
+		metalink.URL{
 			Location: c.Location,
 			Priority: c.Priority,
 			URL:      c.Args.URL,

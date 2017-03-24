@@ -1,6 +1,6 @@
 package axiom
 
-import "github.com/dpb587/blob-receipt/repository/filter"
+import "github.com/dpb587/metalink/repository/filter"
 
 type Factory struct{}
 

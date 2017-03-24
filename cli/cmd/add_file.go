@@ -3,7 +3,7 @@ package cmd
 import (
 	"errors"
 
-	blobreceipt "github.com/dpb587/blob-receipt"
+	"github.com/dpb587/metalink"
 )
 
 type AddFile struct {
@@ -31,7 +31,7 @@ func (c *AddFile) Execute(_ []string) error {
 
 	meta4.Files = append(
 		meta4.Files,
-		blobreceipt.File{
+		metalink.File{
 			Name: c.Args.Name,
 		},
 	)

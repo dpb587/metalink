@@ -1,14 +1,14 @@
 package storage
 
-import blobreceipt "github.com/dpb587/blob-receipt"
+import "github.com/dpb587/metalink"
 
 //go:generate counterfeiter . Storage
 type Storage interface {
 	String() string
 
 	Exists() (bool, error)
-	Get() (blobreceipt.Metalink, error)
-	Put(blobreceipt.Metalink) error
+	Get() (metalink.Metalink, error)
+	Put(metalink.Metalink) error
 }
 
 //go:generate counterfeiter . StorageFactory

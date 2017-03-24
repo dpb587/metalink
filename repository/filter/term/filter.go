@@ -1,7 +1,7 @@
 package term
 
 import (
-	blobreceipt "github.com/dpb587/blob-receipt"
+	"github.com/dpb587/metalink"
 )
 
 type Filter struct {
@@ -9,7 +9,7 @@ type Filter struct {
 	Value string
 }
 
-func (f Filter) IsTrue(receipt blobreceipt.BlobReceipt) (bool, error) {
+func (f Filter) IsTrue(receipt metalink.BlobReceipt) (bool, error) {
 	for _, metadata := range receipt.Metadata {
 		if metadata.Key != f.Field {
 			continue

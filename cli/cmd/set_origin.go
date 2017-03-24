@@ -1,6 +1,6 @@
 package cmd
 
-import blobreceipt "github.com/dpb587/blob-receipt"
+import "github.com/dpb587/metalink"
 
 type SetOrigin struct {
 	Meta4
@@ -18,7 +18,7 @@ func (c *SetOrigin) Execute(_ []string) error {
 		return err
 	}
 
-	meta4.Origin = &blobreceipt.Origin{
+	meta4.Origin = &metalink.Origin{
 		Dynamic: c.Dynamic,
 		URL:     c.Args.URL,
 	}

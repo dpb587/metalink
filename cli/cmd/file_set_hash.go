@@ -1,6 +1,6 @@
 package cmd
 
-import "github.com/dpb587/blob-receipt"
+import "github.com/dpb587/metalink"
 
 type FileSetHash struct {
 	Meta4File
@@ -28,7 +28,7 @@ func (c *FileSetHash) Execute(_ []string) error {
 
 	file.Hashes = append(
 		file.Hashes,
-		blobreceipt.Hash{
+		metalink.Hash{
 			Type: c.Args.Type,
 			Hash: c.Args.Hash,
 		},

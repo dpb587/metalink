@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/dpb587/blob-receipt/cli/cmd"
-	"github.com/dpb587/blob-receipt/origin"
-	"github.com/dpb587/blob-receipt/storage"
+	"github.com/dpb587/metalink/cli/cmd"
+	"github.com/dpb587/metalink/origin"
+	"github.com/dpb587/metalink/storage"
 	flags "github.com/jessevdk/go-flags"
 
 	boshlog "github.com/cloudfoundry/bosh-utils/logger"

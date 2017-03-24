@@ -1,9 +1,9 @@
 package filter
 
-import "github.com/dpb587/blob-receipt"
+import "github.com/dpb587/metalink"
 
 type Filter interface {
-	IsTrue(blobreceipt.BlobReceipt) (bool, error)
+	IsTrue(metalink.BlobReceipt) (bool, error)
 }
 
 type FilterFactory interface {

@@ -8,10 +8,10 @@ import (
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
-	"github.com/dpb587/blob-receipt"
-	"github.com/dpb587/blob-receipt/repository"
-	"github.com/dpb587/blob-receipt/repository/filter"
-	"github.com/dpb587/blob-receipt/repository/source"
+	"github.com/dpb587/metalink"
+	"github.com/dpb587/metalink/repository"
+	"github.com/dpb587/metalink/repository/filter"
+	"github.com/dpb587/metalink/repository/source"
 )
 
 type Source struct {
@@ -51,7 +51,7 @@ func (s *Source) Reload() error {
 			return bosherr.WrapError(err, "Reading receipt")
 		}
 
-		receipt := blobreceipt.BlobReceipt{}
+		receipt := metalink.BlobReceipt{}
 
 		err = json.Unmarshal(receiptBytes, &receipt)
 		if err != nil {

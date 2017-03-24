@@ -1,8 +1,8 @@
 package reverse
 
 import (
-	"github.com/dpb587/blob-receipt/repository"
-	"github.com/dpb587/blob-receipt/repository/sorter"
+	"github.com/dpb587/metalink/repository"
+	"github.com/dpb587/metalink/repository/sorter"
 )
 
 type Sorter struct {

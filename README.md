@@ -1,20 +1,20 @@
-# blob-receipt
+# metalink
 
 For receipt files that contain digests, metadata, and source information about blobs.
 
 
 ## Installation
 
-    $ go get github.com/dpb587/blob-receipt
-    $ cd $GOPATH/src/github.com/dpb587/blob-receipt
-    $ go build -o blob-receipt cli/blob_receipt.go
+    $ go get github.com/dpb587/metalink
+    $ cd $GOPATH/src/github.com/dpb587/metalink
+    $ go build -o metalink cli/blob_receipt.go
 
 
 ## Usage
 
 **Create** a receipt from an existing blob...
 
-    $ blob-receipt create path/to/receipt.json path/to/blob.tgz
+    $ metalink create path/to/receipt.json path/to/blob.tgz
 
 Or further configure the receipt with...
 
@@ -28,7 +28,7 @@ Or update existing receipts by leaving off the blob argument. Update the existin
 
 **Verify** a blob with the strongest digest of its receipt...
 
-    $ blob-receipt verify path/to/receipt.json path/to/blob.tgz
+    $ metalink verify path/to/receipt.json path/to/blob.tgz
 
 Or further configure the receipt verification with...
 
@@ -38,7 +38,7 @@ Or further configure the receipt verification with...
 
 **Download** (and verify) a blob...
 
-    $ blob-receipt download path/to/receipt.json
+    $ metalink download path/to/receipt.json
     $ stat blob.tgz
 
 Or further configure the blob downloading with...
@@ -47,7 +47,7 @@ Or further configure the blob downloading with...
 
 **Upload** a blob to another origin and add to receipt...
 
-    $ blob-receipt upload path/to/receipt.json s3://endpoint/bucket/new/origin/blob.tgz path/to/blob.tgz
+    $ metalink upload path/to/receipt.json s3://endpoint/bucket/new/origin/blob.tgz path/to/blob.tgz
 
 Or further configure the blob uploading with...
 

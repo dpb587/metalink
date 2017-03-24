@@ -3,11 +3,11 @@ package filterfactory
 import (
 	"fmt"
 
-	"github.com/dpb587/blob-receipt/repository/filter"
-	"github.com/dpb587/blob-receipt/repository/filter/and"
-	"github.com/dpb587/blob-receipt/repository/filter/axiom"
-	"github.com/dpb587/blob-receipt/repository/filter/term"
-	"github.com/dpb587/blob-receipt/repository/filter/v"
+	"github.com/dpb587/metalink/repository/filter"
+	"github.com/dpb587/metalink/repository/filter/and"
+	"github.com/dpb587/metalink/repository/filter/axiom"
+	"github.com/dpb587/metalink/repository/filter/term"
+	"github.com/dpb587/metalink/repository/filter/v"
 )
 
 type Manager struct {

@@ -9,5 +9,5 @@ import (
 
 func TestCrypto(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "github.com/dpb587/blob-receipt/crypto")
+	RunSpecs(t, "github.com/dpb587/metalink/crypto")
 }

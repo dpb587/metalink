@@ -7,7 +7,7 @@ import (
 
 	"github.com/cheggaaa/pb"
 	boshcry "github.com/cloudfoundry/bosh-utils/crypto"
-	"github.com/dpb587/blob-receipt/origin"
+	"github.com/dpb587/metalink/origin"
 )
 
 type FakeOrigin struct {

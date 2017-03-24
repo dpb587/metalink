@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/semver"
-	"github.com/dpb587/blob-receipt/repository/filter"
+	"github.com/dpb587/metalink/repository/filter"
 )
 
 type Factory struct{}

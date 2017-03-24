@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
-	blobreceipt "github.com/dpb587/blob-receipt"
+	"github.com/dpb587/metalink"
 )
 
 type Meta4File struct {
@@ -13,10 +13,10 @@ type Meta4File struct {
 	File string `long:"file" description:"The file name"`
 }
 
-func (f Meta4File) Get() (blobreceipt.File, error) {
+func (f Meta4File) Get() (metalink.File, error) {
 	meta4, err := f.Meta4.Get()
 	if err != nil {
-		return blobreceipt.File{}, bosherr.WrapError(err, "Preparing storage")
+		return metalink.File{}, bosherr.WrapError(err, "Preparing storage")
 	}
 
 	fileName := f.File
@@ -33,10 +33,10 @@ func (f Meta4File) Get() (blobreceipt.File, error) {
 		return file, nil
 	}
 
-	return blobreceipt.File{}, errors.New("File does not exist")
+	return metalink.File{}, errors.New("File does not exist")
 }
 
-func (f Meta4File) Put(put blobreceipt.File) error {
+func (f Meta4File) Put(put metalink.File) error {
 	meta4, err := f.Meta4.Get()
 	if err != nil {
 		return bosherr.WrapError(err, "Preparing storage")

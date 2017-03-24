@@ -1,7 +1,7 @@
 package sorter
 
 import (
-	"github.com/dpb587/blob-receipt/repository"
+	"github.com/dpb587/metalink/repository"
 )
 
 type Sorter interface {

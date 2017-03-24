@@ -3,11 +3,11 @@ package main
 import (
 	"os"
 
-	"github.com/dpb587/blob-receipt/repository/cli/cmd"
-	"github.com/dpb587/blob-receipt/repository/filterfactory"
-	source_factory "github.com/dpb587/blob-receipt/repository/source/factory"
-	source_fs "github.com/dpb587/blob-receipt/repository/source/fs"
-	source_git "github.com/dpb587/blob-receipt/repository/source/git"
+	"github.com/dpb587/metalink/repository/cli/cmd"
+	"github.com/dpb587/metalink/repository/filterfactory"
+	source_factory "github.com/dpb587/metalink/repository/source/factory"
+	source_fs "github.com/dpb587/metalink/repository/source/fs"
+	source_git "github.com/dpb587/metalink/repository/source/git"
 
 	flags "github.com/jessevdk/go-flags"
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/dpb587/blob-receipt/cli/args"
+	. "github.com/dpb587/metalink/cli/args"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

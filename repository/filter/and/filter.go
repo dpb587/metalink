@@ -1,8 +1,8 @@
 package and
 
 import (
-	blobreceipt "github.com/dpb587/blob-receipt"
-	"github.com/dpb587/blob-receipt/repository/filter"
+	"github.com/dpb587/metalink"
+	"github.com/dpb587/metalink/repository/filter"
 )
 
 type Filter struct {
@@ -19,7 +19,7 @@ func (f *Filter) Add(add filter.Filter) {
 	f.filters = append(f.filters, add)
 }
 
-func (f Filter) IsTrue(receipt blobreceipt.BlobReceipt) (bool, error) {
+func (f Filter) IsTrue(receipt metalink.BlobReceipt) (bool, error) {
 	for _, filter := range f.filters {
 		is, err := filter.IsTrue(receipt)
 		if err != nil {

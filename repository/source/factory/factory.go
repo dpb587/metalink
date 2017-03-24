@@ -5,7 +5,7 @@ import (
 	"net/url"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
-	"github.com/dpb587/blob-receipt/repository/source"
+	"github.com/dpb587/metalink/repository/source"
 )
 
 type Factory struct {

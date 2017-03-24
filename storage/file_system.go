@@ -5,7 +5,7 @@ import (
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
-	blobreceipt "github.com/dpb587/blob-receipt"
+	"github.com/dpb587/metalink"
 )
 
 type FileSystem struct {
@@ -35,16 +35,16 @@ func (s FileSystem) Exists() (bool, error) {
 	return s.fs.FileExists(s.path), nil
 }
 
-func (s FileSystem) Get() (blobreceipt.Metalink, error) {
+func (s FileSystem) Get() (metalink.Metalink, error) {
 	file, err := s.fs.OpenFile(s.path, os.O_RDONLY, 0)
 	if err != nil {
-		return blobreceipt.Metalink{}, bosherr.WrapError(err, "Opening file for writing")
+		return metalink.Metalink{}, bosherr.WrapError(err, "Opening file for writing")
 	}
 
 	return ReadMetalink(file)
 }
 
-func (s FileSystem) Put(receipt blobreceipt.Metalink) error {
+func (s FileSystem) Put(receipt metalink.Metalink) error {
 	file, err := s.fs.OpenFile(s.path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
 		return bosherr.WrapError(err, "Opening file for writing")
