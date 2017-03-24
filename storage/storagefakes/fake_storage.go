@@ -22,17 +22,17 @@ type FakeStorage struct {
 		result1 bool
 		result2 error
 	}
-	GetStub        func() (blobreceipt.BlobReceipt, error)
+	GetStub        func() (blobreceipt.Metalink, error)
 	getMutex       sync.RWMutex
 	getArgsForCall []struct{}
 	getReturns     struct {
-		result1 blobreceipt.BlobReceipt
+		result1 blobreceipt.Metalink
 		result2 error
 	}
-	PutStub        func(blobreceipt.BlobReceipt) error
+	PutStub        func(blobreceipt.Metalink) error
 	putMutex       sync.RWMutex
 	putArgsForCall []struct {
-		arg1 blobreceipt.BlobReceipt
+		arg1 blobreceipt.Metalink
 	}
 	putReturns struct {
 		result1 error
@@ -90,7 +90,7 @@ func (fake *FakeStorage) ExistsReturns(result1 bool, result2 error) {
 	}{result1, result2}
 }
 
-func (fake *FakeStorage) Get() (blobreceipt.BlobReceipt, error) {
+func (fake *FakeStorage) Get() (blobreceipt.Metalink, error) {
 	fake.getMutex.Lock()
 	fake.getArgsForCall = append(fake.getArgsForCall, struct{}{})
 	fake.recordInvocation("Get", []interface{}{})
@@ -107,18 +107,18 @@ func (fake *FakeStorage) GetCallCount() int {
 	return len(fake.getArgsForCall)
 }
 
-func (fake *FakeStorage) GetReturns(result1 blobreceipt.BlobReceipt, result2 error) {
+func (fake *FakeStorage) GetReturns(result1 blobreceipt.Metalink, result2 error) {
 	fake.GetStub = nil
 	fake.getReturns = struct {
-		result1 blobreceipt.BlobReceipt
+		result1 blobreceipt.Metalink
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeStorage) Put(arg1 blobreceipt.BlobReceipt) error {
+func (fake *FakeStorage) Put(arg1 blobreceipt.Metalink) error {
 	fake.putMutex.Lock()
 	fake.putArgsForCall = append(fake.putArgsForCall, struct {
-		arg1 blobreceipt.BlobReceipt
+		arg1 blobreceipt.Metalink
 	}{arg1})
 	fake.recordInvocation("Put", []interface{}{arg1})
 	fake.putMutex.Unlock()
@@ -134,7 +134,7 @@ func (fake *FakeStorage) PutCallCount() int {
 	return len(fake.putArgsForCall)
 }
 
-func (fake *FakeStorage) PutArgsForCall(i int) blobreceipt.BlobReceipt {
+func (fake *FakeStorage) PutArgsForCall(i int) blobreceipt.Metalink {
 	fake.putMutex.RLock()
 	defer fake.putMutex.RUnlock()
 	return fake.putArgsForCall[i].arg1

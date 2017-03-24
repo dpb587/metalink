@@ -8,9 +8,9 @@ import (
 )
 
 var algorithmStrength = []string{
-	"sha512",
-	"sha256",
-	"sha1",
+	"sha-512",
+	"sha-256",
+	"sha-1",
 	"md5",
 }
 
@@ -18,11 +18,11 @@ func GetAlgorithm(algorithm string) (boshcry.Algorithm, error) {
 	switch algorithm {
 	case "md5":
 		return DigestAlgorithmMD5, nil
-	case "sha1":
+	case "sha-1":
 		return boshcry.DigestAlgorithmSHA1, nil
-	case "sha256":
+	case "sha-256":
 		return boshcry.DigestAlgorithmSHA256, nil
-	case "sha512":
+	case "sha-512":
 		return boshcry.DigestAlgorithmSHA512, nil
 	}
 
@@ -56,4 +56,17 @@ func GetDigestHash(digest boshcry.Digest) string {
 	}
 
 	return digestHashParts[1]
+}
+
+func GetDigestType(type_ string) string {
+	switch type_ {
+	case "sha1":
+		return "sha-1"
+	case "sha256":
+		return "sha-256"
+	case "sha512":
+		return "sha-512"
+	}
+
+	return type_
 }

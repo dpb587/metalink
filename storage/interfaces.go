@@ -7,8 +7,8 @@ type Storage interface {
 	String() string
 
 	Exists() (bool, error)
-	Get() (blobreceipt.BlobReceipt, error)
-	Put(blobreceipt.BlobReceipt) error
+	Get() (blobreceipt.Metalink, error)
+	Put(blobreceipt.Metalink) error
 }
 
 //go:generate counterfeiter . StorageFactory

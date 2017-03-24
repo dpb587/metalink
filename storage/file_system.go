@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"encoding/json"
 	"os"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
@@ -36,29 +35,22 @@ func (s FileSystem) Exists() (bool, error) {
 	return s.fs.FileExists(s.path), nil
 }
 
-func (s FileSystem) Get() (blobreceipt.BlobReceipt, error) {
-	receipt := blobreceipt.BlobReceipt{}
-
-	bytes, err := s.fs.ReadFile(s.path)
+func (s FileSystem) Get() (blobreceipt.Metalink, error) {
+	file, err := s.fs.OpenFile(s.path, os.O_RDONLY, 0)
 	if err != nil {
-		return receipt, bosherr.WrapError(err, "Reading file")
+		return blobreceipt.Metalink{}, bosherr.WrapError(err, "Opening file for writing")
 	}
 
-	err = json.Unmarshal(bytes, &receipt)
-	if err != nil {
-		return receipt, bosherr.WrapError(err, "Unmarshaling JSON")
-	}
-
-	return receipt, nil
+	return ReadMetalink(file)
 }
 
-func (s FileSystem) Put(receipt blobreceipt.BlobReceipt) error {
-	file, err := s.fs.OpenFile(s.path, os.O_CREATE|os.O_WRONLY, 0644)
+func (s FileSystem) Put(receipt blobreceipt.Metalink) error {
+	file, err := s.fs.OpenFile(s.path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
 		return bosherr.WrapError(err, "Opening file for writing")
 	}
 
-	err = receipt.Write(file)
+	err = WriteMetalink(file, receipt)
 	if err != nil {
 		return bosherr.WrapError(err, "Writing receipt to file")
 	}

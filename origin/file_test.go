@@ -3,7 +3,6 @@ package origin_test
 import (
 	"errors"
 	"io/ioutil"
-	"time"
 
 	. "github.com/dpb587/blob-receipt/origin"
 
@@ -101,33 +100,6 @@ var _ = Describe("File", func() {
 
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("Checking file size"))
-		})
-	})
-
-	XDescribe("Time", func() {
-		// @todo fakefs doesn't seem to track time
-		It("gives the time", func() {
-			subject, _ = CreateFile(fs, "/somewhere/useful")
-
-			value, err := subject.Time()
-
-			Expect(err).ToNot(HaveOccurred())
-			// @todo improve?
-			Expect(value).To(BeNumerically(">", time.Now().Add(-5*time.Second)))
-			Expect(value).To(BeNumerically("<", time.Now().Add(5*time.Second)))
-		})
-
-		It("errors gracefully", func() {
-			fs.RegisterOpenFile("/somewhere/useful", &boshsysfakes.FakeFile{
-				StatErr: errors.New("fake-err"),
-			})
-
-			subject, _ = CreateFile(fs, "/somewhere/useful")
-
-			_, err := subject.Time()
-
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("Checking file time"))
 		})
 	})
 

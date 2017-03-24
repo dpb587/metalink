@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
-	"time"
 
 	"github.com/cheggaaa/pb"
 	boshcry "github.com/cloudfoundry/bosh-utils/crypto"
@@ -44,10 +43,6 @@ func (o HTTP) Name() (string, error) {
 func (o HTTP) Size() (uint64, error) {
 	// @todo
 	return 0, errors.New("Unsupported")
-}
-
-func (o HTTP) Time() (time.Time, error) {
-	return time.Time{}, errors.New("Unsupported")
 }
 
 func (o HTTP) Reader() (io.ReadCloser, error) {

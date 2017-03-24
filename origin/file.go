@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/cheggaaa/pb"
 	boshcry "github.com/cloudfoundry/bosh-utils/crypto"
@@ -52,15 +51,6 @@ func (o File) Size() (uint64, error) {
 	}
 
 	return uint64(stat.Size()), nil
-}
-
-func (o File) Time() (time.Time, error) {
-	stat, err := o.fs.Stat(o.path)
-	if err != nil {
-		return time.Time{}, bosherr.WrapError(err, "Checking file time")
-	}
-
-	return stat.ModTime(), nil
 }
 
 func (o File) Reader() (io.ReadCloser, error) {

@@ -6,7 +6,6 @@ import (
 	"io"
 	"path/filepath"
 	"regexp"
-	"time"
 
 	"github.com/cheggaaa/pb"
 	boshcry "github.com/cloudfoundry/bosh-utils/crypto"
@@ -48,11 +47,6 @@ func (o S3) Name() (string, error) {
 func (o S3) Size() (uint64, error) {
 	// @todo
 	return 0, errors.New("Unsupported")
-}
-
-func (o S3) Time() (time.Time, error) {
-	// @todo
-	return time.Time{}, errors.New("Unsupported")
 }
 
 func (o S3) Reader() (io.ReadCloser, error) {

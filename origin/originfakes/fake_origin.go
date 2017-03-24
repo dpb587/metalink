@@ -4,7 +4,6 @@ package originfakes
 import (
 	"io"
 	"sync"
-	"time"
 
 	"github.com/cheggaaa/pb"
 	boshcry "github.com/cloudfoundry/bosh-utils/crypto"
@@ -33,13 +32,6 @@ type FakeOrigin struct {
 	sizeArgsForCall []struct{}
 	sizeReturns     struct {
 		result1 uint64
-		result2 error
-	}
-	TimeStub        func() (time.Time, error)
-	timeMutex       sync.RWMutex
-	timeArgsForCall []struct{}
-	timeReturns     struct {
-		result1 time.Time
 		result2 error
 	}
 	ReaderStub        func() (io.ReadCloser, error)
@@ -151,31 +143,6 @@ func (fake *FakeOrigin) SizeReturns(result1 uint64, result2 error) {
 	}{result1, result2}
 }
 
-func (fake *FakeOrigin) Time() (time.Time, error) {
-	fake.timeMutex.Lock()
-	fake.timeArgsForCall = append(fake.timeArgsForCall, struct{}{})
-	fake.recordInvocation("Time", []interface{}{})
-	fake.timeMutex.Unlock()
-	if fake.TimeStub != nil {
-		return fake.TimeStub()
-	}
-	return fake.timeReturns.result1, fake.timeReturns.result2
-}
-
-func (fake *FakeOrigin) TimeCallCount() int {
-	fake.timeMutex.RLock()
-	defer fake.timeMutex.RUnlock()
-	return len(fake.timeArgsForCall)
-}
-
-func (fake *FakeOrigin) TimeReturns(result1 time.Time, result2 error) {
-	fake.TimeStub = nil
-	fake.timeReturns = struct {
-		result1 time.Time
-		result2 error
-	}{result1, result2}
-}
-
 func (fake *FakeOrigin) Reader() (io.ReadCloser, error) {
 	fake.readerMutex.Lock()
 	fake.readerArgsForCall = append(fake.readerArgsForCall, struct{}{})
@@ -267,8 +234,6 @@ func (fake *FakeOrigin) Invocations() map[string][][]interface{} {
 	defer fake.nameMutex.RUnlock()
 	fake.sizeMutex.RLock()
 	defer fake.sizeMutex.RUnlock()
-	fake.timeMutex.RLock()
-	defer fake.timeMutex.RUnlock()
 	fake.readerMutex.RLock()
 	defer fake.readerMutex.RUnlock()
 	fake.readerURIMutex.RLock()
