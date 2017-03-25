@@ -11,6 +11,6 @@ type Sorter struct {
 
 var _ sorter.Sorter = Sorter{}
 
-func (s Sorter) Less(a, b repository.BlobReceipt) bool {
+func (s Sorter) Less(a, b repository.File) bool {
 	return !s.Sorter.Less(a, b)
 }

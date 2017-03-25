@@ -1,9 +1,14 @@
 package axiom
 
-import "github.com/dpb587/metalink"
+import (
+	"github.com/dpb587/metalink/repository"
+	"github.com/dpb587/metalink/repository/filter"
+)
 
 type Filter struct{}
 
-func (Filter) IsTrue(_ metalink.BlobReceipt) (bool, error) {
+var _ filter.Filter = Filter{}
+
+func (f Filter) IsTrue(repositoryFile repository.File) (bool, error) {
 	return true, nil
 }

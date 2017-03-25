@@ -4,10 +4,9 @@ import (
 	"fmt"
 
 	"github.com/dpb587/metalink/repository/filter"
-	"github.com/dpb587/metalink/repository/filter/and"
 	"github.com/dpb587/metalink/repository/filter/axiom"
-	"github.com/dpb587/metalink/repository/filter/term"
-	"github.com/dpb587/metalink/repository/filter/v"
+	// "github.com/dpb587/metalink/repository/filter/filename"
+	"github.com/dpb587/metalink/repository/filter/fileversion"
 )
 
 type Manager struct {
@@ -21,34 +20,16 @@ func NewManager() Manager {
 
 	manager.filters = map[string]filter.FilterFactory{}
 	manager.filters["axiom"] = axiom.Factory{}
-	manager.filters["term"] = term.Factory{}
-	manager.filters["v"] = v.Factory{}
+	manager.filters["fileversion"] = v.Factory{}
 
 	return manager
 }
 
-func (fm Manager) CreateFilter(rawFilters []map[string]interface{}) (filter.Filter, error) {
-	must := and.Filter{}
-
-	for _, rawFilter := range rawFilters {
-		if len(rawFilter) != 1 {
-			return nil, fmt.Errorf("Filter must have a single key; has %d", len(rawFilter))
-		}
-
-		for rawFilterType, rawFilterValue := range rawFilter {
-			filterFactory, ok := fm.filters[rawFilterType]
-			if !ok {
-				return nil, fmt.Errorf("Unknown filter type: %s", rawFilterType)
-			}
-
-			parsedFilter, err := filterFactory.Create(rawFilterValue)
-			if err != nil {
-				return nil, err
-			}
-
-			must.Add(parsedFilter)
-		}
+func (fm Manager) CreateFilter(filterType, filterValue string) (filter.Filter, error) {
+	filterFactory, ok := fm.filters[filterType]
+	if !ok {
+		return nil, fmt.Errorf("Unknown filter type: %s", filterType)
 	}
 
-	return must, nil
+	return filterFactory.Create(filterValue)
 }

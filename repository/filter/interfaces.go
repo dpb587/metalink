@@ -1,15 +1,15 @@
 package filter
 
-import "github.com/dpb587/metalink"
+import "github.com/dpb587/metalink/repository"
 
 type Filter interface {
-	IsTrue(metalink.BlobReceipt) (bool, error)
+	IsTrue(repository.File) (bool, error)
 }
 
 type FilterFactory interface {
-	Create(interface{}) (Filter, error)
+	Create(string) (Filter, error)
 }
 
 type Manager interface {
-	CreateFilter([]map[string]interface{}) (Filter, error)
+	CreateFilter(string, string) (Filter, error)
 }

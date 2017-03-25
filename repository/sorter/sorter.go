@@ -6,7 +6,7 @@ import (
 	"github.com/dpb587/metalink/repository"
 )
 
-func Sort(results []repository.BlobReceipt, via Sorter) {
+func Sort(results []repository.File, via Sorter) {
 	ps := &sorter{
 		results: results,
 		sorter:  via,
@@ -15,7 +15,7 @@ func Sort(results []repository.BlobReceipt, via Sorter) {
 }
 
 type sorter struct {
-	results []repository.BlobReceipt
+	results []repository.File
 	sorter  Sorter
 }
 

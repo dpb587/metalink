@@ -1,7 +1,7 @@
 package and
 
 import (
-	"github.com/dpb587/metalink"
+	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
 )
 
@@ -19,9 +19,11 @@ func (f *Filter) Add(add filter.Filter) {
 	f.filters = append(f.filters, add)
 }
 
-func (f Filter) IsTrue(receipt metalink.BlobReceipt) (bool, error) {
+var _ filter.Filter = Filter{}
+
+func (f Filter) IsTrue(repositoryFile repository.File) (bool, error) {
 	for _, filter := range f.filters {
-		is, err := filter.IsTrue(receipt)
+		is, err := filter.IsTrue(repositoryFile)
 		if err != nil {
 			return false, err
 		} else if is == false {

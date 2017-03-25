@@ -8,7 +8,7 @@ import (
 type Source interface {
 	Reload() error
 	URI() string
-	FilterBlobReceipts(filter.Filter) ([]repository.BlobReceipt, error)
+	FilterFiles(filter.Filter) ([]repository.File, error)
 }
 
 type Factory interface {

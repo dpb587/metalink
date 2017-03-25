@@ -5,5 +5,5 @@ import (
 )
 
 type Sorter interface {
-	Less(repository.BlobReceipt, repository.BlobReceipt) bool
+	Less(repository.File, repository.File) bool
 }

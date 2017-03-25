@@ -8,6 +8,7 @@ import (
 	source_factory "github.com/dpb587/metalink/repository/source/factory"
 	source_fs "github.com/dpb587/metalink/repository/source/fs"
 	source_git "github.com/dpb587/metalink/repository/source/git"
+	source_s3 "github.com/dpb587/metalink/repository/source/s3"
 
 	flags "github.com/jessevdk/go-flags"
 
@@ -23,13 +24,19 @@ func main() {
 	sourceFactory := source_factory.NewFactory()
 	sourceFactory.Add(source_fs.NewFactory(fs))
 	sourceFactory.Add(source_git.NewFactory(fs, cmdRunner))
+	sourceFactory.Add(source_s3.NewFactory(fs, cmdRunner))
 
 	filterManager := filterfactory.NewManager()
 
 	c := struct {
-		List cmd.List `command:"list" description:"List blob receipts in a repository"`
+		Versions cmd.Versions `command:"versions" description:"Versions in a repository"`
+		Version  cmd.Version  `command:"version" description:"Get metalink for a specific version in a repository"`
 	}{
-		List: cmd.List{
+		Versions: cmd.Versions{
+			SourceFactory: sourceFactory,
+			FilterManager: filterManager,
+		},
+		Version: cmd.Version{
 			SourceFactory: sourceFactory,
 			FilterManager: filterManager,
 		},

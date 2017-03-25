@@ -1,13 +1,11 @@
 package git
 
 import (
-	"encoding/json"
 	"fmt"
-	"path"
+	"strings"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
-	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
 	"github.com/dpb587/metalink/repository/source"
@@ -21,7 +19,7 @@ type Source struct {
 	fs        boshsys.FileSystem
 	cmdRunner boshsys.CmdRunner
 
-	receipts []repository.BlobReceipt
+	files []repository.File
 }
 
 var _ source.Source = &Source{}
@@ -63,12 +61,12 @@ func (s *Source) Reload() error {
 		return fmt.Errorf("git clone exit status: %d", exitStatus)
 	}
 
-	files, err := s.fs.Glob(fmt.Sprintf("%s/%s/*.json", tmpdir, s.path))
+	files, err := s.fs.Glob(fmt.Sprintf("%s/%s/*.meta4", tmpdir, s.path))
 	if err != nil {
-		return bosherr.WrapError(err, "Listing receipts")
+		return bosherr.WrapError(err, "Listing metalinks")
 	}
 
-	s.receipts = []repository.BlobReceipt{}
+	s.files = []repository.File{}
 
 	for _, file := range files {
 		command := boshsys.Command{
@@ -90,28 +88,24 @@ func (s *Source) Reload() error {
 			return fmt.Errorf("git log exit status: %d", exitStatus)
 		}
 
-		receiptBytes, err := s.fs.ReadFile(file)
+		metalinkBytes, err := s.fs.ReadFile(file)
 		if err != nil {
-			return bosherr.WrapError(err, "Reading receipt")
+			return bosherr.WrapError(err, "Reading metalink")
 		}
 
-		receipt := metalink.BlobReceipt{}
-
-		err = json.Unmarshal(receiptBytes, &receipt)
-		if err != nil {
-			return bosherr.WrapError(err, "Parsing receipt")
-		}
-
-		annotatedreceipt := repository.BlobReceipt{
-			Repository: repository.BlobReceiptRepository{
+		results, err := source.ExplodeMetalinkBytes(
+			repository.Repository{
 				URI:     s.URI(),
-				Path:    path.Base(file),
+				Path:    strings.TrimPrefix(file, fmt.Sprintf("%s/%s/", tmpdir, s.path)),
 				Version: version,
 			},
-			Receipt: receipt,
+			metalinkBytes,
+		)
+		if err != nil {
+			return bosherr.WrapError(err, "Loading metalink")
 		}
 
-		s.receipts = append(s.receipts, annotatedreceipt)
+		s.files = append(s.files, results...)
 	}
 
 	return nil
@@ -121,19 +115,6 @@ func (s Source) URI() string {
 	return s.rawURI
 }
 
-func (s Source) FilterBlobReceipts(filter filter.Filter) ([]repository.BlobReceipt, error) {
-	matches := []repository.BlobReceipt{}
-
-	for _, receipt := range s.receipts {
-		matched, err := filter.IsTrue(receipt.Receipt)
-		if err != nil {
-			return nil, bosherr.WrapError(err, "Matching receipt")
-		} else if !matched {
-			continue
-		}
-
-		matches = append(matches, receipt)
-	}
-
-	return matches, nil
+func (s Source) FilterFiles(filter filter.Filter) ([]repository.File, error) {
+	return source.FilterFilesInMemory(s.files, filter)
 }

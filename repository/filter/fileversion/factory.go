@@ -1,4 +1,4 @@
-package axiom
+package v
 
 import "github.com/dpb587/metalink/repository/filter"
 
@@ -6,6 +6,6 @@ type Factory struct{}
 
 var _ filter.FilterFactory = Factory{}
 
-func (Factory) Create(_ string) (filter.Filter, error) {
-	return Filter{}, nil
+func (Factory) Create(versionString string) (filter.Filter, error) {
+	return CreateFilter(versionString)
 }
