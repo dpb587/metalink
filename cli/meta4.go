@@ -40,6 +40,7 @@ func main() {
 
 		FileDownload   cmd.FileDownload   `command:"file-download" description:"Download file"`
 		FileHash       cmd.FileHash       `command:"file-hash" description:"Show hash of a file"`
+		FileHashes     cmd.FileHashes     `command:"file-hashes" description:"List hashes of a file"`
 		FileRemoveURL  cmd.FileRemoveURL  `command:"file-remove-url" description:"Remove download URL of a file"`
 		FileSetHash    cmd.FileSetHash    `command:"file-set-hash" description:"Set hash of a file"`
 		FileSetSize    cmd.FileSetSize    `command:"file-set-size" description:"Set size of a file"`
@@ -63,6 +64,7 @@ func main() {
 
 		FileDownload:   cmd.FileDownload{Meta4File: meta4file, OriginFactory: originFactory, VerifyCmd: verifyCmd},
 		FileHash:       cmd.FileHash{Meta4File: meta4file},
+		FileHashes:     cmd.FileHashes{Meta4File: meta4file},
 		FileRemoveURL:  cmd.FileRemoveURL{Meta4File: meta4file},
 		FileSetHash:    cmd.FileSetHash{Meta4File: meta4file},
 		FileSetSize:    cmd.FileSetSize{Meta4File: meta4file},

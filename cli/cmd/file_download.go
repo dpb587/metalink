@@ -15,6 +15,7 @@ type FileDownload struct {
 	VerifyCmd     FileVerify           `no-flag:"true"`
 	Quiet         bool                 `long:"quiet" short:"q" description:"Suppress passing digests"`
 	Hashes        []string             `long:"hash" description:"Specific hash type(s) to verify; or 'all'" default-mask:"strongest available"`
+	NoVerify      bool                 `long:"no-verify" description:"Skip verification after download"`
 	Args          FileDownloadArgs     `positional-args:"true" required:"true"`
 }
 
@@ -50,6 +51,10 @@ func (c *FileDownload) Execute(_ []string) error {
 		}
 
 		progress.Finish()
+
+		if c.NoVerify {
+			return nil
+		}
 
 		c.VerifyCmd.Meta4File.Meta4.Metalink = c.Meta4File.Meta4.Metalink
 		c.VerifyCmd.Meta4File.File = c.Meta4File.File

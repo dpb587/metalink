@@ -111,7 +111,7 @@ func (c *FileVerify) Execute(_ []string) error {
 	}
 
 	if len(failed) > 0 {
-		return fmt.Errorf("Failed to verify digest: %s", strings.Join(failed, ", "))
+		return fmt.Errorf("Failed to verify: %s", strings.Join(failed, ", "))
 	}
 
 	return nil

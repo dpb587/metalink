@@ -106,6 +106,48 @@
 			"path": "github.com/minio/minio-go/pkg/set",
 			"revision": "44eb0f6189997931fd71c9a4f60fa11e3850f4dd",
 			"revisionTime": "2017-03-17T07:37:17Z"
+		},
+		{
+			"checksumSHA1": "TT1rac6kpQp2vz24m5yDGUNQ/QQ=",
+			"path": "golang.org/x/crypto/cast5",
+			"revision": "459e26527287adbc2adcc5d0d49abff9a5f315a7",
+			"revisionTime": "2017-03-17T13:29:17Z"
+		},
+		{
+			"checksumSHA1": "IIhFTrLlmlc6lEFSitqi4aw2lw0=",
+			"path": "golang.org/x/crypto/openpgp",
+			"revision": "459e26527287adbc2adcc5d0d49abff9a5f315a7",
+			"revisionTime": "2017-03-17T13:29:17Z"
+		},
+		{
+			"checksumSHA1": "olOKkhrdkYQHZ0lf1orrFQPQrv4=",
+			"path": "golang.org/x/crypto/openpgp/armor",
+			"revision": "459e26527287adbc2adcc5d0d49abff9a5f315a7",
+			"revisionTime": "2017-03-17T13:29:17Z"
+		},
+		{
+			"checksumSHA1": "eo/KtdjieJQXH7Qy+faXFcF70ME=",
+			"path": "golang.org/x/crypto/openpgp/elgamal",
+			"revision": "459e26527287adbc2adcc5d0d49abff9a5f315a7",
+			"revisionTime": "2017-03-17T13:29:17Z"
+		},
+		{
+			"checksumSHA1": "rlxVSaGgqdAgwblsErxTxIfuGfg=",
+			"path": "golang.org/x/crypto/openpgp/errors",
+			"revision": "459e26527287adbc2adcc5d0d49abff9a5f315a7",
+			"revisionTime": "2017-03-17T13:29:17Z"
+		},
+		{
+			"checksumSHA1": "LWdaR8Q9yn6eBCcnGl0HvJRDUBE=",
+			"path": "golang.org/x/crypto/openpgp/packet",
+			"revision": "459e26527287adbc2adcc5d0d49abff9a5f315a7",
+			"revisionTime": "2017-03-17T13:29:17Z"
+		},
+		{
+			"checksumSHA1": "s2qT4UwvzBSkzXuiuMkowif1Olw=",
+			"path": "golang.org/x/crypto/openpgp/s2k",
+			"revision": "459e26527287adbc2adcc5d0d49abff9a5f315a7",
+			"revisionTime": "2017-03-17T13:29:17Z"
 		}
 	],
 	"rootPath": "github.com/dpb587/metalink"
