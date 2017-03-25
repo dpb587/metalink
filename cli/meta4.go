@@ -28,6 +28,8 @@ func main() {
 		Meta4: meta4,
 	}
 
+	verifyCmd := cmd.FileVerify{Meta4File: meta4file, OriginFactory: originFactory}
+
 	c := struct {
 		AddFile    cmd.AddFile    `command:"add-file" description:"Add a new file by name"`
 		ImportFile cmd.ImportFile `command:"import-file" description:"Import a local file"`
@@ -36,6 +38,7 @@ func main() {
 
 		Create cmd.Create `command:"create" description:"Create a new metalink file"`
 
+		FileDownload   cmd.FileDownload   `command:"file-download" description:"Download file"`
 		FileHash       cmd.FileHash       `command:"file-hash" description:"Show hash of a file"`
 		FileRemoveURL  cmd.FileRemoveURL  `command:"file-remove-url" description:"Remove download URL of a file"`
 		FileSetHash    cmd.FileSetHash    `command:"file-set-hash" description:"Set hash of a file"`
@@ -44,6 +47,7 @@ func main() {
 		FileSetVersion cmd.FileSetVersion `command:"file-set-version" description:"Set version of a file"`
 		FileUpload     cmd.FileUpload     `command:"file-upload" description:"Upload file and add URL"`
 		FileURLs       cmd.FileURLs       `command:"file-urls" description:"List existing URLs"`
+		FileVerify     cmd.FileVerify     `command:"file-verify" description:"Verify integrity of a local file"`
 		FileVersion    cmd.FileVersion    `command:"file-version" description:"Show version of a file"`
 
 		SetOrigin    cmd.SetOrigin    `command:"set-origin" description:"Set origin URI for the metalink"`
@@ -57,6 +61,7 @@ func main() {
 
 		Create: cmd.Create{Meta4: meta4},
 
+		FileDownload:   cmd.FileDownload{Meta4File: meta4file, OriginFactory: originFactory, VerifyCmd: verifyCmd},
 		FileHash:       cmd.FileHash{Meta4File: meta4file},
 		FileRemoveURL:  cmd.FileRemoveURL{Meta4File: meta4file},
 		FileSetHash:    cmd.FileSetHash{Meta4File: meta4file},
@@ -64,6 +69,7 @@ func main() {
 		FileSetURL:     cmd.FileSetURL{Meta4File: meta4file},
 		FileSetVersion: cmd.FileSetVersion{Meta4File: meta4file},
 		FileUpload:     cmd.FileUpload{Meta4File: meta4file, OriginFactory: originFactory},
+		FileVerify:     verifyCmd,
 		FileURLs:       cmd.FileURLs{Meta4File: meta4file},
 		FileVersion:    cmd.FileVersion{Meta4File: meta4file},
 
