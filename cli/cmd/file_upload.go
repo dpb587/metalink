@@ -49,7 +49,9 @@ func (c *FileUpload) Execute(_ []string) error {
 		return errors.New("URI already exists")
 	}
 
-	progress := pb.New64(int64(file.Size)).SetUnits(pb.U_BYTES).SetRefreshRate(time.Second)
+	progress := pb.New64(int64(file.Size)).SetUnits(pb.U_BYTES).SetRefreshRate(time.Second).SetWidth(80)
+	progress.ShowPercent = false
+
 	progress.Start()
 
 	err = remote.WriteFrom(local, progress)

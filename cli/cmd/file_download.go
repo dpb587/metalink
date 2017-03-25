@@ -34,7 +34,8 @@ func (c *FileDownload) Execute(_ []string) error {
 		return bosherr.WrapError(err, "Parsing origin destination")
 	}
 
-	progress := pb.New64(int64(file.Size)).SetUnits(pb.U_BYTES).SetRefreshRate(time.Second)
+	progress := pb.New64(int64(file.Size)).SetUnits(pb.U_BYTES).SetRefreshRate(time.Second).SetWidth(80)
+	progress.ShowPercent = false
 
 	for _, url := range file.URLs {
 		remote, err := c.OriginFactory.New(url.URL)
