@@ -24,7 +24,7 @@ func main() {
 	sourceFactory := source_factory.NewFactory()
 	sourceFactory.Add(source_fs.NewFactory(fs))
 	sourceFactory.Add(source_git.NewFactory(fs, cmdRunner))
-	sourceFactory.Add(source_s3.NewFactory(fs, cmdRunner))
+	sourceFactory.Add(source_s3.NewFactory())
 
 	filterManager := filterfactory.NewManager()
 

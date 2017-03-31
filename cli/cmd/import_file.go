@@ -56,7 +56,7 @@ func (c *ImportFile) Execute(_ []string) error {
 		break
 	}
 
-	origin, err := c.OriginFactory.New(c.Args.Path)
+	origin, err := c.OriginFactory.Create(c.Args.Path)
 	if err != nil {
 		return bosherr.WrapError(err, "Loading origin")
 	}

@@ -36,7 +36,7 @@ func (c *Version) Execute(_ []string) error {
 		return bosherr.WrapError(err, "Creating repository")
 	}
 
-	err = repository.Reload()
+	err = repository.Load()
 	if err != nil {
 		return bosherr.WrapError(err, "Loading repository")
 	}

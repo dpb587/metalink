@@ -21,5 +21,5 @@ type Origin interface {
 
 //go:generate counterfeiter . OriginFactory
 type OriginFactory interface {
-	New(string) (Origin, error)
+	Create(string) (Origin, error)
 }

@@ -29,7 +29,7 @@ func (c *FileVerify) Execute(_ []string) error {
 		return err
 	}
 
-	local, err := c.OriginFactory.New(c.Args.Local)
+	local, err := c.OriginFactory.Create(c.Args.Local)
 	if err != nil {
 		return bosherr.WrapError(err, "Parsing origin destination")
 	}

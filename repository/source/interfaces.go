@@ -6,7 +6,7 @@ import (
 )
 
 type Source interface {
-	Reload() error
+	Load() error
 	URI() string
 	FilterFiles(filter.Filter) ([]repository.File, error)
 }

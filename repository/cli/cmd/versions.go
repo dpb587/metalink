@@ -35,7 +35,7 @@ func (c *Versions) Execute(_ []string) error {
 		return bosherr.WrapError(err, "Creating repository")
 	}
 
-	err = repository.Reload()
+	err = repository.Load()
 	if err != nil {
 		return bosherr.WrapError(err, "Loading repository")
 	}
@@ -79,6 +79,8 @@ func (c *Versions) Execute(_ []string) error {
 		}
 
 		fmt.Println(file.File.Version)
+
+		versionsSeen[file.File.Version] = true
 
 		if limit--; limit <= 0 {
 			break

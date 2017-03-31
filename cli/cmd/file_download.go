@@ -29,7 +29,7 @@ func (c *FileDownload) Execute(_ []string) error {
 		return err
 	}
 
-	local, err := c.OriginFactory.New(c.Args.Local)
+	local, err := c.OriginFactory.Create(c.Args.Local)
 	if err != nil {
 		return bosherr.WrapError(err, "Parsing origin destination")
 	}
@@ -38,7 +38,7 @@ func (c *FileDownload) Execute(_ []string) error {
 	progress.ShowPercent = false
 
 	for _, url := range file.URLs {
-		remote, err := c.OriginFactory.New(url.URL)
+		remote, err := c.OriginFactory.Create(url.URL)
 		if err != nil {
 			return bosherr.WrapError(err, "Parsing source blob")
 		}

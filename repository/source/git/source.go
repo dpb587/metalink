@@ -1,7 +1,9 @@
 package git
 
 import (
+	"crypto/md5"
 	"fmt"
+	"os"
 	"strings"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
@@ -35,30 +37,53 @@ func NewSource(rawURI string, uri string, branch string, path string, fs boshsys
 	}
 }
 
-func (s *Source) Reload() error {
-	tmpdir, err := s.fs.TempDir("blob-git")
+func (s *Source) Load() error {
+	tmpdir := fmt.Sprintf("%s/metalink-git-source-%x-1", os.TempDir(), md5.Sum([]byte(s.rawURI)))
+
+	err := s.fs.MkdirAll(tmpdir, 0700)
 	if err != nil {
 		return bosherr.WrapError(err, "Creating tmpdir for git")
 	}
 
-	defer s.fs.RemoveAll(tmpdir)
+	if s.fs.FileExists(fmt.Sprintf("%s/.git", tmpdir)) {
+		args := []string{
+			"pull",
+			"--ff-only",
+			s.uri,
+		}
 
-	args := []string{
-		"clone",
-		"--single-branch",
-	}
+		if s.branch != "" {
+			args = append(args, "--branch", s.branch)
+		}
 
-	if s.branch != "" {
-		args = append(args, "--branch", s.branch)
-	}
+		_, _, exitStatus, err := s.cmdRunner.RunComplexCommand(boshsys.Command{
+			Name:       "git",
+			Args:       args,
+			WorkingDir: tmpdir,
+		})
+		if err != nil {
+			return bosherr.WrapError(err, "Pulling repository")
+		} else if exitStatus != 0 {
+			return fmt.Errorf("git pull exit status: %d", exitStatus)
+		}
+	} else {
+		args := []string{
+			"clone",
+			"--single-branch",
+		}
 
-	args = append(args, s.uri, tmpdir)
+		if s.branch != "" {
+			args = append(args, "--branch", s.branch)
+		}
 
-	_, _, exitStatus, err := s.cmdRunner.RunCommand("git", args...)
-	if err != nil {
-		return bosherr.WrapError(err, "Cloning repository")
-	} else if exitStatus != 0 {
-		return fmt.Errorf("git clone exit status: %d", exitStatus)
+		args = append(args, s.uri, tmpdir)
+
+		_, _, exitStatus, err := s.cmdRunner.RunCommand("git", args...)
+		if err != nil {
+			return bosherr.WrapError(err, "Cloning repository")
+		} else if exitStatus != 0 {
+			return fmt.Errorf("git clone exit status: %d", exitStatus)
+		}
 	}
 
 	files, err := s.fs.Glob(fmt.Sprintf("%s/%s/*.meta4", tmpdir, s.path))

@@ -2,6 +2,7 @@ package fs
 
 import (
 	"net/url"
+	"path/filepath"
 
 	"github.com/dpb587/metalink/repository/source"
 
@@ -33,5 +34,17 @@ func (f Factory) Create(uri string) (source.Source, error) {
 		return nil, bosherr.WrapError(err, "Parsing source URI")
 	}
 
-	return NewSource(uri, f.fs, parsedURI.Path), nil
+	path := parsedURI.Path
+
+	// hacky to support relative paths via file://./relative/to/cwd
+	if parsedURI.Host == "." {
+		path = filepath.Join(".", path)
+	}
+
+	path, err = f.fs.ExpandPath(path)
+	if err != nil {
+		return nil, bosherr.WrapError(err, "Expanding path")
+	}
+
+	return NewSource(uri, f.fs, path), nil
 }

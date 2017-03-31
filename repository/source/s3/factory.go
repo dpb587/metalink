@@ -11,7 +11,6 @@ import (
 	minio "github.com/minio/minio-go"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
-	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
 // http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
@@ -21,7 +20,7 @@ type Factory struct{}
 
 var _ source.Factory = &Factory{}
 
-func NewFactory(fs boshsys.FileSystem, cmdRunner boshsys.CmdRunner) Factory {
+func NewFactory() Factory {
 	return Factory{}
 }
 
@@ -47,7 +46,19 @@ func (f Factory) Create(uri string) (source.Source, error) {
 		minioEndpoint = "s3.amazonaws.com"
 	}
 
-	client, err := minio.New(minioEndpoint, os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), secure)
+	if parsed.Port() != "" && parsed.Port() != "443" {
+		minioEndpoint = fmt.Sprintf("%s:%s", minioEndpoint, parsed.Port())
+	}
+
+	access_key := os.Getenv("AWS_ACCESS_KEY_ID")
+	secret_key := os.Getenv("AWS_SECRET_ACCESS_KEY")
+
+	if parsed.User != nil {
+		access_key = parsed.User.Username()
+		secret_key, _ = parsed.User.Password()
+	}
+
+	client, err := minio.New(minioEndpoint, access_key, secret_key, secure)
 	if err != nil {
 		return nil, bosherr.WrapError(err, "Creating s3 client")
 	}

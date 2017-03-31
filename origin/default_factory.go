@@ -25,7 +25,7 @@ func NewDefaultFactory(fs boshsys.FileSystem) OriginFactory {
 }
 
 // @todo rename to Create
-func (f defaultFactory) New(uri string) (Origin, error) {
+func (f defaultFactory) Create(uri string) (Origin, error) {
 	parsed, err := url.Parse(uri)
 	if err != nil {
 		return nil, bosherr.WrapError(err, "Parsing URI")

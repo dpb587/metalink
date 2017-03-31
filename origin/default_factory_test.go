@@ -21,7 +21,7 @@ var _ = Describe("DefaultFactory", func() {
 
 	Describe("New", func() {
 		It("handles files", func() {
-			origin, err := subject.New("file:///some/tarmac")
+			origin, err := subject.Create("file:///some/tarmac")
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(origin.ReaderURI()).To(Equal("file:///some/tarmac"))

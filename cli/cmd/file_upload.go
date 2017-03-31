@@ -29,12 +29,12 @@ func (c *FileUpload) Execute(_ []string) error {
 		return err
 	}
 
-	local, err := c.OriginFactory.New(c.Args.Local)
+	local, err := c.OriginFactory.Create(c.Args.Local)
 	if err != nil {
 		return bosherr.WrapError(err, "Parsing origin destination")
 	}
 
-	remote, err := c.OriginFactory.New(c.Args.Remote)
+	remote, err := c.OriginFactory.Create(c.Args.Remote)
 	if err != nil {
 		return bosherr.WrapError(err, "Parsing source blob")
 	}

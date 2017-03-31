@@ -30,7 +30,7 @@ func NewSource(uri string, fs boshsys.FileSystem, path string) *Source {
 	}
 }
 
-func (s *Source) Reload() error {
+func (s *Source) Load() error {
 	files, err := s.fs.Glob(fmt.Sprintf("%s/*.meta4", s.path))
 	if err != nil {
 		return bosherr.WrapError(err, "Listing metalinks")

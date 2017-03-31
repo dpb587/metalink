@@ -33,7 +33,7 @@ func NewSource(rawURI string, client *minio.Client, secure bool, bucket string, 
 	}
 }
 
-func (s *Source) Reload() error {
+func (s *Source) Load() error {
 	doneCh := make(chan struct{})
 	defer close(doneCh)
 
