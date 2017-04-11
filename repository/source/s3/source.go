@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
 	"github.com/dpb587/metalink/repository/source"
@@ -18,7 +19,7 @@ type Source struct {
 	bucket string
 	prefix string
 
-	files []repository.File
+	metalinks []repository.RepositoryMetalink
 }
 
 var _ source.Source = &Source{}
@@ -37,6 +38,9 @@ func (s *Source) Load() error {
 	doneCh := make(chan struct{})
 	defer close(doneCh)
 
+	uri := s.URI()
+	s.metalinks = []repository.RepositoryMetalink{}
+
 	for object := range s.client.ListObjects(s.bucket, s.prefix, s.secure, doneCh) {
 		if object.Err != nil {
 			return bosherr.WrapError(object.Err, "Listing objects")
@@ -54,19 +58,20 @@ func (s *Source) Load() error {
 			return bosherr.WrapError(err, "Reading object")
 		}
 
-		results, err := source.ExplodeMetalinkBytes(
-			repository.Repository{
-				URI:     s.URI(),
-				Path:    strings.TrimPrefix(object.Key, s.prefix),
-				Version: object.ETag,
+		repometa4 := repository.RepositoryMetalink{
+			Reference: repository.RepositoryMetalinkReference{
+				Repository: uri,
+				Path:       strings.TrimPrefix(object.Key, s.prefix),
+				// Version: etag?
 			},
-			metalinkBytes,
-		)
-		if err != nil {
-			return bosherr.WrapError(err, "Loading metalink")
 		}
 
-		s.files = append(s.files, results...)
+		err = metalink.Unmarshal(metalinkBytes, &repometa4.Metalink)
+		if err != nil {
+			return bosherr.WrapError(err, "Unmarshaling")
+		}
+
+		s.metalinks = append(s.metalinks, repometa4)
 	}
 
 	return nil
@@ -76,6 +81,6 @@ func (s Source) URI() string {
 	return s.rawURI
 }
 
-func (s Source) FilterFiles(filter filter.Filter) ([]repository.File, error) {
-	return source.FilterFilesInMemory(s.files, filter)
+func (s Source) Filter(f filter.Filter) ([]repository.RepositoryMetalink, error) {
+	return source.FilterInMemory(s.metalinks, f)
 }

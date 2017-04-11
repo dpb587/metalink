@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"io/ioutil"
 	"os"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
@@ -38,22 +39,38 @@ func (s FileSystem) Exists() (bool, error) {
 func (s FileSystem) Get() (metalink.Metalink, error) {
 	file, err := s.fs.OpenFile(s.path, os.O_RDONLY, 0)
 	if err != nil {
-		return metalink.Metalink{}, bosherr.WrapError(err, "Opening file for writing")
+		return metalink.Metalink{}, bosherr.WrapError(err, "Opening file for reading")
 	}
 
-	return ReadMetalink(file)
+	bytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		return metalink.Metalink{}, bosherr.WrapError(err, "Reading XML")
+	}
+
+	meta4 := metalink.Metalink{}
+
+	err = metalink.Unmarshal(bytes, &meta4)
+	if err != nil {
+		return metalink.Metalink{}, bosherr.WrapError(err, "Unmarshaling")
+	}
+
+	return meta4, nil
 }
 
 func (s FileSystem) Put(receipt metalink.Metalink) error {
+	bytes, err := metalink.Marshal(receipt)
+	if err != nil {
+		return bosherr.WrapError(err, "Marshaling")
+	}
+
 	file, err := s.fs.OpenFile(s.path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
 		return bosherr.WrapError(err, "Opening file for writing")
 	}
 
-	err = WriteMetalink(file, receipt)
-	if err != nil {
-		return bosherr.WrapError(err, "Writing receipt to file")
-	}
+	file.Write([]byte(`<?xml version="1.0" encoding="utf-8"?>`))
+	file.Write([]byte("\n"))
+	file.Write(bytes)
 
 	err = file.Close()
 	if err != nil {

@@ -13,7 +13,7 @@ func (c *FileHashes) Execute(_ []string) error {
 	}
 
 	for _, hash := range file.Hashes {
-		fmt.Println(fmt.Sprintf("%s %s", hash.Type, hash.Hash))
+		fmt.Println(fmt.Sprintf("%s", hash.Type))
 	}
 
 	return nil

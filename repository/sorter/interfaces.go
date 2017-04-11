@@ -5,5 +5,5 @@ import (
 )
 
 type Sorter interface {
-	Less(repository.File, repository.File) bool
+	Less(repository.RepositoryMetalink, repository.RepositoryMetalink) bool
 }

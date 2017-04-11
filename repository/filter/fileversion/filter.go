@@ -23,11 +23,17 @@ func CreateFilter(version string) (Filter, error) {
 	}, nil
 }
 
-func (f Filter) IsTrue(repositoryFile repository.File) (bool, error) {
-	version, err := semver.NewVersion(repositoryFile.File.Version)
-	if err != nil {
-		return false, err
+func (f Filter) IsTrue(meta4 repository.RepositoryMetalink) (bool, error) {
+	for _, file := range meta4.Metalink.Files {
+		version, err := semver.NewVersion(file.Version)
+		if err != nil {
+			return false, err
+		}
+
+		if f.Constraint.Check(version) {
+			return true, nil
+		}
 	}
 
-	return f.Constraint.Check(version), nil
+	return false, nil
 }

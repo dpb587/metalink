@@ -11,6 +11,6 @@ type Sorter struct {
 
 var _ sorter.Sorter = Sorter{}
 
-func (s Sorter) Less(a, b repository.File) bool {
+func (s Sorter) Less(a, b repository.RepositoryMetalink) bool {
 	return !s.Sorter.Less(a, b)
 }

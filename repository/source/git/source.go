@@ -8,6 +8,7 @@ import (
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
+	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
 	"github.com/dpb587/metalink/repository/source"
@@ -21,7 +22,7 @@ type Source struct {
 	fs        boshsys.FileSystem
 	cmdRunner boshsys.CmdRunner
 
-	files []repository.File
+	metalinks []repository.RepositoryMetalink
 }
 
 var _ source.Source = &Source{}
@@ -91,7 +92,8 @@ func (s *Source) Load() error {
 		return bosherr.WrapError(err, "Listing metalinks")
 	}
 
-	s.files = []repository.File{}
+	uri := s.URI()
+	s.metalinks = []repository.RepositoryMetalink{}
 
 	for _, file := range files {
 		command := boshsys.Command{
@@ -118,19 +120,20 @@ func (s *Source) Load() error {
 			return bosherr.WrapError(err, "Reading metalink")
 		}
 
-		results, err := source.ExplodeMetalinkBytes(
-			repository.Repository{
-				URI:     s.URI(),
-				Path:    strings.TrimPrefix(file, fmt.Sprintf("%s/%s/", tmpdir, s.path)),
-				Version: version,
+		repometa4 := repository.RepositoryMetalink{
+			Reference: repository.RepositoryMetalinkReference{
+				Repository: uri,
+				Path:       strings.TrimPrefix(file, fmt.Sprintf("%s/%s/", tmpdir, s.path)),
+				Version:    version,
 			},
-			metalinkBytes,
-		)
-		if err != nil {
-			return bosherr.WrapError(err, "Loading metalink")
 		}
 
-		s.files = append(s.files, results...)
+		err = metalink.Unmarshal(metalinkBytes, &repometa4.Metalink)
+		if err != nil {
+			return bosherr.WrapError(err, "Unmarshaling")
+		}
+
+		s.metalinks = append(s.metalinks, repometa4)
 	}
 
 	return nil
@@ -140,6 +143,6 @@ func (s Source) URI() string {
 	return s.rawURI
 }
 
-func (s Source) FilterFiles(filter filter.Filter) ([]repository.File, error) {
-	return source.FilterFilesInMemory(s.files, filter)
+func (s Source) Filter(f filter.Filter) ([]repository.RepositoryMetalink, error) {
+	return source.FilterInMemory(s.metalinks, f)
 }

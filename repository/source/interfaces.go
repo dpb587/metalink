@@ -8,7 +8,7 @@ import (
 type Source interface {
 	Load() error
 	URI() string
-	FilterFiles(filter.Filter) ([]repository.File, error)
+	Filter(filter.Filter) ([]repository.RepositoryMetalink, error)
 }
 
 type Factory interface {

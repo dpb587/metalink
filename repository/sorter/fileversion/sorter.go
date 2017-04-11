@@ -12,16 +12,16 @@ type Sorter struct {
 
 var _ sorter.Sorter = Sorter{}
 
-func (s Sorter) Less(a, b repository.File) bool {
+func (s Sorter) Less(a, b repository.RepositoryMetalink) bool {
 	var av, bv *semver.Version
 	var err error
 
-	av, err = semver.NewVersion(a.File.Version)
+	av, err = semver.NewVersion(a.Metalink.Files[0].Version)
 	if err != nil {
 		return false
 	}
 
-	bv, err = semver.NewVersion(b.File.Version)
+	bv, err = semver.NewVersion(b.Metalink.Files[0].Version)
 	if err != nil {
 		return true
 	}

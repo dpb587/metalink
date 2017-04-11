@@ -21,9 +21,9 @@ func (f *Filter) Add(add filter.Filter) {
 
 var _ filter.Filter = Filter{}
 
-func (f Filter) IsTrue(repositoryFile repository.File) (bool, error) {
+func (f Filter) IsTrue(meta4 repository.RepositoryMetalink) (bool, error) {
 	for _, filter := range f.filters {
-		is, err := filter.IsTrue(repositoryFile)
+		is, err := filter.IsTrue(meta4)
 		if err != nil {
 			return false, err
 		} else if is == false {

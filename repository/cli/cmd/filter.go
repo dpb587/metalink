@@ -6,36 +6,39 @@ import (
 	"github.com/dpb587/metalink/repository/cli/cmd/args"
 	"github.com/dpb587/metalink/repository/filter"
 	filter_and "github.com/dpb587/metalink/repository/filter/and"
+	"github.com/dpb587/metalink/repository/formatter"
 	"github.com/dpb587/metalink/repository/sorter"
 	sorter_fileversion "github.com/dpb587/metalink/repository/sorter/fileversion"
 	sorter_reverse "github.com/dpb587/metalink/repository/sorter/reverse"
 	// "github.com/dpb587/metalink/repository/sorter"
+	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/source"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 )
 
-type Versions struct {
+type Filter struct {
 	Filter      []args.Filter `short:"f" long:"filter" description:"Filter metalink files" default-mask:"TYPE[:VALUE]"`
 	SortReverse bool          `long:"sort-reverse" description:"Reverse sort order"`
 	Limit       int           `short:"n" long:"limit" description:"Limit the number of metalink files"`
-	Args        VersionsArgs  `positional-args:"true" required:"true"`
+	Args        FilterArgs    `positional-args:"true" required:"true"`
+	Format      string        `long:"format" description:"Format to dump the repository (json, version, xml)" default:"xml"`
 
 	SourceFactory source.Factory
 	FilterManager filter.Manager
 }
 
-type VersionsArgs struct {
+type FilterArgs struct {
 	RepositoryURI string `positional-arg-name:"URI" description:"Repository URI hosting the files"`
 }
 
-func (c *Versions) Execute(_ []string) error {
-	repository, err := c.SourceFactory.Create(c.Args.RepositoryURI)
+func (c *Filter) Execute(_ []string) error {
+	source, err := c.SourceFactory.Create(c.Args.RepositoryURI)
 	if err != nil {
 		return bosherr.WrapError(err, "Creating repository")
 	}
 
-	err = repository.Load()
+	err = source.Load()
 	if err != nil {
 		return bosherr.WrapError(err, "Loading repository")
 	}
@@ -51,7 +54,7 @@ func (c *Versions) Execute(_ []string) error {
 		andFilter.Add(addFilter)
 	}
 
-	files, err := repository.FilterFiles(andFilter)
+	metalinks, err := source.Filter(andFilter)
 	if err != nil {
 		return bosherr.WrapError(err, "Filtering metalink files")
 	}
@@ -62,7 +65,7 @@ func (c *Versions) Execute(_ []string) error {
 		sort = sorter_reverse.Sorter{Sorter: sort}
 	}
 
-	sorter.Sort(files, sort)
+	sorter.Sort(metalinks, sort)
 
 	limit := c.Limit
 	if limit < 0 {
@@ -71,21 +74,24 @@ func (c *Versions) Execute(_ []string) error {
 		limit = 10
 	}
 
-	versionsSeen := map[string]bool{}
+	filtered := []repository.RepositoryMetalink{}
 
-	for _, file := range files {
-		if _, seen := versionsSeen[file.File.Version]; seen {
-			continue
-		}
-
-		fmt.Println(file.File.Version)
-
-		versionsSeen[file.File.Version] = true
+	for _, meta4 := range metalinks {
+		filtered = append(filtered, meta4)
 
 		if limit--; limit <= 0 {
 			break
 		}
 	}
 
-	return nil
+	switch c.Format {
+	case "json":
+		return formatter.JSONFormatter{}.DumpRepository(filtered)
+	case "version":
+		return formatter.VersionFormatter{}.DumpRepository(filtered)
+	case "xml":
+		return formatter.XMLFormatter{}.DumpRepository(filtered)
+	default:
+		return fmt.Errorf("Unknown format: %s", c.Format)
+	}
 }

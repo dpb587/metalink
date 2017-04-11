@@ -3,7 +3,7 @@ package filter
 import "github.com/dpb587/metalink/repository"
 
 type Filter interface {
-	IsTrue(repository.File) (bool, error)
+	IsTrue(repository.RepositoryMetalink) (bool, error)
 }
 
 type FilterFactory interface {
