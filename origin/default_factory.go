@@ -36,6 +36,8 @@ func (f defaultFactory) Create(uri string) (Origin, error) {
 		return CreateFile(f.fs, parsed.Path)
 	case "http", "https":
 		return CreateHTTP(http.DefaultClient, uri)
+	case "ftp":
+		return CreateFTP(parsed)
 	case "s3":
 		secure := true
 

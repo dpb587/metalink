@@ -72,6 +72,12 @@
 			"revisionTime": "2017-02-12T22:02:46Z"
 		},
 		{
+			"checksumSHA1": "btTFi+NSOFrWn2PVujlX6VgnafY=",
+			"path": "github.com/jlaffaye/ftp",
+			"revision": "7b85eb4638a2c0473acefcfb929a98f879c15c86",
+			"revisionTime": "2017-03-04T12:34:31Z"
+		},
+		{
 			"checksumSHA1": "MNkKJyk2TazKMJYbal5wFHybpyA=",
 			"path": "github.com/mattn/go-runewidth",
 			"revision": "14207d285c6c197daabb5c9793d63e7af9ab2d50",
