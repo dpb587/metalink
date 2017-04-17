@@ -12,11 +12,16 @@ import (
 type FileDownload struct {
 	Meta4File
 	OriginFactory origin.OriginFactory `no-flag:"true"`
-	VerifyCmd     FileVerify           `no-flag:"true"`
-	Quiet         bool                 `long:"quiet" short:"q" description:"Suppress passing digests"`
-	Hashes        []string             `long:"hash" description:"Specific hash type(s) to verify; or 'all'" default-mask:"strongest available"`
-	NoVerify      bool                 `long:"no-verify" description:"Skip verification after download"`
-	Args          FileDownloadArgs     `positional-args:"true" required:"true"`
+	FileVerifyCmd FileVerify           `no-flag:"true"`
+
+	SkipVerification          bool   `long:"skip-verification" description:"Skip verification"`
+	SkipHashVerification      bool   `long:"skip-hash-verification" description:"Skip hash verification after download"`
+	SkipSignatureVerification bool   `long:"skip-signature-verification" description:"Skip signature verification after download"`
+	SignatureTrustStore       string `long:"signature-trust-store" description:"Path to file with signature trust store"`
+
+	Quiet bool `long:"quiet" short:"q" description:"Suppress passing digests"`
+
+	Args FileDownloadArgs `positional-args:"true" required:"true"`
 }
 
 type FileDownloadArgs struct {
@@ -53,16 +58,15 @@ func (c *FileDownload) Execute(_ []string) error {
 
 		progress.Finish()
 
-		if c.NoVerify {
-			return nil
-		}
+		c.FileVerifyCmd.Meta4File.Meta4.Metalink = c.Meta4File.Meta4.Metalink
+		c.FileVerifyCmd.Meta4File.File = c.Meta4File.File
+		c.FileVerifyCmd.Args.Local = c.Args.Local
+		c.FileVerifyCmd.SkipHashVerification = c.SkipHashVerification
+		c.FileVerifyCmd.SkipSignatureVerification = c.SkipSignatureVerification
+		c.FileVerifyCmd.SignatureTrustStore = c.SignatureTrustStore
+		c.FileVerifyCmd.Quiet = c.Quiet
 
-		c.VerifyCmd.Meta4File.Meta4.Metalink = c.Meta4File.Meta4.Metalink
-		c.VerifyCmd.Meta4File.File = c.Meta4File.File
-		c.VerifyCmd.Hashes = c.Hashes
-		c.VerifyCmd.Args.Local = c.Args.Local
-
-		return c.VerifyCmd.Execute([]string{})
+		return c.FileVerifyCmd.Execute([]string{})
 	}
 
 	return errors.New("No origin blob available")

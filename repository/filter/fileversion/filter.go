@@ -4,6 +4,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
+	"github.com/dpb587/metalink/repository/utility"
 )
 
 type Filter struct {
@@ -25,7 +26,7 @@ func CreateFilter(version string) (Filter, error) {
 
 func (f Filter) IsTrue(meta4 repository.RepositoryMetalink) (bool, error) {
 	for _, file := range meta4.Metalink.Files {
-		version, err := semver.NewVersion(file.Version)
+		version, err := semver.NewVersion(utility.RewriteSemiSemVer(file.Version))
 		if err != nil {
 			return false, err
 		}

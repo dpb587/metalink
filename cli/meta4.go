@@ -6,6 +6,7 @@ import (
 	"github.com/dpb587/metalink/cli/cmd"
 	"github.com/dpb587/metalink/origin"
 	"github.com/dpb587/metalink/storage"
+	"github.com/dpb587/metalink/verify"
 	flags "github.com/jessevdk/go-flags"
 
 	boshlog "github.com/cloudfoundry/bosh-utils/logger"
@@ -28,7 +29,12 @@ func main() {
 		Meta4: meta4,
 	}
 
-	verifyCmd := cmd.FileVerify{Meta4File: meta4file, OriginFactory: originFactory}
+	fileVerifyCmd := cmd.FileVerify{
+		Meta4File:     meta4file,
+		OriginFactory: originFactory,
+		FS:            fs,
+		Verifier:      verify.Verifier{},
+	}
 
 	c := struct {
 		AddFile    cmd.AddFile    `command:"add-file" description:"Add a new file by name"`
@@ -62,7 +68,7 @@ func main() {
 
 		Create: cmd.Create{Meta4: meta4},
 
-		FileDownload:   cmd.FileDownload{Meta4File: meta4file, OriginFactory: originFactory, VerifyCmd: verifyCmd},
+		FileDownload:   cmd.FileDownload{Meta4File: meta4file, OriginFactory: originFactory, FileVerifyCmd: fileVerifyCmd},
 		FileHash:       cmd.FileHash{Meta4File: meta4file},
 		FileHashes:     cmd.FileHashes{Meta4File: meta4file},
 		FileRemoveURL:  cmd.FileRemoveURL{Meta4File: meta4file},
@@ -71,7 +77,7 @@ func main() {
 		FileSetURL:     cmd.FileSetURL{Meta4File: meta4file},
 		FileSetVersion: cmd.FileSetVersion{Meta4File: meta4file},
 		FileUpload:     cmd.FileUpload{Meta4File: meta4file, OriginFactory: originFactory},
-		FileVerify:     verifyCmd,
+		FileVerify:     fileVerifyCmd,
 		FileURLs:       cmd.FileURLs{Meta4File: meta4file},
 		FileVersion:    cmd.FileVersion{Meta4File: meta4file},
 

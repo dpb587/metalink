@@ -71,7 +71,7 @@ func (c *Filter) Execute(_ []string) error {
 	if limit < 0 {
 		panic("Invalid limit")
 	} else if limit == 0 {
-		limit = 10
+		limit = len(metalinks)
 	}
 
 	filtered := []repository.RepositoryMetalink{}
@@ -91,6 +91,8 @@ func (c *Filter) Execute(_ []string) error {
 		return formatter.VersionFormatter{}.DumpRepository(filtered)
 	case "xml":
 		return formatter.XMLFormatter{}.DumpRepository(filtered)
+	case "metalinkxml":
+		return formatter.MetalinkXMLFormatter{}.DumpRepository(filtered)
 	default:
 		return fmt.Errorf("Unknown format: %s", c.Format)
 	}

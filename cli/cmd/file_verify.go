@@ -3,20 +3,28 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
-	"github.com/dpb587/metalink"
-	"github.com/dpb587/metalink/crypto"
+	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink/origin"
+	"github.com/dpb587/metalink/verify"
 )
 
 type FileVerify struct {
 	Meta4File
 	OriginFactory origin.OriginFactory `no-flag:"true"`
-	Quiet         bool                 `long:"quiet" short:"q" description:"Suppress passing digests"`
-	Hashes        []string             `long:"hash" description:"Specific hash type(s) to verify; or 'all'" default-mask:"strongest available"`
-	Args          FileVerifyArgs       `positional-args:"true" required:"true"`
+	FS            boshsys.FileSystem   `no-flag:"true"`
+	Verifier      verify.Verifier      `no-flag:"true"`
+
+	SkipHashVerification      bool   `long:"skip-hash-verification" description:"Skip hash verification after download"`
+	SkipSignatureVerification bool   `long:"skip-signature-verification" description:"Skip signature verification after download"`
+	SignatureTrustStore       string `long:"signature-trust-store" description:"Path to file with signature trust store"`
+
+	Quiet bool `long:"quiet" short:"q" description:"Suppress passing digests"`
+
+	Args FileVerifyArgs `positional-args:"true" required:"true"`
 }
 
 type FileVerifyArgs struct {
@@ -24,6 +32,10 @@ type FileVerifyArgs struct {
 }
 
 func (c *FileVerify) Execute(_ []string) error {
+	if c.SkipHashVerification && c.SkipSignatureVerification {
+		return nil
+	}
+
 	file, err := c.Meta4File.Get()
 	if err != nil {
 		return err
@@ -34,84 +46,61 @@ func (c *FileVerify) Execute(_ []string) error {
 		return bosherr.WrapError(err, "Parsing origin destination")
 	}
 
-	verifyHashes := c.Hashes
-	knownHashes := []string{}
+	var verifyResults = verify.MultipleVerifyResult{}
 
-	for _, hash := range file.Hashes {
-		knownHashes = append(knownHashes, hash.Type)
+	if !c.SkipHashVerification && len(file.Hashes) > 0 {
+		results, err := c.Verifier.VerifyHashes(file, local)
+		if err != nil {
+			return bosherr.WrapError(err, "Verifying hashes")
+		}
+
+		verifyResults = append(verifyResults, results...)
 	}
 
-	if len(c.Hashes) == 0 {
-		algorithm, _ := crypto.GetStrongestAlgorithm(knownHashes)
+	if !c.SkipSignatureVerification && file.Signature != nil {
+		var trustStore io.Reader
 
-		verifyHashes = []string{crypto.GetDigestType(algorithm.Name())}
-	} else if len(c.Hashes) == 1 && c.Hashes[0] == "all" {
-		verifyHashes = knownHashes
-	}
-
-	if len(verifyHashes) == 0 {
-		return errors.New("Failed to find a hash")
-	}
-
-	failed := []string{}
-
-	for _, verifyHashType := range verifyHashes {
-		var expectedHash *metalink.Hash
-
-		for _, seekHash := range file.Hashes {
-			if seekHash.Type != verifyHashType {
-				continue
+		if c.SignatureTrustStore != "" {
+			trustStoreString, err := c.FS.ReadFileString(c.SignatureTrustStore)
+			if err != nil {
+				return bosherr.WrapError(err, "Opening signature trust store")
 			}
 
-			expectedHash = &seekHash
-
-			break
+			trustStore = strings.NewReader(trustStoreString)
 		}
 
-		if expectedHash == nil {
-			failed = append(failed, verifyHashType)
-
-			continue
-		}
-
-		reader, err := local.Reader()
+		result, err := c.Verifier.VerifySignature(file, local, trustStore)
 		if err != nil {
-			return bosherr.WrapErrorf(err, "Opening origin for %s", verifyHashType)
+			return bosherr.WrapError(err, "Verifying signature")
 		}
 
-		algorithm, err := crypto.GetAlgorithm(expectedHash.Type)
-		if err != nil {
-			fmt.Println(fmt.Sprintf("FAIL\t%s\tERROR\t%s", verifyHashType, err))
-
-			failed = append(failed, verifyHashType)
-
-			continue
-		}
-
-		actualHash, err := algorithm.CreateDigest(reader)
-		if err != nil {
-			fmt.Println(fmt.Sprintf("FAIL\t%s\tERROR\t%s", verifyHashType, err))
-
-			failed = append(failed, verifyHashType)
-
-			continue
-		}
-
-		if expectedHash.Hash == crypto.GetDigestHash(actualHash) {
-			if !c.Quiet {
-				fmt.Println(fmt.Sprintf("OKAY\t%s\t%s", expectedHash.Type, expectedHash.Hash))
-			}
-
-			continue
-		}
-
-		fmt.Println(fmt.Sprintf("FAIL\t%s\t%s\t%s", expectedHash.Type, expectedHash.Hash, crypto.GetDigestHash(actualHash)))
-
-		failed = append(failed, verifyHashType)
+		verifyResults = append(verifyResults, result)
 	}
 
-	if len(failed) > 0 {
-		return fmt.Errorf("Failed to verify: %s", strings.Join(failed, ", "))
+	if len(verifyResults) == 0 {
+		return errors.New("No hash or signature to verify")
+	}
+
+	for _, verifyResult := range verifyResults {
+		var format string
+
+		if verifyResult.HasError() {
+			format = fmt.Sprintf("%s\t%%s\t%s", "FAIL", verifyResult.Error)
+		} else if c.Quiet {
+			continue
+		} else {
+			format = fmt.Sprintf("%s\t%%s", "OKAY")
+		}
+
+		if verifyResult.Type == "sign" {
+			fmt.Println(fmt.Sprintf(format, fmt.Sprintf("%s\t%s", verifyResult.Type, verifyResult.Actual)))
+		} else {
+			fmt.Println(fmt.Sprintf(format, fmt.Sprintf("%s\t%s", verifyResult.Type, verifyResult.Expected)))
+		}
+	}
+
+	if verifyResults.HasError() {
+		return errors.New("Verification failed")
 	}
 
 	return nil
