@@ -8,12 +8,12 @@ import (
 )
 
 type FakeOriginFactory struct {
-	NewStub        func(string) (origin.Origin, error)
-	newMutex       sync.RWMutex
-	newArgsForCall []struct {
+	CreateStub        func(string) (origin.Origin, error)
+	createMutex       sync.RWMutex
+	createArgsForCall []struct {
 		arg1 string
 	}
-	newReturns struct {
+	createReturns struct {
 		result1 origin.Origin
 		result2 error
 	}
@@ -21,34 +21,34 @@ type FakeOriginFactory struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeOriginFactory) New(arg1 string) (origin.Origin, error) {
-	fake.newMutex.Lock()
-	fake.newArgsForCall = append(fake.newArgsForCall, struct {
+func (fake *FakeOriginFactory) Create(arg1 string) (origin.Origin, error) {
+	fake.createMutex.Lock()
+	fake.createArgsForCall = append(fake.createArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	fake.recordInvocation("New", []interface{}{arg1})
-	fake.newMutex.Unlock()
-	if fake.NewStub != nil {
-		return fake.NewStub(arg1)
+	fake.recordInvocation("Create", []interface{}{arg1})
+	fake.createMutex.Unlock()
+	if fake.CreateStub != nil {
+		return fake.CreateStub(arg1)
 	}
-	return fake.newReturns.result1, fake.newReturns.result2
+	return fake.createReturns.result1, fake.createReturns.result2
 }
 
-func (fake *FakeOriginFactory) NewCallCount() int {
-	fake.newMutex.RLock()
-	defer fake.newMutex.RUnlock()
-	return len(fake.newArgsForCall)
+func (fake *FakeOriginFactory) CreateCallCount() int {
+	fake.createMutex.RLock()
+	defer fake.createMutex.RUnlock()
+	return len(fake.createArgsForCall)
 }
 
-func (fake *FakeOriginFactory) NewArgsForCall(i int) string {
-	fake.newMutex.RLock()
-	defer fake.newMutex.RUnlock()
-	return fake.newArgsForCall[i].arg1
+func (fake *FakeOriginFactory) CreateArgsForCall(i int) string {
+	fake.createMutex.RLock()
+	defer fake.createMutex.RUnlock()
+	return fake.createArgsForCall[i].arg1
 }
 
-func (fake *FakeOriginFactory) NewReturns(result1 origin.Origin, result2 error) {
-	fake.NewStub = nil
-	fake.newReturns = struct {
+func (fake *FakeOriginFactory) CreateReturns(result1 origin.Origin, result2 error) {
+	fake.CreateStub = nil
+	fake.createReturns = struct {
 		result1 origin.Origin
 		result2 error
 	}{result1, result2}
@@ -57,8 +57,8 @@ func (fake *FakeOriginFactory) NewReturns(result1 origin.Origin, result2 error) 
 func (fake *FakeOriginFactory) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.newMutex.RLock()
-	defer fake.newMutex.RUnlock()
+	fake.createMutex.RLock()
+	defer fake.createMutex.RUnlock()
 	return fake.invocations
 }
 
