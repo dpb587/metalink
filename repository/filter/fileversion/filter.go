@@ -14,7 +14,7 @@ type Filter struct {
 var _ filter.Filter = Filter{}
 
 func CreateFilter(version string) (Filter, error) {
-	constraint, err := semver.NewConstraint(version)
+	constraint, err := semver.NewConstraint(utility.RewriteSemiSemVer(version))
 	if err != nil {
 		return Filter{}, err
 	}
