@@ -5,7 +5,7 @@ import "github.com/dpb587/metalink"
 type FileSetURL struct {
 	Meta4File
 	Location string         `long:"location" description:"ISO3166-1 country code for the geographical location"`
-	Priority uint           `long:"priority" description:"Priority value between 1 and 999999. Lower values indicate a higher priority."`
+	Priority *uint          `long:"priority" description:"Priority value between 1 and 999999. Lower values indicate a higher priority."`
 	Args     FileSetURLArgs `positional-args:"true" required:"true"`
 }
 

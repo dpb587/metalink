@@ -42,7 +42,7 @@ type File struct {
 type URL struct {
 	XMLName  xml.Name `xml:"url" json:"-" yaml:"-"`
 	Location string   `xml:"location,attr,omitempty" json:"location,omitempty" yaml:"location,omitempty"`
-	Priority uint     `xml:"priority,attr,omitempty" json:"priority,omitempty" yaml:"priority,omitempty"`
+	Priority *uint    `xml:"priority,attr,omitempty" json:"priority,omitempty" yaml:"priority,omitempty"`
 	URL      string   `xml:",chardata" json:"url" yaml:"url"`
 }
 
@@ -73,7 +73,7 @@ type Piece struct {
 
 type MetaURL struct {
 	XMLName   xml.Name `xml:"metaurl" json:"-" yaml:"-"`
-	Priority  int      `xml:"priority,attr,omitempty" json:"priority,omitempty" yaml:"priority,omitempty"`
+	Priority  *uint    `xml:"priority,attr,omitempty" json:"priority,omitempty" yaml:"priority,omitempty"`
 	MediaType string   `xml:"mediatype,attr" json:"mediatype" yaml:"mediatype"`
 	Name      string   `xml:"name,attr,omitempty" json:"name,omitempty" yaml:"name,omitempty"`
 	URL       string   `xml:",chardata" json:"url" yaml:"url"`

@@ -1,0 +1,51 @@
+package file
+
+import (
+	neturl "net/url"
+	"path/filepath"
+
+	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	boshsys "github.com/cloudfoundry/bosh-utils/system"
+	"github.com/dpb587/metalink"
+	"github.com/dpb587/metalink/file"
+	"github.com/dpb587/metalink/file/url"
+)
+
+type Loader struct {
+	fs boshsys.FileSystem
+}
+
+var _ url.Loader = &Loader{}
+
+func NewLoader(fs boshsys.FileSystem) Loader {
+	return Loader{
+		fs: fs,
+	}
+}
+
+func (f Loader) Schemes() []string {
+	return []string{
+		"file",
+	}
+}
+
+func (f Loader) Load(source metalink.URL) (file.Reference, error) {
+	parsedURI, err := neturl.Parse(source.URL)
+	if err != nil {
+		return nil, bosherr.WrapError(err, "Parsing source URI")
+	}
+
+	path := parsedURI.Path
+
+	// hacky to support relative paths via file://./relative/to/cwd
+	if parsedURI.Host == "." {
+		path = filepath.Join(".", path)
+	}
+
+	path, err = f.fs.ExpandPath(path)
+	if err != nil {
+		return nil, bosherr.WrapError(err, "Expanding path")
+	}
+
+	return NewReference(f.fs, path), nil
+}

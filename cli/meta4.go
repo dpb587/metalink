@@ -4,9 +4,11 @@ import (
 	"os"
 
 	"github.com/dpb587/metalink/cli/cmd"
-	"github.com/dpb587/metalink/origin"
+	"github.com/dpb587/metalink/cli/verification"
+	// metaurldefaultloader "github.com/dpb587/metalink/file/metaurl/defaultloader"
+	"github.com/dpb587/metalink/file/metaurl"
+	urldefaultloader "github.com/dpb587/metalink/file/url/defaultloader"
 	"github.com/dpb587/metalink/storage"
-	"github.com/dpb587/metalink/verify"
 	flags "github.com/jessevdk/go-flags"
 
 	boshlog "github.com/cloudfoundry/bosh-utils/logger"
@@ -17,7 +19,9 @@ func main() {
 	logger := boshlog.NewLogger(boshlog.LevelError)
 	fs := boshsys.NewOsFileSystem(logger)
 
-	originFactory := origin.NewDefaultFactory(fs)
+	urlLoader := urldefaultloader.New(fs)
+	// metaurlLoader := metaurldefaultloader.New()
+	metaurlLoader := metaurl.NewLoaderFactory()
 	storageFactory := storage.NewDefaultFactory(fs)
 
 	meta4 := cmd.Meta4{
@@ -29,12 +33,7 @@ func main() {
 		Meta4: meta4,
 	}
 
-	fileVerifyCmd := cmd.FileVerify{
-		Meta4File:     meta4file,
-		OriginFactory: originFactory,
-		FS:            fs,
-		Verifier:      verify.Verifier{},
-	}
+	verifier := verification.NewDynamicVerifierImpl(fs)
 
 	c := struct {
 		AddFile    cmd.AddFile    `command:"add-file" description:"Add a new file by name"`
@@ -62,13 +61,13 @@ func main() {
 		SetUpdated   cmd.SetUpdated   `command:"set-updated" description:"Set updated timestamp"`
 	}{
 		AddFile:    cmd.AddFile{Meta4: meta4},
-		ImportFile: cmd.ImportFile{Meta4File: meta4file, OriginFactory: originFactory},
+		ImportFile: cmd.ImportFile{Meta4File: meta4file, URLLoader: urlLoader},
 		RemoveFile: cmd.RemoveFile{Meta4: meta4},
 		Files:      cmd.Files{Meta4: meta4},
 
 		Create: cmd.Create{Meta4: meta4},
 
-		FileDownload:   cmd.FileDownload{Meta4File: meta4file, OriginFactory: originFactory, FileVerifyCmd: fileVerifyCmd},
+		FileDownload:   cmd.FileDownload{Meta4File: meta4file, URLLoader: urlLoader, MetaURLLoader: metaurlLoader, Verification: verifier},
 		FileHash:       cmd.FileHash{Meta4File: meta4file},
 		FileHashes:     cmd.FileHashes{Meta4File: meta4file},
 		FileRemoveURL:  cmd.FileRemoveURL{Meta4File: meta4file},
@@ -76,8 +75,8 @@ func main() {
 		FileSetSize:    cmd.FileSetSize{Meta4File: meta4file},
 		FileSetURL:     cmd.FileSetURL{Meta4File: meta4file},
 		FileSetVersion: cmd.FileSetVersion{Meta4File: meta4file},
-		FileUpload:     cmd.FileUpload{Meta4File: meta4file, OriginFactory: originFactory},
-		FileVerify:     fileVerifyCmd,
+		FileUpload:     cmd.FileUpload{Meta4File: meta4file, URLLoader: urlLoader},
+		FileVerify:     cmd.FileVerify{Meta4File: meta4file, Verification: verifier},
 		FileURLs:       cmd.FileURLs{Meta4File: meta4file},
 		FileVersion:    cmd.FileVersion{Meta4File: meta4file},
 

@@ -7,15 +7,16 @@ import (
 	"github.com/cheggaaa/pb"
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dpb587/metalink"
-	"github.com/dpb587/metalink/origin"
+	"github.com/dpb587/metalink/file/url"
 )
 
 type FileUpload struct {
 	Meta4File
-	OriginFactory origin.OriginFactory `no-flag:"true"`
-	Location      string               `long:"location" description:"ISO3166-1 country code for the geographical location"`
-	Priority      uint                 `long:"priority" description:"Priority value between 1 and 999999. Lower values indicate a higher priority."`
-	Args          FileUploadArgs       `positional-args:"true" required:"true"`
+	URLLoader url.Loader `no-flag:"true"`
+
+	Location string         `long:"location" description:"ISO3166-1 country code for the geographical location"`
+	Priority *uint          `long:"priority" description:"Priority value between 1 and 999999. Lower values indicate a higher priority."`
+	Args     FileUploadArgs `positional-args:"true" required:"true"`
 }
 
 type FileUploadArgs struct {
@@ -29,12 +30,12 @@ func (c *FileUpload) Execute(_ []string) error {
 		return err
 	}
 
-	local, err := c.OriginFactory.Create(c.Args.Local)
+	local, err := c.URLLoader.Load(metalink.URL{URL: c.Args.Local})
 	if err != nil {
 		return bosherr.WrapError(err, "Parsing origin destination")
 	}
 
-	remote, err := c.OriginFactory.Create(c.Args.Remote)
+	remote, err := c.URLLoader.Load(metalink.URL{URL: c.Args.Remote})
 	if err != nil {
 		return bosherr.WrapError(err, "Parsing source blob")
 	}

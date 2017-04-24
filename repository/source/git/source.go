@@ -39,7 +39,7 @@ func NewSource(rawURI string, uri string, branch string, path string, fs boshsys
 }
 
 func (s *Source) Load() error {
-	tmpdir := fmt.Sprintf("%s/metalink-git-source-%x-1", os.TempDir(), md5.Sum([]byte(s.rawURI)))
+	tmpdir := fmt.Sprintf("%s/metalink-git-source-%x-1", strings.TrimSuffix(os.TempDir(), "/"), md5.Sum([]byte(s.rawURI)))
 
 	err := s.fs.MkdirAll(tmpdir, 0700)
 	if err != nil {

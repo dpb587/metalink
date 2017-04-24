@@ -2,21 +2,24 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"path"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dpb587/metalink"
-	"github.com/dpb587/metalink/crypto"
-	"github.com/dpb587/metalink/origin"
+	"github.com/dpb587/metalink/file/url"
+	"github.com/dpb587/metalink/verification"
+	"github.com/dpb587/metalink/verification/hash"
 )
 
 type ImportFile struct {
 	Meta4File
-	OriginFactory origin.OriginFactory
-	Merge         bool           `long:"merge" description:"If existing file, overwrite fields"`
-	Hashes        []string       `long:"hash" description:"Specific hashes to calculate" default:"md5" default:"sha-1" default:"sha-256" default:"sha-512"`
-	Version       string         `long:"version" description:"File version"`
-	Args          ImportFileArgs `positional-args:"true" required:"true"`
+	URLLoader url.Loader
+
+	Merge   bool           `long:"merge" description:"If existing file, overwrite fields"`
+	Hashes  []string       `long:"hash" description:"Specific hashes to calculate" default:"md5" default:"sha-1" default:"sha-256" default:"sha-512"`
+	Version string         `long:"version" description:"File version"`
+	Args    ImportFileArgs `positional-args:"true" required:"true"`
 }
 
 type ImportFileArgs struct {
@@ -56,7 +59,7 @@ func (c *ImportFile) Execute(_ []string) error {
 		break
 	}
 
-	origin, err := c.OriginFactory.Create(c.Args.Path)
+	origin, err := c.URLLoader.Load(metalink.URL{URL: c.Args.Path})
 	if err != nil {
 		return bosherr.WrapError(err, "Loading origin")
 	}
@@ -66,24 +69,28 @@ func (c *ImportFile) Execute(_ []string) error {
 		return bosherr.WrapError(err, "Loading size")
 	}
 
-	for _, algorithmName := range c.Hashes {
-		algorithm, err := crypto.GetAlgorithm(algorithmName)
-		if err != nil {
-			return bosherr.WrapErrorf(err, "Loading digest algorithm")
+	hashmap := map[string]verification.Signer{
+		"sha-512": hash.SHA512Verification,
+		"sha-256": hash.SHA256Verification,
+		"sha-1":   hash.SHA1Verification,
+		"md5":     hash.MD5Verification,
+	}
+
+	for _, hashType := range c.Hashes {
+		signer, found := hashmap[hashType]
+		if !found {
+			return fmt.Errorf("unknown hash type: %s", hashType)
 		}
 
-		digest, err := origin.Digest(algorithm)
+		verification, err := signer.Sign(origin)
 		if err != nil {
-			return bosherr.WrapErrorf(err, "Sourcing blob %s digest", algorithm.Name())
+			return bosherr.WrapError(err, "Signing hash")
 		}
 
-		file.Hashes = append(
-			file.Hashes,
-			metalink.Hash{
-				Type: crypto.GetDigestType(algorithm.Name()),
-				Hash: crypto.GetDigestHash(digest),
-			},
-		)
+		err = verification.Apply(&file)
+		if err != nil {
+			return bosherr.WrapError(err, "Adding verification to file")
+		}
 	}
 
 	meta4.Files = append(meta4.Files, file)
