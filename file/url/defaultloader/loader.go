@@ -10,11 +10,14 @@ import (
 )
 
 func New(fs boshsys.FileSystem) url.Loader {
+	file := fileurl.NewLoader(fs)
+
 	loader := url.NewLoaderFactory()
-	loader.Add(fileurl.NewLoader(fs))
+	loader.Add(file)
 	loader.Add(ftpurl.Loader{})
 	loader.Add(httpurl.Loader{})
 	loader.Add(s3url.Loader{})
+	loader.Add(fileurl.NewEmptyLoader(file))
 
 	return loader
 }
