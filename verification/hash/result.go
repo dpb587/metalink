@@ -20,8 +20,12 @@ func NewResult(hash metalink.Hash) Result {
 }
 
 func (v Result) Apply(meta4 *metalink.File) error {
-	if _, found := Find(*meta4, v.hash.Type); found {
-		return fmt.Errorf("hash already exists: %s", v.hash.Type)
+	if hash, found := Find(*meta4, v.hash.Type); found {
+		if hash.Hash == v.hash.Hash {
+			return nil
+		}
+
+		return fmt.Errorf("hash already exists with a different value: %s", v.hash.Type)
 	}
 
 	meta4.Hashes = append(meta4.Hashes, v.hash)
