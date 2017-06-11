@@ -3,6 +3,7 @@ package file
 import (
 	neturl "net/url"
 	"path/filepath"
+	"strings"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
@@ -37,8 +38,7 @@ func (f Loader) Load(source metalink.URL) (file.Reference, error) {
 
 	path := parsedURI.Path
 
-	// hacky to support relative paths via file://./relative/to/cwd
-	if parsedURI.Host == "." {
+	if !strings.HasPrefix(parsedURI.Path, "//") {
 		path = filepath.Join(".", path)
 	}
 

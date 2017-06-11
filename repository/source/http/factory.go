@@ -18,6 +18,6 @@ func (f Factory) Schemes() []string {
 	return []string{"http", "https"}
 }
 
-func (f Factory) Create(uri string) (source.Source, error) {
+func (f Factory) Create(uri string, _ map[string]interface{}) (source.Source, error) {
 	return NewSource(uri, &gohttp.Client{}), nil
 }

@@ -1,7 +1,9 @@
 package git
 
 import (
+	"io"
 	"io/ioutil"
+	"path"
 	"strings"
 
 	bosherr "github.com/cloudfoundry/bosh-utils/errors"
@@ -83,4 +85,10 @@ func (s Source) URI() string {
 
 func (s Source) Filter(f filter.Filter) ([]repository.RepositoryMetalink, error) {
 	return source.FilterInMemory(s.metalinks, f)
+}
+
+func (s Source) Put(name string, data io.Reader) error {
+	_, err := s.client.PutObject(s.bucket, path.Join(s.prefix, name), data, "application/octet-stream")
+
+	return bosherr.WrapError(err, "Writing object")
 }

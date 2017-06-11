@@ -2,6 +2,8 @@ package fs
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
 	"path"
 	"time"
 
@@ -76,4 +78,20 @@ func (s Source) URI() string {
 
 func (s Source) Filter(f filter.Filter) ([]repository.RepositoryMetalink, error) {
 	return source.FilterInMemory(s.metalinks, f)
+}
+
+func (s Source) Put(name string, data io.Reader) error {
+	path := path.Join(s.path, name)
+
+	content, err := ioutil.ReadAll(data)
+	if err != nil {
+		return bosherr.WrapError(err, "Reading metalink")
+	}
+
+	err = s.fs.WriteFile(path, content)
+	if err != nil {
+		return bosherr.WrapError(err, "Writing metalink")
+	}
+
+	return nil
 }

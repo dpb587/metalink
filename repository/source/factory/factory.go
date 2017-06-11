@@ -30,7 +30,7 @@ func (s *Factory) Schemes() []string {
 	return schemes
 }
 
-func (s *Factory) Create(uri string) (source.Source, error) {
+func (s *Factory) Create(uri string, options map[string]interface{}) (source.Source, error) {
 	parsedURI, err := url.Parse(uri)
 	if err != nil {
 		return nil, bosherr.WrapError(err, "Parsing source URI")
@@ -41,7 +41,7 @@ func (s *Factory) Create(uri string) (source.Source, error) {
 		return nil, fmt.Errorf("Unrecognized source scheme: %s", parsedURI.Scheme)
 	}
 
-	return schemeFactory.Create(uri)
+	return schemeFactory.Create(uri, options)
 }
 
 func (s *Factory) Add(add source.Factory) {

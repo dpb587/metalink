@@ -2,6 +2,8 @@ package http
 
 import (
 	"encoding/xml"
+	"errors"
+	"io"
 	"io/ioutil"
 	gohttp "net/http"
 
@@ -56,4 +58,8 @@ func (s Source) URI() string {
 
 func (s Source) Filter(f filter.Filter) ([]repository.RepositoryMetalink, error) {
 	return source.FilterInMemory(s.repo.Metalinks, f)
+}
+
+func (s Source) Put(_ string, _ io.Reader) error {
+	return errors.New("Put is not supported")
 }

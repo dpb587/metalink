@@ -33,7 +33,7 @@ type FilterArgs struct {
 }
 
 func (c *Filter) Execute(_ []string) error {
-	source, err := c.SourceFactory.Create(c.Args.RepositoryURI)
+	source, err := c.SourceFactory.Create(c.Args.RepositoryURI, map[string]interface{}{})
 	if err != nil {
 		return bosherr.WrapError(err, "Creating repository")
 	}

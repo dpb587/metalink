@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -28,7 +29,7 @@ func (f Factory) Schemes() []string {
 	return []string{"s3"}
 }
 
-func (f Factory) Create(uri string) (source.Source, error) {
+func (f Factory) Create(uri string, options map[string]interface{}) (source.Source, error) {
 	parsed, err := url.Parse(uri)
 	if err != nil {
 		return nil, bosherr.WrapError(err, "Parsing URI")
@@ -50,15 +51,30 @@ func (f Factory) Create(uri string) (source.Source, error) {
 		minioEndpoint = fmt.Sprintf("%s:%s", minioEndpoint, parsed.Port())
 	}
 
-	access_key := os.Getenv("AWS_ACCESS_KEY_ID")
-	secret_key := os.Getenv("AWS_SECRET_ACCESS_KEY")
+	var accessKey, secretKey string
+	var optionValid bool
 
-	if parsed.User != nil {
-		access_key = parsed.User.Username()
-		secret_key, _ = parsed.User.Password()
+	accessKey = os.Getenv("AWS_ACCESS_KEY_ID")
+	secretKey = os.Getenv("AWS_SECRET_ACCESS_KEY")
+
+	if accessKeyOpt, found := options["access_key"]; found {
+		if accessKey, optionValid = accessKeyOpt.(string); !optionValid {
+			return nil, errors.New("Option 'access_key' must be string")
+		}
 	}
 
-	client, err := minio.New(minioEndpoint, access_key, secret_key, secure)
+	if secretKeyOpt, found := options["secret_key"]; found {
+		if secretKey, optionValid = secretKeyOpt.(string); !optionValid {
+			return nil, errors.New("Option 'secret_key' must be string")
+		}
+	}
+
+	if parsed.User != nil {
+		accessKey = parsed.User.Username()
+		secretKey, _ = parsed.User.Password()
+	}
+
+	client, err := minio.New(minioEndpoint, accessKey, secretKey, secure)
 	if err != nil {
 		return nil, bosherr.WrapError(err, "Creating s3 client")
 	}

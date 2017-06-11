@@ -28,7 +28,7 @@ func (f Factory) Schemes() []string {
 	}
 }
 
-func (f Factory) Create(uri string) (source.Source, error) {
+func (f Factory) Create(uri string, _ map[string]interface{}) (source.Source, error) {
 	parsedURI, err := url.Parse(uri)
 	if err != nil {
 		return nil, bosherr.WrapError(err, "Parsing source URI")

@@ -26,7 +26,7 @@ type ShowArgs struct {
 }
 
 func (c *Show) Execute(_ []string) error {
-	repository, err := c.SourceFactory.Create(c.Args.RepositoryURI)
+	repository, err := c.SourceFactory.Create(c.Args.RepositoryURI, map[string]interface{}{})
 	if err != nil {
 		return bosherr.WrapError(err, "Creating repository")
 	}
