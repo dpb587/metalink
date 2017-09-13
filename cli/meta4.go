@@ -36,10 +36,11 @@ func main() {
 	verifier := verification.NewDynamicVerifierImpl(fs)
 
 	c := struct {
-		AddFile    cmd.AddFile    `command:"add-file" description:"Add a new file by name"`
-		ImportFile cmd.ImportFile `command:"import-file" description:"Import a local file"`
-		RemoveFile cmd.RemoveFile `command:"remove-file" description:"Remove an existing file by name"`
-		Files      cmd.Files      `command:"files" description:"List existing files by name"`
+		AddFile        cmd.AddFile        `command:"add-file" description:"Add a new file by name"`
+		ImportFile     cmd.ImportFile     `command:"import-file" description:"Import a local file"`
+		ImportMetalink cmd.ImportMetalink `command:"import-metalink" description:"Import files from an existing metalink"`
+		RemoveFile     cmd.RemoveFile     `command:"remove-file" description:"Remove an existing file by name"`
+		Files          cmd.Files          `command:"files" description:"List existing files by name"`
 
 		Create cmd.Create `command:"create" description:"Create a new metalink file"`
 
@@ -60,10 +61,11 @@ func main() {
 		SetPublished cmd.SetPublished `command:"set-published" description:"Set published timestamp"`
 		SetUpdated   cmd.SetUpdated   `command:"set-updated" description:"Set updated timestamp"`
 	}{
-		AddFile:    cmd.AddFile{Meta4: meta4},
-		ImportFile: cmd.ImportFile{Meta4File: meta4file, URLLoader: urlLoader},
-		RemoveFile: cmd.RemoveFile{Meta4: meta4},
-		Files:      cmd.Files{Meta4: meta4},
+		AddFile:        cmd.AddFile{Meta4: meta4},
+		ImportFile:     cmd.ImportFile{Meta4File: meta4file, URLLoader: urlLoader},
+		ImportMetalink: cmd.ImportMetalink{Meta4: meta4, StorageFactory: storageFactory},
+		RemoveFile:     cmd.RemoveFile{Meta4: meta4},
+		Files:          cmd.Files{Meta4: meta4},
 
 		Create: cmd.Create{Meta4: meta4},
 
