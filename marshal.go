@@ -16,9 +16,6 @@ func Unmarshal(data []byte, meta4 *Metalink) error {
 }
 
 func Marshal(r Metalink) ([]byte, error) {
-	// sort.Sort(blobReceiptMetadataByKey(r.Metadata))
-	// sort.Sort(blobReceiptOriginByURI(r.Origin))
-
 	data, err := xml.MarshalIndent(r, "", "  ")
 	if err != nil {
 		return nil, bosherr.WrapError(err, "Marshaling XML")

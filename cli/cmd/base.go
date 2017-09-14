@@ -36,5 +36,7 @@ func (f Meta4) Put(put metalink.Metalink) error {
 		return bosherr.WrapError(err, "Preparing storage")
 	}
 
+	metalink.Sort(&put)
+
 	return storage.Put(put)
 }
