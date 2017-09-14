@@ -241,7 +241,7 @@ git "$@"
 		}
 
 		if s.branch != "" {
-			args = append(args, "--branch", s.branch)
+			args = append(args, s.branch)
 		}
 
 		_, _, exitStatus, err := s.cmdRunner.RunComplexCommand(boshsys.Command{
