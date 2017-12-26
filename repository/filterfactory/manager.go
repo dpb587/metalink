@@ -5,6 +5,7 @@ import (
 
 	"github.com/dpb587/metalink/repository/filter"
 	"github.com/dpb587/metalink/repository/filter/axiom"
+	"github.com/dpb587/metalink/repository/filter/filename"
 	"github.com/dpb587/metalink/repository/filter/fileversion"
 )
 
@@ -19,6 +20,7 @@ func NewManager() Manager {
 
 	manager.filters = map[string]filter.FilterFactory{}
 	manager.filters["axiom"] = axiom.Factory{}
+	manager.filters["filename"] = filename.Factory{}
 	manager.filters["fileversion"] = fileversion.Factory{}
 
 	return manager
