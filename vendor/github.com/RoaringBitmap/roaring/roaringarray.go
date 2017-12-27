@@ -137,7 +137,8 @@ func (ra *roaringArray) appendContainer(key uint16, value container, mustCopyOnW
 }
 
 func (ra *roaringArray) appendWithoutCopy(sa roaringArray, startingindex int) {
-	ra.appendContainer(sa.keys[startingindex], sa.containers[startingindex], false)
+	mustCopyOnWrite := sa.needCopyOnWrite[startingindex]
+	ra.appendContainer(sa.keys[startingindex], sa.containers[startingindex], mustCopyOnWrite)
 }
 
 func (ra *roaringArray) appendCopy(sa roaringArray, startingindex int) {
@@ -307,7 +308,7 @@ func (ra *roaringArray) getIndex(x uint16) int {
 	if (size == 0) || (ra.keys[size-1] == x) {
 		return size - 1
 	}
-	return int(ra.binarySearch(0, int64(size), x))
+	return ra.binarySearch(0, int64(size), x)
 }
 
 func (ra *roaringArray) getKeyAtIndex(i int) uint16 {
@@ -479,7 +480,7 @@ func (ra *roaringArray) toBytes() ([]byte, error) {
 
 	// descriptive header
 	for i, key := range ra.keys {
-		binary.LittleEndian.PutUint16(buf[nw:], uint16(key))
+		binary.LittleEndian.PutUint16(buf[nw:], key)
 		nw += 2
 		c := ra.containers[i]
 		binary.LittleEndian.PutUint16(buf[nw:], uint16(c.getCardinality()-1))
@@ -530,6 +531,88 @@ func (ra *roaringArray) writeTo(out io.Writer) (int64, error) {
 	return int64(n), err
 }
 
+func (ra *roaringArray) fromBuffer(buf []byte) (int64, error) {
+	pos := 0
+	if len(buf) < 8 {
+		return 0, fmt.Errorf("buffer too small, expecting at least 8 bytes, was %d", len(buf))
+	}
+
+	cookie := binary.LittleEndian.Uint32(buf)
+	pos += 4
+	var size uint32
+	haveRunContainers := false
+	var isRun *bitmapContainer
+
+	// cookie header
+	if cookie&0x0000FFFF == serialCookie {
+		haveRunContainers = true
+		size = uint32(uint16(cookie>>16) + 1) // number of containers
+
+		// create is-run-container bitmap
+		bytesToRead := (int(size) + 7) / 8
+		by := buf[pos: pos+bytesToRead]
+		pos += bytesToRead
+		isRun = newBitmapContainer()
+		i := 0
+		for ; len(by) >= 8; i++ {
+			isRun.bitmap[i] = binary.LittleEndian.Uint64(by)
+			by = by[8:]
+		}
+		if len(by) > 0 {
+			bx := make([]byte, 8)
+			copy(bx, by)
+			isRun.bitmap[i] = binary.LittleEndian.Uint64(bx)
+		}
+	} else if cookie == serialCookieNoRunContainer {
+		size = binary.LittleEndian.Uint32(buf[pos:])
+		pos += 4
+	} else {
+		return 0, fmt.Errorf("error in roaringArray.readFrom: did not find expected serialCookie in header")
+	}
+
+	// descriptive header
+	// keycard - is {key, cardinality} tuple slice
+	keycard := byteSliceAsUint16Slice(buf[pos: pos+2*2*int(size)])
+	pos += 2 * 2 * int(size)
+
+	if !haveRunContainers || size >= noOffsetThreshold {
+		pos += 4 * int(size)
+	}
+
+	for i := uint32(0); i < size; i++ {
+		key := uint16(keycard[2*i])
+		card := int(keycard[2*i+1]) + 1
+		if haveRunContainers && isRun.contains(uint16(i)) {
+			// run container
+			nr := binary.LittleEndian.Uint16(buf[pos:])
+			pos += 2
+			nb := runContainer16{
+				iv:   byteSliceAsInterval16Slice(buf[pos: pos+int(nr)*4]),
+				card: int64(card),
+			}
+			pos += int(nr) * 4
+			ra.appendContainer(key, &nb, true)
+		} else if card > arrayDefaultMaxSize {
+			// bitmap container
+			nb := bitmapContainer{
+				cardinality: card,
+				bitmap:      byteSliceAsUint64Slice(buf[pos:pos+arrayDefaultMaxSize*2]),
+			}
+			pos += arrayDefaultMaxSize * 2
+			ra.appendContainer(key, &nb, true)
+		} else {
+			// array container
+			nb := arrayContainer{
+				byteSliceAsUint16Slice(buf[pos:pos+card*2]),
+			}
+			pos += card * 2
+			ra.appendContainer(key, &nb, true)
+		}
+	}
+
+	return int64(pos), nil
+}
+
 func (ra *roaringArray) readFrom(stream io.Reader) (int64, error) {
 	pos := 0
 	var cookie uint32
@@ -543,7 +626,7 @@ func (ra *roaringArray) readFrom(stream io.Reader) (int64, error) {
 	var isRun *bitmapContainer
 	if cookie&0x0000FFFF == serialCookie {
 		haveRunContainers = true
-		size = uint32(uint16((cookie >> 16)) + 1)
+		size = uint32(uint16(cookie>>16) + 1)
 		bytesToRead := (int(size) + 7) / 8
 		numwords := (bytesToRead + 7) / 8
 		by := make([]byte, bytesToRead, numwords*8)
@@ -597,11 +680,11 @@ func (ra *roaringArray) readFrom(stream io.Reader) (int64, error) {
 			if err != nil {
 				return 0, err
 			}
-			nb.cardinality = int(card)
+			nb.cardinality = card
 			pos += nr
 			ra.appendContainer(keycard[2*i], nb, false)
 		} else {
-			nb := newArrayContainerSize(int(card))
+			nb := newArrayContainerSize(card)
 			nr, err := nb.readFrom(stream)
 			if err != nil {
 				return 0, err
@@ -735,11 +818,11 @@ func (ra *roaringArray) advanceUntil(min uint16, pos int) int {
 	}
 
 	// we know that the next-smallest span was too small
-	lower += (spansize / 2)
+	lower += (spansize >> 1)
 
 	mid := 0
 	for lower+1 != upper {
-		mid = (lower + upper) / 2
+		mid = (lower + upper) >> 1
 		if ra.keys[mid] == min {
 			return mid
 		} else if ra.keys[mid] < min {

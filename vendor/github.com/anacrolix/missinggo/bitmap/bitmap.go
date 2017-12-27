@@ -7,6 +7,7 @@ import (
 	"math"
 
 	"github.com/RoaringBitmap/roaring"
+	"github.com/anacrolix/missinggo/iter"
 )
 
 const MaxInt = -1
@@ -42,9 +43,9 @@ func (me *Bitmap) lazyRB() *roaring.Bitmap {
 	return me.rb
 }
 
-func (me *Bitmap) Iter(f func(interface{}) bool) {
+func (me Bitmap) Iter(cb iter.Callback) {
 	me.IterTyped(func(i int) bool {
-		return f(i)
+		return cb(i)
 	})
 }
 
@@ -83,14 +84,14 @@ func (me *Bitmap) AddRange(begin, end int) {
 	me.lazyRB().AddRange(uint64(begin), uint64(end))
 }
 
-func (me *Bitmap) Remove(i int) {
+func (me *Bitmap) Remove(i int) bool {
 	if me.rb == nil {
-		return
+		return false
 	}
-	me.rb.Remove(uint32(i))
+	return me.rb.CheckedRemove(uint32(i))
 }
 
-func (me *Bitmap) Union(other *Bitmap) {
+func (me *Bitmap) Union(other Bitmap) {
 	me.lazyRB().Or(other.lazyRB())
 }
 
@@ -101,34 +102,7 @@ func (me *Bitmap) Contains(i int) bool {
 	return me.rb.Contains(uint32(i))
 }
 
-type Iter struct {
-	ii roaring.IntIterable
-}
-
-func (me *Iter) Next() bool {
-	if me == nil {
-		return false
-	}
-	return me.ii.HasNext()
-}
-
-func (me *Iter) Value() interface{} {
-	return me.ValueInt()
-}
-
-func (me *Iter) ValueInt() int {
-	return int(me.ii.Next())
-}
-
-func (me *Iter) Stop() {}
-
-func Sub(left, right *Bitmap) *Bitmap {
-	return &Bitmap{
-		rb: roaring.AndNot(left.lazyRB(), right.lazyRB()),
-	}
-}
-
-func (me *Bitmap) Sub(other *Bitmap) {
+func (me *Bitmap) Sub(other Bitmap) {
 	if other.rb == nil {
 		return
 	}

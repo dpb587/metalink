@@ -40,8 +40,7 @@ func (c *FileDownload) Execute(_ []string) error {
 		return bosherr.WrapError(err, "Parsing download destination")
 	}
 
-	progress := pb.New64(int64(file.Size)).SetUnits(pb.U_BYTES).SetRefreshRate(time.Second).SetWidth(80)
-	progress.ShowPercent = false
+	progress := pb.New64(int64(file.Size)).Set(pb.Bytes, true).SetRefreshRate(time.Second).SetWidth(80)
 
 	verifier, err := c.Verification.GetVerifier(file, c.SkipHashVerification, c.SkipSignatureVerification, c.SignatureTrustStore)
 	if err != nil {

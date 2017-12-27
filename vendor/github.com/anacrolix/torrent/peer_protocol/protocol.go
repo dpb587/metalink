@@ -68,6 +68,14 @@ type Message struct {
 	Port                 uint16
 }
 
+func (msg Message) MustMarshalBinary() []byte {
+	b, err := msg.MarshalBinary()
+	if err != nil {
+		panic(err)
+	}
+	return b
+}
+
 func (msg Message) MarshalBinary() (data []byte, err error) {
 	buf := &bytes.Buffer{}
 	if !msg.Keepalive {
@@ -203,7 +211,7 @@ func (d *Decoder) Decode(msg *Message) (err error) {
 			break
 		}
 		//msg.Piece, err = ioutil.ReadAll(r)
-		b := d.Pool.Get().([]byte)
+		b := *d.Pool.Get().(*[]byte)
 		n, err := io.ReadFull(r, b)
 		if err != nil {
 			if err != io.ErrUnexpectedEOF || n != int(length-9) {
@@ -252,4 +260,13 @@ func marshalBitfield(bf []bool) (b []byte) {
 		b[i/8] = c
 	}
 	return
+}
+
+func MakeCancelMessage(piece, offset, length Integer) Message {
+	return Message{
+		Type:   Cancel,
+		Index:  piece,
+		Begin:  offset,
+		Length: length,
+	}
 }

@@ -42,7 +42,7 @@ func (o Reference) Size() (uint64, error) {
 }
 
 func (o Reference) Reader() (io.ReadCloser, error) {
-	reader, err := o.client.GetObject(o.bucket, o.object)
+	reader, err := o.client.GetObject(o.bucket, o.object, minio.GetObjectOptions{})
 	if err != nil {
 		return nil, bosherr.WrapError(err, "Opening for reading")
 	}
@@ -61,6 +61,11 @@ func (o Reference) ReaderURI() string {
 }
 
 func (o Reference) WriteFrom(from file.Reference, progress *pb.ProgressBar) error {
+	size, err := from.Size()
+	if err != nil {
+		return bosherr.WrapError(err, "Checking size")
+	}
+
 	reader, err := from.Reader()
 	if err != nil {
 		return bosherr.WrapError(err, "Opening from")
@@ -68,7 +73,9 @@ func (o Reference) WriteFrom(from file.Reference, progress *pb.ProgressBar) erro
 
 	defer reader.Close()
 
-	_, err = o.client.PutObjectWithProgress(o.bucket, o.object, reader, "application/octet-stream", progress)
+	proxyReader := progress.NewProxyReader(reader)
+
+	_, err = o.client.PutObject(o.bucket, o.object, proxyReader, int64(size), minio.PutObjectOptions{ContentType: "application/octet-stream"})
 	if err != nil {
 		return bosherr.WrapError(err, "Uploading")
 	}

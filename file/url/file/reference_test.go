@@ -4,16 +4,17 @@ import (
 	"errors"
 	"io/ioutil"
 
-	. "github.com/dpb587/metalink/origin"
+	"github.com/dpb587/metalink/file"
+	. "github.com/dpb587/metalink/file/url/file"
 
-	boshsysfakes "github.com/cloudfoundry/bosh-utils/system/systemfakes"
+	boshsysfakes "github.com/cloudfoundry/bosh-utils/system/fakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("File", func() {
-	var subject Origin
+	var subject file.Reference
 	var fs *boshsysfakes.FakeFileSystem
 
 	BeforeEach(func() {
@@ -22,30 +23,20 @@ var _ = Describe("File", func() {
 		fs.WriteFileString("/somewhere/useful", "something useful")
 	})
 
-	Describe("CreateFile", func() {
+	Describe("NewReference", func() {
 		It("expands paths", func() {
 			fs.ExpandPathExpanded = "/root/somewhere"
 
-			subject, err := CreateFile(fs, "~/somewhere")
+			subject := NewReference(fs, "~/somewhere")
 
-			Expect(err).ToNot(HaveOccurred())
 			Expect(subject).ToNot(BeNil())
 			Expect(subject.ReaderURI()).To(Equal("file:///root/somewhere"))
-		})
-
-		It("errors when expansion fails", func() {
-			fs.ExpandPathErr = errors.New("fake-err-1")
-
-			_, err := CreateFile(fs, "~/somewhere")
-
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("Expanding path"))
 		})
 	})
 
 	Describe("Name", func() {
 		It("gives the base name", func() {
-			subject, _ = CreateFile(fs, "/somewhere/useful")
+			subject = NewReference(fs, "/somewhere/useful")
 
 			value, err := subject.Name()
 
@@ -56,7 +47,7 @@ var _ = Describe("File", func() {
 
 	Describe("Size", func() {
 		It("gives the size", func() {
-			subject, _ = CreateFile(fs, "/somewhere/useful")
+			subject = NewReference(fs, "/somewhere/useful")
 
 			value, err := subject.Size()
 
@@ -69,7 +60,7 @@ var _ = Describe("File", func() {
 				StatErr: errors.New("fake-err"),
 			})
 
-			subject, _ = CreateFile(fs, "/somewhere/useful")
+			subject = NewReference(fs, "/somewhere/useful")
 
 			_, err := subject.Size()
 
@@ -80,7 +71,7 @@ var _ = Describe("File", func() {
 
 	Describe("Reader", func() {
 		It("opens for reading", func() {
-			subject, _ = CreateFile(fs, "/somewhere/useful")
+			subject = NewReference(fs, "/somewhere/useful")
 
 			reader, err := subject.Reader()
 
@@ -94,7 +85,7 @@ var _ = Describe("File", func() {
 		It("errors gracefully", func() {
 			fs.OpenFileErr = errors.New("fake-err")
 
-			subject, _ = CreateFile(fs, "/somewhere/useful")
+			subject = NewReference(fs, "/somewhere/useful")
 
 			_, err := subject.Reader()
 

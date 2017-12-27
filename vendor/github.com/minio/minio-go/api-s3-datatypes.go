@@ -1,5 +1,6 @@
 /*
- * Minio Go Library for Amazon S3 Compatible Cloud Storage (C) 2015 Minio, Inc.
+ * Minio Go Library for Amazon S3 Compatible Cloud Storage
+ * Copyright 2015-2017 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,16 +37,16 @@ type owner struct {
 	ID          string
 }
 
-// commonPrefix container for prefix response.
-type commonPrefix struct {
+// CommonPrefix container for prefix response.
+type CommonPrefix struct {
 	Prefix string
 }
 
-// listBucketResult container for listObjects V2 response.
-type listBucketV2Result struct {
+// ListBucketV2Result container for listObjects response version 2.
+type ListBucketV2Result struct {
 	// A response can contain CommonPrefixes only if you have
 	// specified a delimiter.
-	CommonPrefixes []commonPrefix
+	CommonPrefixes []CommonPrefix
 	// Metadata about each object returned.
 	Contents  []ObjectInfo
 	Delimiter string
@@ -70,11 +71,11 @@ type listBucketV2Result struct {
 	StartAfter string
 }
 
-// listBucketResult container for listObjects response.
+// ListBucketResult container for listObjects response.
 type ListBucketResult struct {
 	// A response can contain CommonPrefixes only if you have
 	// specified a delimiter.
-	CommonPrefixes []commonPrefix
+	CommonPrefixes []CommonPrefix
 	// Metadata about each object returned.
 	Contents  []ObjectInfo
 	Delimiter string
@@ -102,7 +103,7 @@ type ListBucketResult struct {
 	Prefix     string
 }
 
-// listMultipartUploadsResult container for ListMultipartUploads response
+// ListMultipartUploadsResult container for ListMultipartUploads response
 type ListMultipartUploadsResult struct {
 	Bucket             string
 	KeyMarker          string
@@ -116,7 +117,7 @@ type ListMultipartUploadsResult struct {
 	Prefix             string
 	Delimiter          string
 	// A response can contain CommonPrefixes only if you specify a delimiter.
-	CommonPrefixes []commonPrefix
+	CommonPrefixes []CommonPrefix
 }
 
 // initiator container for who initiated multipart upload.
@@ -128,10 +129,10 @@ type initiator struct {
 // copyObjectResult container for copy object response.
 type copyObjectResult struct {
 	ETag         string
-	LastModified string // time string format "2006-01-02T15:04:05.000Z"
+	LastModified time.Time // time string format "2006-01-02T15:04:05.000Z"
 }
 
-// objectPart container for particular part of an object.
+// ObjectPart container for particular part of an object.
 type ObjectPart struct {
 	// Part number identifies the part.
 	PartNumber int
@@ -147,7 +148,7 @@ type ObjectPart struct {
 	Size int64
 }
 
-// listObjectPartsResult container for ListObjectParts response.
+// ListObjectPartsResult container for ListObjectParts response.
 type ListObjectPartsResult struct {
 	Bucket   string
 	Key      string
@@ -185,7 +186,7 @@ type completeMultipartUploadResult struct {
 	ETag     string
 }
 
-// completePart sub container lists individual part numbers and their
+// CompletePart sub container lists individual part numbers and their
 // md5sum, part of completeMultipartUpload.
 type CompletePart struct {
 	XMLName xml.Name `xml:"http://s3.amazonaws.com/doc/2006-03-01/ Part" json:"-"`

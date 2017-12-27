@@ -73,12 +73,12 @@ func setAnnounceParams(_url *url.URL, ar *AnnounceRequest) {
 	_url.RawQuery = q.Encode()
 }
 
-func announceHTTP(ar *AnnounceRequest, _url *url.URL, host string) (ret AnnounceResponse, err error) {
+func announceHTTP(cl *http.Client, ar *AnnounceRequest, _url *url.URL, host string) (ret AnnounceResponse, err error) {
 	_url = httptoo.CopyURL(_url)
 	setAnnounceParams(_url, ar)
 	req, err := http.NewRequest("GET", _url.String(), nil)
 	req.Host = host
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := cl.Do(req)
 	if err != nil {
 		return
 	}

@@ -9,7 +9,7 @@ import (
 )
 
 type MetaInfo struct {
-	InfoBytes    bencode.Bytes `bencode:"info"`
+	InfoBytes    bencode.Bytes `bencode:"info,omitempty"`
 	Announce     string        `bencode:"announce,omitempty"`
 	AnnounceList AnnounceList  `bencode:"announce-list,omitempty"`
 	Nodes        []Node        `bencode:"nodes,omitempty"`
@@ -17,7 +17,7 @@ type MetaInfo struct {
 	Comment      string        `bencode:"comment,omitempty"`
 	CreatedBy    string        `bencode:"created by,omitempty"`
 	Encoding     string        `bencode:"encoding,omitempty"`
-	URLList      []string      `bencode:"url-list,omitempty"`
+	UrlList      UrlList       `bencode:"url-list,omitempty"`
 }
 
 // Load a MetaInfo from an io.Reader. Returns a non-nil error in case of

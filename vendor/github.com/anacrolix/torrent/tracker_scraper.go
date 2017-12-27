@@ -26,11 +26,10 @@ func (ts *trackerScraper) statusLine() string {
 	fmt.Fprintf(&w, "%q\t%s\t%s",
 		ts.url,
 		func() string {
-			// return ts.lastAnnounce.Completed.Add(ts.lastAnnounce.Interval).Format("2006-01-02 15:04:05 -0700 MST")
-			na := ts.lastAnnounce.Completed.Add(ts.lastAnnounce.Interval).Sub(time.Now())
-			na /= time.Second
-			na *= time.Second
+			na := time.Until(ts.lastAnnounce.Completed.Add(ts.lastAnnounce.Interval))
 			if na > 0 {
+				na /= time.Second
+				na *= time.Second
 				return na.String()
 			} else {
 				return "anytime"
@@ -86,7 +85,7 @@ func (me *trackerScraper) announce() (ret trackerAnnounceResult) {
 	me.t.cl.mu.Lock()
 	req := me.t.announceRequest()
 	me.t.cl.mu.Unlock()
-	res, err := tracker.AnnounceHost(urlToUse, &req, host)
+	res, err := tracker.AnnounceHost(me.t.cl.config.HTTP, urlToUse, &req, host)
 	if err != nil {
 		ret.Err = err
 		return
@@ -112,7 +111,7 @@ func (me *trackerScraper) Run() {
 		me.lastAnnounce = ar
 		me.t.cl.mu.Unlock()
 
-		intervalChan := time.After(ar.Completed.Add(ar.Interval).Sub(time.Now()))
+		intervalChan := time.After(time.Until(ar.Completed.Add(ar.Interval)))
 
 		select {
 		case <-me.t.closed.LockedChan(&me.t.cl.mu):

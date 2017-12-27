@@ -123,6 +123,7 @@ func (m *Mutex) Lock() {
 	m.entries = runtime.Callers(2, m.stack[:])
 	m.start = time.Now()
 }
+
 func (m *Mutex) Unlock() {
 	if enabled {
 		lockHeld := time.Since(m.start)
@@ -138,10 +139,7 @@ func (m *Mutex) Unlock() {
 	m.mu.Unlock()
 }
 
-type WaitGroup struct {
-	sync.WaitGroup
-}
-
-type Cond struct {
-	sync.Cond
-}
+type (
+	WaitGroup = sync.WaitGroup
+	Cond      = sync.Cond
+)
