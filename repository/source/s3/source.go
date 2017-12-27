@@ -50,7 +50,7 @@ func (s *Source) Load() error {
 			continue
 		}
 
-		get, err := s.client.GetObject(s.bucket, object.Key)
+		get, err := s.client.GetObject(s.bucket, object.Key, minio.GetObjectOptions{})
 		if err != nil {
 			return bosherr.WrapError(err, "Getting object")
 		}
@@ -88,7 +88,7 @@ func (s Source) Filter(f filter.Filter) ([]repository.RepositoryMetalink, error)
 }
 
 func (s Source) Put(name string, data io.Reader) error {
-	_, err := s.client.PutObject(s.bucket, path.Join(s.prefix, name), data, "application/octet-stream")
+	_, err := s.client.PutObject(s.bucket, path.Join(s.prefix, name), data, 0, minio.PutObjectOptions{ContentType: "application/octet-stream"})
 
 	return bosherr.WrapError(err, "Writing object")
 }
