@@ -6,7 +6,7 @@ import (
 
 	"github.com/dpb587/metalink/repository/source"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 )
 
@@ -31,7 +31,7 @@ func (f Factory) Schemes() []string {
 func (f Factory) Create(uri string, _ map[string]interface{}) (source.Source, error) {
 	parsedURI, err := url.Parse(uri)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Parsing source URI")
+		return nil, errors.Wrap(err, "Parsing source URI")
 	}
 
 	path := parsedURI.Path
@@ -43,7 +43,7 @@ func (f Factory) Create(uri string, _ map[string]interface{}) (source.Source, er
 
 	path, err = f.fs.ExpandPath(path)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Expanding path")
+		return nil, errors.Wrap(err, "Expanding path")
 	}
 
 	return NewSource(uri, f.fs, path), nil

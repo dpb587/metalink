@@ -6,7 +6,7 @@ import (
 
 	"github.com/dpb587/metalink/repository"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 )
 
 type MetalinkXMLFormatter struct{}
@@ -16,7 +16,7 @@ func (f MetalinkXMLFormatter) DumpMetalink(metalink repository.RepositoryMetalin
 
 	data, err := xml.MarshalIndent(metalink, "", "  ")
 	if err != nil {
-		return bosherr.WrapError(err, "Marshaling")
+		return errors.Wrap(err, "Marshaling")
 	}
 
 	fmt.Println(string(data))

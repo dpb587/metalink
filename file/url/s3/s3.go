@@ -1,15 +1,14 @@
 package s3
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
 
 	"github.com/cheggaaa/pb"
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dpb587/metalink/file"
 	minio "github.com/minio/minio-go"
+	"github.com/pkg/errors"
 )
 
 type Reference struct {
@@ -44,7 +43,7 @@ func (o Reference) Size() (uint64, error) {
 func (o Reference) Reader() (io.ReadCloser, error) {
 	reader, err := o.client.GetObject(o.bucket, o.object, minio.GetObjectOptions{})
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Opening for reading")
+		return nil, errors.Wrap(err, "Opening for reading")
 	}
 
 	return reader, nil
@@ -63,12 +62,12 @@ func (o Reference) ReaderURI() string {
 func (o Reference) WriteFrom(from file.Reference, progress *pb.ProgressBar) error {
 	size, err := from.Size()
 	if err != nil {
-		return bosherr.WrapError(err, "Checking size")
+		return errors.Wrap(err, "Checking size")
 	}
 
 	reader, err := from.Reader()
 	if err != nil {
-		return bosherr.WrapError(err, "Opening from")
+		return errors.Wrap(err, "Opening from")
 	}
 
 	defer reader.Close()
@@ -77,7 +76,7 @@ func (o Reference) WriteFrom(from file.Reference, progress *pb.ProgressBar) erro
 
 	_, err = o.client.PutObject(o.bucket, o.object, proxyReader, int64(size), minio.PutObjectOptions{ContentType: "application/octet-stream"})
 	if err != nil {
-		return bosherr.WrapError(err, "Uploading")
+		return errors.Wrap(err, "Uploading")
 	}
 
 	return nil

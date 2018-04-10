@@ -7,7 +7,7 @@ import (
 	"path"
 	"time"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/repository"
@@ -39,18 +39,18 @@ func (s *Source) Load() error {
 
 	files, err := s.fs.Glob(fmt.Sprintf("%s/*.meta4", s.path))
 	if err != nil {
-		return bosherr.WrapError(err, "Listing metalinks")
+		return errors.Wrap(err, "Listing metalinks")
 	}
 
 	for _, file := range files {
 		stat, err := s.fs.Stat(file)
 		if err != nil {
-			return bosherr.WrapError(err, "Stat receipt")
+			return errors.Wrap(err, "Stat receipt")
 		}
 
 		metalinkBytes, err := s.fs.ReadFile(file)
 		if err != nil {
-			return bosherr.WrapError(err, "Reading metalink")
+			return errors.Wrap(err, "Reading metalink")
 		}
 
 		repometa4 := repository.RepositoryMetalink{
@@ -63,7 +63,7 @@ func (s *Source) Load() error {
 
 		err = metalink.Unmarshal(metalinkBytes, &repometa4.Metalink)
 		if err != nil {
-			return bosherr.WrapError(err, "Unmarshaling")
+			return errors.Wrap(err, "Unmarshaling")
 		}
 
 		s.metalinks = append(s.metalinks, repometa4)
@@ -85,12 +85,12 @@ func (s Source) Put(name string, data io.Reader) error {
 
 	content, err := ioutil.ReadAll(data)
 	if err != nil {
-		return bosherr.WrapError(err, "Reading metalink")
+		return errors.Wrap(err, "Reading metalink")
 	}
 
 	err = s.fs.WriteFile(path, content)
 	if err != nil {
-		return bosherr.WrapError(err, "Writing metalink")
+		return errors.Wrap(err, "Writing metalink")
 	}
 
 	return nil

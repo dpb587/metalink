@@ -12,7 +12,7 @@ import (
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/cheggaaa/pb"
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	"github.com/dpb587/metalink/file"
 )
 
@@ -44,7 +44,7 @@ func (o Reference) Size() (uint64, error) {
 func (o Reference) Reader() (io.ReadCloser, error) {
 	client, err := o.clientFactory()
 	if err != nil {
-		return nil, bosherr.WrapError(err, "starting torrent client")
+		return nil, errors.Wrap(err, "starting torrent client")
 	}
 
 	var torrent *torrent.Torrent
@@ -54,7 +54,7 @@ func (o Reference) Reader() (io.ReadCloser, error) {
 	} else {
 		response, err := http.DefaultClient.Get(o.url)
 		if err != nil {
-			return nil, bosherr.WrapError(err, "Loading torrent URL")
+			return nil, errors.Wrap(err, "Loading torrent URL")
 		}
 
 		if response.StatusCode != 200 {
@@ -63,7 +63,7 @@ func (o Reference) Reader() (io.ReadCloser, error) {
 
 		mi, err := metainfo.Load(response.Body)
 		if err != nil {
-			return nil, bosherr.WrapError(err, "Loading torrent")
+			return nil, errors.Wrap(err, "Loading torrent")
 		}
 
 		torrent, _ = client.AddTorrent(mi)

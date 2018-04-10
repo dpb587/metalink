@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink"
 )
@@ -31,12 +31,12 @@ func (c *FileSetSignature) Execute(_ []string) error {
 	if c.Args.File == "-" {
 		signature, err = ioutil.ReadAll(os.Stdin)
 		if err != nil {
-			return bosherr.WrapError(err, "Reading stdin")
+			return errors.Wrap(err, "Reading stdin")
 		}
 	} else {
 		signature, err = c.FS.ReadFile(c.Args.File)
 		if err != nil {
-			return bosherr.WrapError(err, "Reading file")
+			return errors.Wrap(err, "Reading file")
 		}
 	}
 

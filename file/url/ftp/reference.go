@@ -1,7 +1,6 @@
 package ftp
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -9,9 +8,9 @@ import (
 	"time"
 
 	"github.com/cheggaaa/pb"
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dpb587/metalink/file"
 	"github.com/jlaffaye/ftp"
+	"github.com/pkg/errors"
 )
 
 type Reference struct {
@@ -38,7 +37,7 @@ func (o Reference) Size() (uint64, error) {
 func (o Reference) Reader() (io.ReadCloser, error) {
 	srv, err := o.connect()
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Connecting to server")
+		return nil, errors.Wrap(err, "Connecting to server")
 	}
 
 	return srv.Retr(o.url.Path)
@@ -51,12 +50,12 @@ func (o Reference) ReaderURI() string {
 func (o Reference) WriteFrom(r file.Reference, _ *pb.ProgressBar) error {
 	srv, err := o.connect()
 	if err != nil {
-		return bosherr.WrapError(err, "Connecting to server")
+		return errors.Wrap(err, "Connecting to server")
 	}
 
 	reader, err := r.Reader()
 	if err != nil {
-		return bosherr.WrapError(err, "Opening origin for reading")
+		return errors.Wrap(err, "Opening origin for reading")
 	}
 
 	return srv.Stor(o.url.Path, reader)
@@ -71,7 +70,7 @@ func (o Reference) connect() (*ftp.ServerConn, error) {
 
 	srv, err := ftp.DialTimeout(fmt.Sprintf("%s:%s", o.url.Hostname(), port), 15*time.Second)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Connecting to server")
+		return nil, errors.Wrap(err, "Connecting to server")
 	}
 
 	if o.url.User != nil {
@@ -82,7 +81,7 @@ func (o Reference) connect() (*ftp.ServerConn, error) {
 	}
 
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Logging in to server")
+		return nil, errors.Wrap(err, "Logging in to server")
 	}
 
 	return srv, nil

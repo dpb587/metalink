@@ -5,7 +5,7 @@ import (
 	"hash"
 	"io"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
 	"github.com/dpb587/metalink/verification"
@@ -30,14 +30,14 @@ func NewGenericVerification(type_ string, newer hashNewer) genericVerification {
 func (v genericVerification) Sign(expected file.Reference) (verification.Result, error) {
 	reader, err := expected.Reader()
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Opening for signing")
+		return nil, errors.Wrap(err, "Opening for signing")
 	}
 
 	hash := v.newer()
 
 	_, err = io.Copy(hash, reader)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Reading for signing")
+		return nil, errors.Wrap(err, "Reading for signing")
 	}
 
 	return NewResult(metalink.Hash{
@@ -49,7 +49,7 @@ func (v genericVerification) Sign(expected file.Reference) (verification.Result,
 func (v genericVerification) Verify(actual file.Reference, expected metalink.File) error {
 	actualHash, err := v.Sign(actual)
 	if err != nil {
-		return bosherr.WrapError(err, "Calculating actual hash")
+		return errors.Wrap(err, "Calculating actual hash")
 	}
 
 	return actualHash.Verify(expected)

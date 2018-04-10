@@ -14,7 +14,7 @@ import (
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/source"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 )
 
 type Filter struct {
@@ -35,12 +35,12 @@ type FilterArgs struct {
 func (c *Filter) Execute(_ []string) error {
 	source, err := c.SourceFactory.Create(c.Args.RepositoryURI, map[string]interface{}{})
 	if err != nil {
-		return bosherr.WrapError(err, "Creating repository")
+		return errors.Wrap(err, "Creating repository")
 	}
 
 	err = source.Load()
 	if err != nil {
-		return bosherr.WrapError(err, "Loading repository")
+		return errors.Wrap(err, "Loading repository")
 	}
 
 	andFilter := filter_and.NewFilter()
@@ -48,7 +48,7 @@ func (c *Filter) Execute(_ []string) error {
 	for filterArgIdx, filterArg := range c.Filter {
 		addFilter, err := c.FilterManager.CreateFilter(filterArg.Type, filterArg.Value)
 		if err != nil {
-			return bosherr.WrapErrorf(err, "Parsing filter argument %d", filterArgIdx)
+			return errors.Wrapf(err, "Parsing filter argument %d", filterArgIdx)
 		}
 
 		andFilter.Add(addFilter)
@@ -56,7 +56,7 @@ func (c *Filter) Execute(_ []string) error {
 
 	metalinks, err := source.Filter(andFilter)
 	if err != nil {
-		return bosherr.WrapError(err, "Filtering metalink files")
+		return errors.Wrap(err, "Filtering metalink files")
 	}
 
 	var sort sorter.Sorter = sorter_fileversion.Sorter{}

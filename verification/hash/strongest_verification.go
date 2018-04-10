@@ -1,12 +1,10 @@
 package hash
 
 import (
-	"errors"
-
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
 	"github.com/dpb587/metalink/verification"
+	"github.com/pkg/errors"
 )
 
 type strongestVerification struct {
@@ -38,7 +36,7 @@ func (v strongestVerification) Verify(actual file.Reference, expected metalink.F
 
 		actualHash, err := hashVerification.Sign(actual)
 		if err != nil {
-			return bosherr.WrapError(err, "calculating actual hash")
+			return errors.Wrap(err, "calculating actual hash")
 		}
 
 		return actualHash.Verify(expected)

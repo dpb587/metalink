@@ -1,13 +1,12 @@
 package cmd
 
 import (
-	"errors"
 	"time"
 
 	"github.com/cheggaaa/pb"
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file/url"
+	"github.com/pkg/errors"
 )
 
 type FileUpload struct {
@@ -32,12 +31,12 @@ func (c *FileUpload) Execute(_ []string) error {
 
 	local, err := c.URLLoader.Load(metalink.URL{URL: c.Args.Local})
 	if err != nil {
-		return bosherr.WrapError(err, "Parsing origin destination")
+		return errors.Wrap(err, "Parsing origin destination")
 	}
 
 	remote, err := c.URLLoader.Load(metalink.URL{URL: c.Args.Remote})
 	if err != nil {
-		return bosherr.WrapError(err, "Parsing source blob")
+		return errors.Wrap(err, "Parsing source blob")
 	}
 
 	uri := remote.ReaderURI()
@@ -55,7 +54,7 @@ func (c *FileUpload) Execute(_ []string) error {
 
 	err = remote.WriteFrom(local, progress)
 	if err != nil {
-		return bosherr.WrapError(err, "Copying blob")
+		return errors.Wrap(err, "Copying blob")
 	}
 
 	progress.Finish()

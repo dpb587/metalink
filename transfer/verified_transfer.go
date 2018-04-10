@@ -1,15 +1,13 @@
 package transfer
 
 import (
-	"errors"
-
 	"github.com/cheggaaa/pb"
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
 	"github.com/dpb587/metalink/file/metaurl"
 	"github.com/dpb587/metalink/file/url"
 	"github.com/dpb587/metalink/verification"
+	"github.com/pkg/errors"
 )
 
 type VerifiedTransfer struct {
@@ -55,25 +53,25 @@ func (t VerifiedTransfer) TransferFile(meta4file metalink.File, local file.Refer
 
 	progress.Finish()
 
-	return bosherr.NewMultiError(errs...)
+	return errors.New(errs[0].Error())
 }
 
 func (t VerifiedTransfer) transferFileURL(meta4file metalink.File, local file.Reference, progress *pb.ProgressBar, source metalink.URL) error {
 	remote, err := t.urlLoader.Load(source)
 	if err != nil {
-		return bosherr.WrapError(err, "Parsing source file")
+		return errors.Wrap(err, "Parsing source file")
 	}
 
 	progress.Start()
 
 	err = local.WriteFrom(remote, progress)
 	if err != nil {
-		return bosherr.WrapError(err, "Transferring file")
+		return errors.Wrap(err, "Transferring file")
 	}
 
 	err = t.verifier.Verify(local, meta4file)
 	if err != nil {
-		return bosherr.WrapError(err, "Verifying file")
+		return errors.Wrap(err, "Verifying file")
 	}
 
 	progress.Finish()
@@ -84,20 +82,20 @@ func (t VerifiedTransfer) transferFileURL(meta4file metalink.File, local file.Re
 func (t VerifiedTransfer) transferFileMetaURL(meta4file metalink.File, local file.Reference, progress *pb.ProgressBar, source metalink.MetaURL) error {
 	remote, err := t.metaurlLoader.Load(source)
 	if err != nil {
-		return bosherr.WrapError(err, "Parsing source file")
+		return errors.Wrap(err, "Parsing source file")
 	}
 
 	progress.Start()
 
 	err = local.WriteFrom(remote, progress)
 	if err != nil {
-		return bosherr.WrapError(err, "Transferring file")
+		return errors.Wrap(err, "Transferring file")
 	}
 
 	// @todo; metaurl downloads may not match
 	// err = t.verifier.Verify(local, meta4file)
 	// if err != nil {
-	// 	return bosherr.WrapError(err, "Verifying file")
+	// 	return errors.Wrap(err, "Verifying file")
 	// }
 
 	progress.Finish()

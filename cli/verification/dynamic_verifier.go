@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/verification"
@@ -35,7 +35,7 @@ func (v DynamicVerifierImpl) GetVerifier(meta4file metalink.File, skipHash bool,
 		if meta4file.Signature.MediaType == "application/pgp-signature" {
 			trustStore, err := v.fs.ReadFile(signatureTrustStore)
 			if err != nil {
-				return nil, bosherr.WrapError(err, "Reading trust store")
+				return nil, errors.Wrap(err, "Reading trust store")
 			}
 
 			verifiers = append(verifiers, signature.NewPGPVerification(bytes.NewReader(trustStore)))

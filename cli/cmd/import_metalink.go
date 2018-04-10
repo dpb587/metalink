@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	"github.com/dpb587/metalink/storage"
 )
 
@@ -27,12 +27,12 @@ func (c *ImportMetalink) Execute(_ []string) error {
 
 	storageImport, err := c.StorageFactory.New(c.Args.Path)
 	if err != nil {
-		return bosherr.WrapError(err, "Preparing import storage")
+		return errors.Wrap(err, "Preparing import storage")
 	}
 
 	meta4Import, err := storageImport.Get()
 	if err != nil {
-		return bosherr.WrapError(err, "Loading metalink import")
+		return errors.Wrap(err, "Loading metalink import")
 	}
 
 	for _, file := range meta4Import.Files {

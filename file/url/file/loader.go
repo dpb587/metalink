@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
@@ -33,7 +33,7 @@ func (f Loader) Schemes() []string {
 func (f Loader) Load(source metalink.URL) (file.Reference, error) {
 	parsedURI, err := neturl.Parse(source.URL)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Parsing source URI")
+		return nil, errors.Wrap(err, "Parsing source URI")
 	}
 
 	path := parsedURI.Path
@@ -44,7 +44,7 @@ func (f Loader) Load(source metalink.URL) (file.Reference, error) {
 
 	path, err = f.fs.ExpandPath(path)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Expanding path")
+		return nil, errors.Wrap(err, "Expanding path")
 	}
 
 	return NewReference(f.fs, path), nil

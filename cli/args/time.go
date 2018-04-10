@@ -3,7 +3,7 @@ package args
 import (
 	"time"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 )
 
 type Time struct {
@@ -24,7 +24,7 @@ func MustNewTime(value string) Time {
 func (a *Time) UnmarshalFlag(value string) error {
 	parsed, err := time.Parse(time.RFC3339, value)
 	if err != nil {
-		return bosherr.WrapError(err, "Parsing time argument")
+		return errors.Wrap(err, "Parsing time argument")
 	}
 
 	a.Time = parsed

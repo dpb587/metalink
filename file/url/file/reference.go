@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/cheggaaa/pb"
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink/file"
 )
@@ -33,7 +33,7 @@ func (o Reference) Name() (string, error) {
 func (o Reference) Size() (uint64, error) {
 	stat, err := o.fs.Stat(o.path)
 	if err != nil {
-		return 0, bosherr.WrapError(err, "Checking file size")
+		return 0, errors.Wrap(err, "Checking file size")
 	}
 
 	return uint64(stat.Size()), nil
@@ -42,7 +42,7 @@ func (o Reference) Size() (uint64, error) {
 func (o Reference) Reader() (io.ReadCloser, error) {
 	reader, err := o.fs.OpenFile(o.path, os.O_RDONLY, 0000)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Opening file for reading")
+		return nil, errors.Wrap(err, "Opening file for reading")
 	}
 
 	return reader, nil
@@ -55,14 +55,14 @@ func (o Reference) ReaderURI() string {
 func (o Reference) WriteFrom(from file.Reference, progress *pb.ProgressBar) error {
 	reader, err := from.Reader()
 	if err != nil {
-		return bosherr.WrapError(err, "Opening from")
+		return errors.Wrap(err, "Opening from")
 	}
 
 	defer reader.Close()
 
 	writer, err := o.fs.OpenFile(o.path, os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		return bosherr.WrapError(err, "Opening file for writing")
+		return errors.Wrap(err, "Opening file for writing")
 	}
 
 	defer writer.Close()

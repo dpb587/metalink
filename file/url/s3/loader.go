@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
 	"github.com/dpb587/metalink/file/url"
@@ -30,7 +30,7 @@ func (f Loader) Schemes() []string {
 func (f Loader) Load(source metalink.URL) (file.Reference, error) {
 	parsed, err := neturl.Parse(source.URL)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Parsing URI")
+		return nil, errors.Wrap(err, "Parsing URI")
 	}
 
 	secure := true
@@ -47,7 +47,7 @@ func (f Loader) Load(source metalink.URL) (file.Reference, error) {
 
 	client, err := minio.New(minioEndpoint, os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), secure)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Creating s3 client")
+		return nil, errors.Wrap(err, "Creating s3 client")
 	}
 
 	return NewReference(client, secure, parsed.Hostname(), split[1], split[2]), nil

@@ -1,10 +1,8 @@
 package cmd
 
 import (
-	"errors"
-
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dpb587/metalink"
+	"github.com/pkg/errors"
 )
 
 type Meta4File struct {
@@ -16,7 +14,7 @@ type Meta4File struct {
 func (f Meta4File) Get() (metalink.File, error) {
 	meta4, err := f.Meta4.Get()
 	if err != nil {
-		return metalink.File{}, bosherr.WrapError(err, "Preparing storage")
+		return metalink.File{}, errors.Wrap(err, "Preparing storage")
 	}
 
 	fileName := f.File
@@ -39,7 +37,7 @@ func (f Meta4File) Get() (metalink.File, error) {
 func (f Meta4File) Put(put metalink.File) error {
 	meta4, err := f.Meta4.Get()
 	if err != nil {
-		return bosherr.WrapError(err, "Preparing storage")
+		return errors.Wrap(err, "Preparing storage")
 	}
 
 	fileName := f.File

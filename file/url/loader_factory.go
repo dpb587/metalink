@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
 )
@@ -34,7 +34,7 @@ func (l *LoaderFactory) Schemes() []string {
 func (l *LoaderFactory) Load(source metalink.URL) (file.Reference, error) {
 	parsedURI, err := url.Parse(source.URL)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Parsing URI")
+		return nil, errors.Wrap(err, "Parsing URI")
 	}
 
 	loader, ok := l.factories[parsedURI.Scheme]

@@ -1,7 +1,6 @@
 package http
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,8 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/cheggaaa/pb"
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dpb587/metalink/file"
+	"github.com/pkg/errors"
 )
 
 type Reference struct {
@@ -30,7 +29,7 @@ func NewReference(client *http.Client, url string) Reference {
 func (o Reference) Name() (string, error) {
 	parsed, err := url.Parse(o.url)
 	if err != nil {
-		return "", bosherr.WrapError(err, "Parsing URL")
+		return "", errors.Wrap(err, "Parsing URL")
 	}
 
 	return filepath.Base(parsed.Path), nil
@@ -44,7 +43,7 @@ func (o Reference) Size() (uint64, error) {
 func (o Reference) Reader() (io.ReadCloser, error) {
 	response, err := o.client.Get(o.url)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Loading URL")
+		return nil, errors.Wrap(err, "Loading URL")
 	}
 
 	if response.StatusCode != 200 {

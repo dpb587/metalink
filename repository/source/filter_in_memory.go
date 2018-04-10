@@ -1,7 +1,7 @@
 package source
 
 import (
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
 )
@@ -12,7 +12,7 @@ func FilterInMemory(files []repository.RepositoryMetalink, filter filter.Filter)
 	for _, meta4 := range files {
 		matched, err := filter.IsTrue(meta4)
 		if err != nil {
-			return nil, bosherr.WrapError(err, "Matching metalink")
+			return nil, errors.Wrap(err, "Matching metalink")
 		} else if !matched {
 			continue
 		}

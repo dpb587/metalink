@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/cli/verification"
 	"github.com/dpb587/metalink/file/url"
@@ -31,12 +31,12 @@ func (c *FileVerify) Execute(_ []string) error {
 
 	local, err := c.FileLoader.Load(metalink.URL{URL: c.Args.Local})
 	if err != nil {
-		return bosherr.WrapError(err, "Parsing origin destination")
+		return errors.Wrap(err, "Parsing origin destination")
 	}
 
 	verifier, err := c.Verification.GetVerifier(file, c.SkipHashVerification, c.SkipSignatureVerification, c.SignatureTrustStore)
 	if err != nil {
-		return bosherr.WrapError(err, "Preparing verification")
+		return errors.Wrap(err, "Preparing verification")
 	}
 
 	return verifier.Verify(local, file)

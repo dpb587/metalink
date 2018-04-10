@@ -6,7 +6,7 @@ import (
 
 	"github.com/dpb587/metalink/repository"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 )
 
 type JSONFormatter struct{}
@@ -14,7 +14,7 @@ type JSONFormatter struct{}
 func (f JSONFormatter) DumpMetalink(metalink repository.RepositoryMetalink) error {
 	data, err := json.MarshalIndent(metalink, "", "  ")
 	if err != nil {
-		return bosherr.WrapError(err, "Marshaling")
+		return errors.Wrap(err, "Marshaling")
 	}
 
 	fmt.Println(string(data))
@@ -33,7 +33,7 @@ func (f JSONFormatter) DumpRepository(metalinks []repository.RepositoryMetalink)
 
 	data, err := json.MarshalIndent(repo, "", "  ")
 	if err != nil {
-		return bosherr.WrapError(err, "Marshaling")
+		return errors.Wrap(err, "Marshaling")
 	}
 
 	fmt.Println(string(data))

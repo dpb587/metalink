@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	"github.com/dpb587/metalink/repository/source"
 )
 
@@ -33,7 +33,7 @@ func (s *Factory) Schemes() []string {
 func (s *Factory) Create(uri string, options map[string]interface{}) (source.Source, error) {
 	parsedURI, err := url.Parse(uri)
 	if err != nil {
-		return nil, bosherr.WrapError(err, "Parsing source URI")
+		return nil, errors.Wrap(err, "Parsing source URI")
 	}
 
 	schemeFactory, ok := s.factories[parsedURI.Scheme]

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/storage"
 )
@@ -15,7 +15,7 @@ type Meta4 struct {
 func (f Meta4) Exists() (bool, error) {
 	s, err := f.StorageFactory.New(f.Metalink)
 	if err != nil {
-		return false, bosherr.WrapError(err, "Preparing storage")
+		return false, errors.Wrap(err, "Preparing storage")
 	}
 
 	return s.Exists()
@@ -24,7 +24,7 @@ func (f Meta4) Exists() (bool, error) {
 func (f Meta4) Get() (metalink.Metalink, error) {
 	s, err := f.StorageFactory.New(f.Metalink)
 	if err != nil {
-		return metalink.Metalink{}, bosherr.WrapError(err, "Preparing storage")
+		return metalink.Metalink{}, errors.Wrap(err, "Preparing storage")
 	}
 
 	return s.Get()
@@ -33,7 +33,7 @@ func (f Meta4) Get() (metalink.Metalink, error) {
 func (f Meta4) Put(put metalink.Metalink) error {
 	storage, err := f.StorageFactory.New(f.Metalink)
 	if err != nil {
-		return bosherr.WrapError(err, "Preparing storage")
+		return errors.Wrap(err, "Preparing storage")
 	}
 
 	metalink.Sort(&put)

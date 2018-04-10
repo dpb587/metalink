@@ -1,15 +1,14 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"path"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file/url"
 	"github.com/dpb587/metalink/verification"
 	"github.com/dpb587/metalink/verification/hash"
+	"github.com/pkg/errors"
 )
 
 type ImportFile struct {
@@ -61,12 +60,12 @@ func (c *ImportFile) Execute(_ []string) error {
 
 	origin, err := c.URLLoader.Load(metalink.URL{URL: c.Args.Path})
 	if err != nil {
-		return bosherr.WrapError(err, "Loading origin")
+		return errors.Wrap(err, "Loading origin")
 	}
 
 	file.Size, err = origin.Size()
 	if err != nil {
-		return bosherr.WrapError(err, "Loading size")
+		return errors.Wrap(err, "Loading size")
 	}
 
 	hashmap := map[string]verification.Signer{
@@ -84,12 +83,12 @@ func (c *ImportFile) Execute(_ []string) error {
 
 		verification, err := signer.Sign(origin)
 		if err != nil {
-			return bosherr.WrapError(err, "Signing hash")
+			return errors.Wrap(err, "Signing hash")
 		}
 
 		err = verification.Apply(&file)
 		if err != nil {
-			return bosherr.WrapError(err, "Adding verification to file")
+			return errors.Wrap(err, "Adding verification to file")
 		}
 	}
 

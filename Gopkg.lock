@@ -16,7 +16,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/anacrolix/dht"
-  packages = [".","krpc"]
+  packages = [
+    ".",
+    "krpc"
+  ]
   revision = "d16ede1d837fae13f52778d556af12470249cfac"
 
 [[projects]]
@@ -28,7 +31,23 @@
 [[projects]]
   branch = "master"
   name = "github.com/anacrolix/missinggo"
-  packages = [".","assert","bitmap","httptoo","inproc","iter","mime","orderedmap","perf","pproffd","prioritybitmap","pubsub","resource","slices","x"]
+  packages = [
+    ".",
+    "assert",
+    "bitmap",
+    "httptoo",
+    "inproc",
+    "iter",
+    "mime",
+    "orderedmap",
+    "perf",
+    "pproffd",
+    "prioritybitmap",
+    "pubsub",
+    "resource",
+    "slices",
+    "x"
+  ]
   revision = "b41e3843fdeafb3c2840cb36fe9199c9beabf8ff"
 
 [[projects]]
@@ -40,7 +59,19 @@
 [[projects]]
   branch = "master"
   name = "github.com/anacrolix/torrent"
-  packages = [".","bencode","iplist","logonce","metainfo","mmap_span","mse","peer_protocol","storage","tracker","util"]
+  packages = [
+    ".",
+    "bencode",
+    "iplist",
+    "logonce",
+    "metainfo",
+    "mmap_span",
+    "mse",
+    "peer_protocol",
+    "storage",
+    "tracker",
+    "util"
+  ]
   revision = "a41adc49b5fb2467f84f27b2395cb2bff052bfd5"
 
 [[projects]]
@@ -82,7 +113,12 @@
 [[projects]]
   branch = "master"
   name = "github.com/cloudfoundry/bosh-utils"
-  packages = ["errors","logger","system","system/fakes"]
+  packages = [
+    "errors",
+    "logger",
+    "system",
+    "system/fakes"
+  ]
   revision = "ed55b4546683cfb2a9c6177ba1bfaa8ee6b37782"
 
 [[projects]]
@@ -153,7 +189,15 @@
 
 [[projects]]
   name = "github.com/minio/minio-go"
-  packages = [".","pkg/credentials","pkg/encrypt","pkg/policy","pkg/s3signer","pkg/s3utils","pkg/set"]
+  packages = [
+    ".",
+    "pkg/credentials",
+    "pkg/encrypt",
+    "pkg/policy",
+    "pkg/s3signer",
+    "pkg/s3utils",
+    "pkg/set"
+  ]
   revision = "e163d8055f79cf2a9b8af9d358b2814f21fd0472"
   version = "4.0.5"
 
@@ -177,13 +221,45 @@
 
 [[projects]]
   name = "github.com/onsi/ginkgo"
-  packages = [".","config","internal/codelocation","internal/containernode","internal/failer","internal/leafnodes","internal/remote","internal/spec","internal/spec_iterator","internal/specrunner","internal/suite","internal/testingtproxy","internal/writer","reporters","reporters/stenographer","reporters/stenographer/support/go-colorable","reporters/stenographer/support/go-isatty","types"]
+  packages = [
+    ".",
+    "config",
+    "internal/codelocation",
+    "internal/containernode",
+    "internal/failer",
+    "internal/leafnodes",
+    "internal/remote",
+    "internal/spec",
+    "internal/spec_iterator",
+    "internal/specrunner",
+    "internal/suite",
+    "internal/testingtproxy",
+    "internal/writer",
+    "reporters",
+    "reporters/stenographer",
+    "reporters/stenographer/support/go-colorable",
+    "reporters/stenographer/support/go-isatty",
+    "types"
+  ]
   revision = "9eda700730cba42af70d53180f9dcce9266bc2bc"
   version = "v1.4.0"
 
 [[projects]]
   name = "github.com/onsi/gomega"
-  packages = [".","format","internal/assertion","internal/asyncassertion","internal/oraclematcher","internal/testingtsupport","matchers","matchers/support/goraph/bipartitegraph","matchers/support/goraph/edge","matchers/support/goraph/node","matchers/support/goraph/util","types"]
+  packages = [
+    ".",
+    "format",
+    "internal/assertion",
+    "internal/asyncassertion",
+    "internal/oraclematcher",
+    "internal/testingtsupport",
+    "matchers",
+    "matchers/support/goraph/bipartitegraph",
+    "matchers/support/goraph/edge",
+    "matchers/support/goraph/node",
+    "matchers/support/goraph/util",
+    "types"
+  ]
   revision = "c893efa28eb45626cdaa76c9f653b62488858837"
   version = "v1.2.0"
 
@@ -198,6 +274,12 @@
   packages = ["."]
   revision = "bb6d471dc95d4fe11e432687f8b70ff496cf3136"
   version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
 
 [[projects]]
   branch = "master"
@@ -238,25 +320,60 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["cast5","openpgp","openpgp/armor","openpgp/elgamal","openpgp/errors","openpgp/packet","openpgp/s2k","ssh/terminal"]
+  packages = [
+    "cast5",
+    "openpgp",
+    "openpgp/armor",
+    "openpgp/elgamal",
+    "openpgp/errors",
+    "openpgp/packet",
+    "openpgp/s2k",
+    "ssh/terminal"
+  ]
   revision = "d585fd2cc9195196078f516b69daff6744ef5e84"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","html","html/atom","html/charset"]
+  packages = [
+    "context",
+    "html",
+    "html/atom",
+    "html/charset"
+  ]
   revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix","windows"]
+  packages = [
+    "unix",
+    "windows"
+  ]
   revision = "83801418e1b59fb1880e363299581ee543af32ca"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
-  packages = ["encoding","encoding/charmap","encoding/htmlindex","encoding/internal","encoding/internal/identifier","encoding/japanese","encoding/korean","encoding/simplifiedchinese","encoding/traditionalchinese","encoding/unicode","internal/gen","internal/tag","internal/utf8internal","language","runes","transform","unicode/cldr"]
+  packages = [
+    "encoding",
+    "encoding/charmap",
+    "encoding/htmlindex",
+    "encoding/internal",
+    "encoding/internal/identifier",
+    "encoding/japanese",
+    "encoding/korean",
+    "encoding/simplifiedchinese",
+    "encoding/traditionalchinese",
+    "encoding/unicode",
+    "internal/gen",
+    "internal/tag",
+    "internal/utf8internal",
+    "language",
+    "runes",
+    "transform",
+    "unicode/cldr"
+  ]
   revision = "eb22672bea55af56d225d4e35405f4d2e9f062a0"
 
 [[projects]]
@@ -310,6 +427,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "976b46c17d80ac0b51b606550025090aa8f3b499bdf362b2fa5d88400d6d44cf"
+  inputs-digest = "69993f17a0f34e315f6a4e764c630cb4b8b8fc65278452c75c11759ae308dd7d"
   solver-name = "gps-cdcl"
   solver-version = 1

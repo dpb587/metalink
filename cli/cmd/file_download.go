@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/cheggaaa/pb"
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/cli/verification"
 	"github.com/dpb587/metalink/file/metaurl"
@@ -37,14 +37,14 @@ func (c *FileDownload) Execute(_ []string) error {
 
 	local, err := c.URLLoader.Load(metalink.URL{URL: c.Args.Local})
 	if err != nil {
-		return bosherr.WrapError(err, "Parsing download destination")
+		return errors.Wrap(err, "Parsing download destination")
 	}
 
 	progress := pb.New64(int64(file.Size)).Set(pb.Bytes, true).SetRefreshRate(time.Second).SetWidth(80)
 
 	verifier, err := c.Verification.GetVerifier(file, c.SkipHashVerification, c.SkipSignatureVerification, c.SignatureTrustStore)
 	if err != nil {
-		return bosherr.WrapError(err, "Preparing verification")
+		return errors.Wrap(err, "Preparing verification")
 	}
 
 	return transfer.NewVerifiedTransfer(c.MetaURLLoader, c.URLLoader, verifier).TransferFile(file, local, progress)

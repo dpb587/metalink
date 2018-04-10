@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	gohttp "net/http"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/pkg/errors"
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
 	"github.com/dpb587/metalink/repository/source"
@@ -32,21 +32,21 @@ func NewSource(uri string, client *gohttp.Client) *Source {
 func (s *Source) Load() error {
 	res, err := s.client.Get(s.uri)
 	if err != nil {
-		return bosherr.WrapError(err, "Retrieving endpoint")
+		return errors.Wrap(err, "Retrieving endpoint")
 	} else if res.StatusCode != 200 {
-		return bosherr.WrapErrorf(err, "HTTP Status %d", res.StatusCode)
+		return errors.Wrapf(err, "HTTP Status %d", res.StatusCode)
 	}
 
 	bytes, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return bosherr.WrapError(err, "Reading response")
+		return errors.Wrap(err, "Reading response")
 	}
 
 	s.repo = repository.Repository{}
 
 	err = xml.Unmarshal(bytes, &s.repo)
 	if err != nil {
-		return bosherr.WrapError(err, "Unmarshaling")
+		return errors.Wrap(err, "Unmarshaling")
 	}
 
 	return nil

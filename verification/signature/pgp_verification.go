@@ -2,13 +2,12 @@ package signature
 
 import (
 	"bytes"
-	"errors"
 	"io"
 
-	bosherr "github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
 	"github.com/dpb587/metalink/verification"
+	"github.com/pkg/errors"
 	"golang.org/x/crypto/openpgp"
 )
 
@@ -33,19 +32,19 @@ func (v PGPVerification) Sign(actual file.Reference) (verification.Result, error
 func (v PGPVerification) Verify(actual file.Reference, expected metalink.File) error {
 	signed, err := actual.Reader()
 	if err != nil {
-		return bosherr.WrapError(err, "Opening file for reading")
+		return errors.Wrap(err, "Opening file for reading")
 	}
 
 	signature := bytes.NewReader([]byte(expected.Signature.Signature))
 
 	parsedKeyRing, err := openpgp.ReadKeyRing(v.trustStore)
 	if err != nil {
-		return bosherr.WrapErrorf(err, "Reading armored key ring")
+		return errors.Wrapf(err, "Reading armored key ring")
 	}
 
 	entity, err := openpgp.CheckArmoredDetachedSignature(parsedKeyRing, signed, signature)
 	if err != nil {
-		return bosherr.WrapError(err, "Verifying signature")
+		return errors.Wrap(err, "Verifying signature")
 	}
 
 	for range entity.Identities {
