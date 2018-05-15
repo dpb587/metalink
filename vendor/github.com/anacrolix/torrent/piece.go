@@ -11,23 +11,31 @@ import (
 	"github.com/anacrolix/torrent/storage"
 )
 
-// Piece priority describes the importance of obtaining a particular piece.
-
+// Describes the importance of obtaining a particular piece.
 type piecePriority byte
 
-func (pp *piecePriority) Raise(maybe piecePriority) {
+func (pp *piecePriority) Raise(maybe piecePriority) bool {
 	if maybe > *pp {
 		*pp = maybe
+		return true
 	}
+	return false
+}
+
+// Priority for use in PriorityBitmap
+func (me piecePriority) BitmapPriority() int {
+	return -int(me)
 }
 
 const (
-	PiecePriorityNone      piecePriority = iota // Not wanted.
+	PiecePriorityNone      piecePriority = iota // Not wanted. Must be the zero value.
 	PiecePriorityNormal                         // Wanted.
+	PiecePriorityHigh                           // Wanted a lot.
 	PiecePriorityReadahead                      // May be required soon.
-	// Succeeds a piece where a read occurred. Currently the same as Now, apparently due to issues with caching.
+	// Succeeds a piece where a read occurred. Currently the same as Now,
+	// apparently due to issues with caching.
 	PiecePriorityNext
-	PiecePriorityNow // A Reader is reading in this piece.
+	PiecePriorityNow // A Reader is reading in this piece. Highest urgency.
 )
 
 type Piece struct {
@@ -35,12 +43,12 @@ type Piece struct {
 	hash  metainfo.Hash
 	t     *Torrent
 	index int
+	files []*File
 	// Chunks we've written to since the last check. The chunk offset and
 	// length can be determined by the request chunkSize in use.
 	dirtyChunks bitmap.Bitmap
 
 	hashing             bool
-	everHashed          bool
 	numVerifies         int64
 	storageCompletionOk bool
 
@@ -50,6 +58,10 @@ type Piece struct {
 	pendingWritesMutex sync.Mutex
 	pendingWrites      int
 	noPendingWrites    sync.Cond
+
+	// Connections that have written data to this piece since its last check.
+	// This can include connections that have closed.
+	dirtiers map[*connection]struct{}
 }
 
 func (p *Piece) String() string {
@@ -82,6 +94,7 @@ func (p *Piece) numDirtyChunks() (ret int) {
 
 func (p *Piece) unpendChunkIndex(i int) {
 	p.dirtyChunks.Add(i)
+	p.t.tickleReaders()
 }
 
 func (p *Piece) pendChunkIndex(i int) {
@@ -184,4 +197,45 @@ func (p *Piece) VerifyData() {
 
 func (p *Piece) queuedForHash() bool {
 	return p.t.piecesQueuedForHash.Get(p.index)
+}
+
+func (p *Piece) torrentBeginOffset() int64 {
+	return int64(p.index) * p.t.info.PieceLength
+}
+
+func (p *Piece) torrentEndOffset() int64 {
+	return p.torrentBeginOffset() + int64(p.length())
+}
+
+func (p *Piece) SetPriority(prio piecePriority) {
+	p.t.cl.mu.Lock()
+	defer p.t.cl.mu.Unlock()
+	p.priority = prio
+	p.t.updatePiecePriority(p.index)
+}
+
+func (p *Piece) uncachedPriority() (ret piecePriority) {
+	if p.t.pieceComplete(p.index) {
+		return PiecePriorityNone
+	}
+	for _, f := range p.files {
+		ret.Raise(f.prio)
+	}
+	if p.t.readerNowPieces.Contains(p.index) {
+		ret.Raise(PiecePriorityNow)
+	}
+	// if t.readerNowPieces.Contains(piece - 1) {
+	// 	return PiecePriorityNext
+	// }
+	if p.t.readerReadaheadPieces.Contains(p.index) {
+		ret.Raise(PiecePriorityReadahead)
+	}
+	ret.Raise(p.priority)
+	return
+}
+
+func (p *Piece) completion() (ret storage.Completion) {
+	ret.Complete = p.t.pieceComplete(p.index)
+	ret.Ok = p.storageCompletionOk
+	return
 }

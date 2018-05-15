@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net"
 
+	"github.com/anacrolix/missinggo"
 	"github.com/anacrolix/torrent/metainfo"
 	pp "github.com/anacrolix/torrent/peer_protocol"
 )
@@ -17,8 +18,28 @@ type request struct {
 	chunkSpec
 }
 
+func (r request) ToMsg(mt pp.MessageType) pp.Message {
+	return pp.Message{
+		Type:   mt,
+		Index:  r.Index,
+		Begin:  r.Begin,
+		Length: r.Length,
+	}
+}
+
 func newRequest(index, begin, length pp.Integer) request {
 	return request{index, chunkSpec{begin, length}}
+}
+
+func newRequestFromMessage(msg *pp.Message) request {
+	switch msg.Type {
+	case pp.Request, pp.Cancel, pp.Reject:
+		return newRequest(msg.Index, msg.Begin, msg.Length)
+	case pp.Piece:
+		return newRequest(msg.Index, msg.Begin, pp.Integer(len(msg.Piece)))
+	default:
+		panic(msg.Type)
+	}
 }
 
 // The size in bytes of a metadata extension piece.
@@ -102,4 +123,45 @@ func addrCompactIP(addr net.Addr) (string, error) {
 		return string(v4), nil
 	}
 	return string(ip.To16()), nil
+}
+
+func connIsIpv6(nc interface {
+	LocalAddr() net.Addr
+}) bool {
+	ra := nc.LocalAddr()
+	rip := missinggo.AddrIP(ra)
+	return rip.To4() == nil && rip.To16() != nil
+}
+
+func clamp(min, value, max int64) int64 {
+	if min > max {
+		panic("harumph")
+	}
+	if value < min {
+		value = min
+	}
+	if value > max {
+		value = max
+	}
+	return value
+}
+
+func max(as ...int64) int64 {
+	ret := as[0]
+	for _, a := range as[1:] {
+		if a > ret {
+			ret = a
+		}
+	}
+	return ret
+}
+
+func min(as ...int64) int64 {
+	ret := as[0]
+	for _, a := range as[1:] {
+		if a < ret {
+			ret = a
+		}
+	}
+	return ret
 }

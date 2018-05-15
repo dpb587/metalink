@@ -10,24 +10,15 @@ const (
 	maxRequests      = 250    // Maximum pending requests we allow peers to send us.
 	defaultChunkSize = 0x4000 // 16KiB
 
-	// Justification for set bits follows.
-	//
-	// Extension protocol ([5]|=0x10):
-	// http://www.bittorrent.org/beps/bep_0010.html
-	//
-	// Fast Extension ([7]|=0x04):
-	// http://bittorrent.org/beps/bep_0006.html.
-	// Disabled until AllowedFast is implemented. TODO
-	//
-	// DHT ([7]|=1):
-	// http://www.bittorrent.org/beps/bep_0005.html
-	defaultExtensionBytes = "\x00\x00\x00\x00\x00\x10\x00\x01"
-
 	// These are our extended message IDs. Peers will use these values to
 	// select which extension a message is intended for.
 	metadataExtendedId = iota + 1 // 0 is reserved for deleting keys
 	pexExtendedId
 )
+
+func defaultPeerExtensionBytes() peerExtensionBytes {
+	return newPeerExtensionBytes(ExtensionBitDHT, ExtensionBitExtended, ExtensionBitFast)
+}
 
 // I could move a lot of these counters to their own file, but I suspect they
 // may be attached to a Client someday.
@@ -36,20 +27,15 @@ var (
 	unexpectedChunksReceived = expvar.NewInt("chunksReceivedUnexpected")
 	chunksReceived           = expvar.NewInt("chunksReceived")
 
-	peersAddedBySource = expvar.NewMap("peersAddedBySource")
+	torrent = expvar.NewMap("torrent")
 
-	uploadChunksPosted = expvar.NewInt("uploadChunksPosted")
-	unexpectedCancels  = expvar.NewInt("unexpectedCancels")
+	peersAddedBySource = expvar.NewMap("peersAddedBySource")
 
 	pieceHashedCorrect    = expvar.NewInt("pieceHashedCorrect")
 	pieceHashedNotCorrect = expvar.NewInt("pieceHashedNotCorrect")
 
 	unsuccessfulDials = expvar.NewInt("dialSuccessful")
 	successfulDials   = expvar.NewInt("dialUnsuccessful")
-
-	acceptUTP    = expvar.NewInt("acceptUTP")
-	acceptTCP    = expvar.NewInt("acceptTCP")
-	acceptReject = expvar.NewInt("acceptReject")
 
 	peerExtensions                    = expvar.NewMap("peerExtensions")
 	completedHandshakeConnectionFlags = expvar.NewMap("completedHandshakeConnectionFlags")
@@ -62,6 +48,7 @@ var (
 	postedKeepalives           = expvar.NewInt("postedKeepalives")
 	// Requests received for pieces we don't have.
 	requestsReceivedForMissingPieces = expvar.NewInt("requestsReceivedForMissingPieces")
+	requestedChunkLengths            = expvar.NewMap("requestedChunkLengths")
 
 	messageTypesReceived = expvar.NewMap("messageTypesReceived")
 	messageTypesSent     = expvar.NewMap("messageTypesSent")

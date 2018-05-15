@@ -15,17 +15,13 @@ const (
 	noOffsetThreshold          = 4
 
 	// Compute wordSizeInBytes, the size of a word in bytes.
-	_m              = ^word(0)
+	_m              = ^uint64(0)
 	_logS           = _m>>8&1 + _m>>16&1 + _m>>32&1
 	wordSizeInBytes = 1 << _logS
 
 	// other constants used in ctz_generic.go
 	wordSizeInBits = wordSizeInBytes << 3 // word size in bits
-	digitBase      = 1 << wordSizeInBits  // digit base
-	digitMask      = digitBase - 1        // digit mask
 )
-
-type word uintptr
 
 const maxWord = 1<<wordSizeInBits - 1
 
@@ -267,4 +263,53 @@ func getRandomPermutation(n int) []int {
 		m[i] = r[i].orig
 	}
 	return m
+}
+
+func minOfInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func maxOfInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func maxOfUint16(a, b uint16) uint16 {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func minOfUint16(a, b uint16) uint16 {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func maxUint16(a, b uint16) uint16 {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func minUint16(a, b uint16) uint16 {
+	if a < b {
+		return a
+	}
+	return b
 }

@@ -24,10 +24,12 @@ import (
 const (
 	maxPadLen = 512
 
-	CryptoMethodPlaintext = 1
-	CryptoMethodRC4       = 2
-	AllSupportedCrypto    = CryptoMethodPlaintext | CryptoMethodRC4
+	CryptoMethodPlaintext CryptoMethod = 1
+	CryptoMethodRC4       CryptoMethod = 2
+	AllSupportedCrypto                 = CryptoMethodPlaintext | CryptoMethodRC4
 )
+
+type CryptoMethod uint32
 
 var (
 	// Prime P according to the spec, and G, the generator.
@@ -175,20 +177,20 @@ func (h *handshake) postY(x *big.Int) error {
 	return h.postWrite(paddedLeft(y.Bytes(), 96))
 }
 
-func (h *handshake) establishS() (err error) {
+func (h *handshake) establishS() error {
 	x := newX()
 	h.postY(&x)
 	var b [96]byte
-	_, err = io.ReadFull(h.conn, b[:])
+	_, err := io.ReadFull(h.conn, b[:])
 	if err != nil {
-		return
+		return fmt.Errorf("error reading Y: %s", err)
 	}
 	var Y, S big.Int
 	Y.SetBytes(b[:])
 	S.Exp(&Y, &x, &p)
 	sBytes := S.Bytes()
 	copy(h.s[96-len(sBytes):96], sBytes)
-	return
+	return nil
 }
 
 func newPadLen() int64 {
@@ -212,9 +214,9 @@ type handshake struct {
 	skey   []byte        // Skey we're initiating with.
 	ia     []byte        // Initial payload. Only used by the initiator.
 	// Return the bit for the crypto method the receiver wants to use.
-	chooseMethod func(supported uint32) uint32
+	chooseMethod CryptoSelector
 	// Sent to the receiver.
-	cryptoProvides uint32
+	cryptoProvides CryptoMethod
 
 	writeMu    sync.Mutex
 	writes     [][]byte
@@ -365,7 +367,7 @@ func (h *handshake) newEncrypt(initer bool) *rc4.Cipher {
 	return newEncrypt(initer, h.s[:], h.skey)
 }
 
-func (h *handshake) initerSteps() (ret io.ReadWriter, err error) {
+func (h *handshake) initerSteps() (ret io.ReadWriter, selected CryptoMethod, err error) {
 	h.postWrite(hash(req1, h.s[:]))
 	h.postWrite(xor(hash(req2, h.skey), hash(req3, h.s[:])))
 	buf := &bytes.Buffer{}
@@ -398,7 +400,7 @@ func (h *handshake) initerSteps() (ret io.ReadWriter, err error) {
 		return
 	}
 	r := newCipherReader(bC, h.conn)
-	var method uint32
+	var method CryptoMethod
 	err = unmarshal(r, &method, &padLen)
 	if err != nil {
 		return
@@ -407,7 +409,8 @@ func (h *handshake) initerSteps() (ret io.ReadWriter, err error) {
 	if err != nil {
 		return
 	}
-	switch method & h.cryptoProvides {
+	selected = method & h.cryptoProvides
+	switch selected {
 	case CryptoMethodRC4:
 		ret = readWriter{r, &cipherWriter{e, h.conn, nil}}
 	case CryptoMethodPlaintext:
@@ -420,7 +423,7 @@ func (h *handshake) initerSteps() (ret io.ReadWriter, err error) {
 
 var ErrNoSecretKeyMatch = errors.New("no skey matched")
 
-func (h *handshake) receiverSteps() (ret io.ReadWriter, err error) {
+func (h *handshake) receiverSteps() (ret io.ReadWriter, chosen CryptoMethod, err error) {
 	// There is up to 512 bytes of padding, then the 20 byte hash.
 	err = readUntil(io.LimitReader(h.conn, 532), hash(req1, h.s[:]))
 	if err != nil {
@@ -449,7 +452,7 @@ func (h *handshake) receiverSteps() (ret io.ReadWriter, err error) {
 	r := newCipherReader(newEncrypt(true, h.s[:], h.skey), h.conn)
 	var (
 		vc       [8]byte
-		provides uint32
+		provides CryptoMethod
 		padLen   uint16
 	)
 
@@ -458,7 +461,7 @@ func (h *handshake) receiverSteps() (ret io.ReadWriter, err error) {
 		return
 	}
 	cryptoProvidesCount.Add(strconv.FormatUint(uint64(provides), 16), 1)
-	chosen := h.chooseMethod(provides)
+	chosen = h.chooseMethod(provides)
 	_, err = io.CopyN(ioutil.Discard, r, int64(padLen))
 	if err != nil {
 		return
@@ -497,7 +500,7 @@ func (h *handshake) receiverSteps() (ret io.ReadWriter, err error) {
 	return
 }
 
-func (h *handshake) Do() (ret io.ReadWriter, err error) {
+func (h *handshake) Do() (ret io.ReadWriter, method CryptoMethod, err error) {
 	h.writeCond.L = &h.writeMu
 	h.writerCond.L = &h.writerMu
 	go h.writer()
@@ -519,14 +522,14 @@ func (h *handshake) Do() (ret io.ReadWriter, err error) {
 		return
 	}
 	if h.initer {
-		ret, err = h.initerSteps()
+		ret, method, err = h.initerSteps()
 	} else {
-		ret, err = h.receiverSteps()
+		ret, method, err = h.receiverSteps()
 	}
 	return
 }
 
-func InitiateHandshake(rw io.ReadWriter, skey []byte, initialPayload []byte, cryptoProvides uint32) (ret io.ReadWriter, err error) {
+func InitiateHandshake(rw io.ReadWriter, skey []byte, initialPayload []byte, cryptoProvides CryptoMethod) (ret io.ReadWriter, method CryptoMethod, err error) {
 	h := handshake{
 		conn:           rw,
 		initer:         true,
@@ -537,7 +540,7 @@ func InitiateHandshake(rw io.ReadWriter, skey []byte, initialPayload []byte, cry
 	return h.Do()
 }
 
-func ReceiveHandshake(rw io.ReadWriter, skeys SecretKeyIter, selectCrypto func(uint32) uint32) (ret io.ReadWriter, err error) {
+func ReceiveHandshake(rw io.ReadWriter, skeys SecretKeyIter, selectCrypto CryptoSelector) (ret io.ReadWriter, method CryptoMethod, err error) {
 	h := handshake{
 		conn:         rw,
 		initer:       false,
@@ -551,11 +554,11 @@ func ReceiveHandshake(rw io.ReadWriter, skeys SecretKeyIter, selectCrypto func(u
 // returns false or exhausted.
 type SecretKeyIter func(callback func(skey []byte) (more bool))
 
-func DefaultCryptoSelector(provided uint32) uint32 {
+func DefaultCryptoSelector(provided CryptoMethod) CryptoMethod {
 	if provided&CryptoMethodPlaintext != 0 {
 		return CryptoMethodPlaintext
 	}
 	return CryptoMethodRC4
 }
 
-type CryptoSelector func(uint32) uint32
+type CryptoSelector func(CryptoMethod) CryptoMethod

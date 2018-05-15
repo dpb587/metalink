@@ -36,8 +36,18 @@ func handshakeWriter(w io.Writer, bb <-chan []byte, done chan<- error) {
 
 type (
 	peerExtensionBytes [8]byte
-	peerID             [20]byte
 )
+
+func (me peerExtensionBytes) String() string {
+	return hex.EncodeToString(me[:])
+}
+
+func newPeerExtensionBytes(bits ...ExtensionBit) (ret peerExtensionBytes) {
+	for _, b := range bits {
+		ret.SetBit(b)
+	}
+	return
+}
 
 func (pex peerExtensionBytes) SupportsExtended() bool {
 	return pex.GetBit(ExtensionBitExtended)
@@ -52,7 +62,7 @@ func (pex peerExtensionBytes) SupportsFast() bool {
 }
 
 func (pex *peerExtensionBytes) SetBit(bit ExtensionBit) {
-	pex[7-bit/8] |= 1 << bit % 8
+	pex[7-bit/8] |= 1 << (bit % 8)
 }
 
 func (pex peerExtensionBytes) GetBit(bit ExtensionBit) bool {
@@ -61,7 +71,7 @@ func (pex peerExtensionBytes) GetBit(bit ExtensionBit) bool {
 
 type handshakeResult struct {
 	peerExtensionBytes
-	peerID
+	PeerID
 	metainfo.Hash
 }
 
@@ -117,8 +127,8 @@ func handshake(sock io.ReadWriter, ih *metainfo.Hash, peerID [20]byte, extension
 	}
 	missinggo.CopyExact(&res.peerExtensionBytes, b[20:28])
 	missinggo.CopyExact(&res.Hash, b[28:48])
-	missinggo.CopyExact(&res.peerID, b[48:68])
-	peerExtensions.Add(hex.EncodeToString(res.peerExtensionBytes[:]), 1)
+	missinggo.CopyExact(&res.PeerID, b[48:68])
+	peerExtensions.Add(res.peerExtensionBytes.String(), 1)
 
 	// TODO: Maybe we can just drop peers here if we're not interested. This
 	// could prevent them trying to reconnect, falsely believing there was
@@ -155,7 +165,7 @@ func handleEncryption(
 ) (
 	ret io.ReadWriter,
 	headerEncrypted bool,
-	cryptoMethod uint32,
+	cryptoMethod mse.CryptoMethod,
 	err error,
 ) {
 	if !policy.ForceEncryption {
@@ -177,20 +187,17 @@ func handleEncryption(
 		}
 	}
 	headerEncrypted = true
-	ret, err = mse.ReceiveHandshake(rw, skeys, func(provides uint32) uint32 {
-		cryptoMethod = func() uint32 {
-			switch {
-			case policy.ForceEncryption:
-				return mse.CryptoMethodRC4
-			case policy.DisableEncryption:
-				return mse.CryptoMethodPlaintext
-			case policy.PreferNoEncryption && provides&mse.CryptoMethodPlaintext != 0:
-				return mse.CryptoMethodPlaintext
-			default:
-				return mse.DefaultCryptoSelector(provides)
-			}
-		}()
-		return cryptoMethod
+	ret, cryptoMethod, err = mse.ReceiveHandshake(rw, skeys, func(provides mse.CryptoMethod) mse.CryptoMethod {
+		switch {
+		case policy.ForceEncryption:
+			return mse.CryptoMethodRC4
+		case policy.DisableEncryption:
+			return mse.CryptoMethodPlaintext
+		case policy.PreferNoEncryption && provides&mse.CryptoMethodPlaintext != 0:
+			return mse.CryptoMethodPlaintext
+		default:
+			return mse.DefaultCryptoSelector(provides)
+		}
 	})
 	return
 }

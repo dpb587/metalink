@@ -7,12 +7,12 @@ import "C"
 import (
 	"context"
 	"errors"
-	"log"
+	"fmt"
 	"net"
-	"sync/atomic"
 	"time"
 
 	"github.com/anacrolix/missinggo/inproc"
+	"github.com/anacrolix/mmsg"
 )
 
 type Socket struct {
@@ -79,7 +79,8 @@ func (s *Socket) onLibSocketDestroyed(ls *C.utp_socket) {
 
 func (s *Socket) newConn(us *C.utp_socket) *Conn {
 	c := &Conn{
-		s: us,
+		s:         us,
+		localAddr: s.pc.LocalAddr(),
 	}
 	c.cond.L = &mu
 	s.conns[us] = c
@@ -88,51 +89,94 @@ func (s *Socket) newConn(us *C.utp_socket) *Conn {
 	return c
 }
 
-var reads int64
-
 func (s *Socket) packetReader() {
-	var b [0x1000]byte
+	mc := mmsg.NewConn(s.pc)
+	// Increasing the messages increases the memory use, but also means we can
+	// reduces utp_issue_deferred_acks and syscalls which should improve
+	// efficiency. On the flip side, not all OSs implement batched reads.
+	ms := make([]mmsg.Message, func() int {
+		if mc.Err() == nil {
+			return 16
+		} else {
+			return 1
+		}
+	}())
+	for i := range ms {
+		// The IPv4 UDP limit is allegedly about 64 KiB, and this message has
+		// been seen on receiving on Windows with just 0x1000: wsarecvfrom: A
+		// message sent on a datagram socket was larger than the internal
+		// message buffer or some other network limit, or the buffer used to
+		// receive a datagram into was smaller than the datagram itself.
+		ms[i].Buffers = [][]byte{make([]byte, 0x10000)}
+	}
+	// Some crap OSs like Windoze will raise errors in Reads that don't
+	// actually mean we should stop.
+	consecutiveErrors := 0
 	for {
 		// In C, all the reads are processed and when it threatens to block,
-		// we're supposed to call utp_issue_deferred_acks. I don't know how we
-		// can do this in Go. An mrecv or non-blocking form of ReadFrom is
-		// required.
-		n, addr, err := s.pc.ReadFrom(b[:])
+		// we're supposed to call utp_issue_deferred_acks.
+		n, err := mc.RecvMsgs(ms)
+		if n == 1 {
+			singleMsgRecvs.Add(1)
+		}
+		if n > 1 {
+			multiMsgRecvs.Add(1)
+		}
 		if err != nil {
 			mu.Lock()
 			closed := s.closed
 			mu.Unlock()
 			if closed {
+				// We don't care.
 				return
 			}
 			// See https://github.com/anacrolix/torrent/issues/83. If we get
 			// an endless stream of errors (such as the PacketConn being
 			// Closed outside of our control, this work around may need to be
 			// reconsidered.
-			log.Print(err)
+			Logger.Printf("ignoring socket read error: %s", err)
+			consecutiveErrors++
+			if consecutiveErrors >= 100 {
+				Logger.Print("too many consecutive errors, closing socket")
+				s.Close()
+				return
+			}
 			continue
 		}
-		sa, sal := netAddrToLibSockaddr(addr)
-		atomic.AddInt64(&reads, 1)
-		// log.Printf("received %d bytes, %d packets", n, reads)
+		consecutiveErrors = 0
+		expMap.Add("successful mmsg receive calls", 1)
+		expMap.Add("received messages", int64(n))
 		func() {
 			mu.Lock()
 			defer mu.Unlock()
 			if s.closed {
 				return
 			}
-			ret := C.utp_process_udp(s.ctx, (*C.byte)(&b[0]), C.size_t(n), sa, sal)
-			switch ret {
-			case 1:
-				socketUtpPacketsReceived.Add(1)
+			gotUtp := false
+			for _, m := range ms[:n] {
+				gotUtp = s.processReceivedMessage(m.Buffers[0][:m.N], m.Addr) || gotUtp
+			}
+			if gotUtp {
 				C.utp_issue_deferred_acks(s.ctx)
+				// TODO: When is this done in C?
 				C.utp_check_timeouts(s.ctx)
-			case 0:
-				s.onReadNonUtp(b[:n], addr)
-			default:
-				panic(ret)
 			}
 		}()
+	}
+}
+
+func (s *Socket) processReceivedMessage(b []byte, addr net.Addr) (utp bool) {
+	sa, sal := netAddrToLibSockaddr(addr)
+	ret := C.utp_process_udp(s.ctx, (*C.byte)(&b[0]), C.size_t(len(b)), sa, sal)
+	switch ret {
+	case 1:
+		socketUtpPacketsReceived.Add(1)
+		return true
+	case 0:
+		s.onReadNonUtp(b, addr)
+		return false
+	default:
+		panic(ret)
 	}
 }
 
@@ -150,29 +194,29 @@ func (s *Socket) timeoutChecker() {
 	}
 }
 
-func (me *Socket) Close() error {
+func (s *Socket) Close() error {
 	mu.Lock()
 	defer mu.Unlock()
-	if me.closed {
+	if s.closed {
 		return nil
 	}
 	// Calling this deletes the pointer. It must not be referred to after
 	// this.
-	C.utp_destroy(me.ctx)
-	me.ctx = nil
-	me.pc.Close()
-	close(me.backlog)
-	close(me.nonUtpReads)
-	me.closed = true
+	C.utp_destroy(s.ctx)
+	s.ctx = nil
+	s.pc.Close()
+	close(s.backlog)
+	close(s.nonUtpReads)
+	s.closed = true
 	return nil
 }
 
-func (me *Socket) Addr() net.Addr {
-	return me.pc.LocalAddr()
+func (s *Socket) Addr() net.Addr {
+	return s.pc.LocalAddr()
 }
 
-func (me *Socket) LocalAddr() net.Addr {
-	return me.pc.LocalAddr()
+func (s *Socket) LocalAddr() net.Addr {
+	return s.pc.LocalAddr()
 }
 
 func (s *Socket) Accept() (net.Conn, error) {
@@ -194,11 +238,13 @@ func (s *Socket) DialTimeout(addr string, timeout time.Duration) (net.Conn, erro
 		ctx, cancel = context.WithTimeout(ctx, timeout)
 		defer cancel()
 	}
-	return s.DialContext(ctx, addr)
+	return s.DialContext(ctx, "", addr)
 }
 
-func (s *Socket) resolveAddr(addr string) (net.Addr, error) {
-	n := s.Addr().Network()
+func (s *Socket) resolveAddr(n, addr string) (net.Addr, error) {
+	if n == "" {
+		n = s.Addr().Network()
+	}
 	switch n {
 	case "inproc":
 		return inproc.ResolveAddr(n, addr)
@@ -207,10 +253,11 @@ func (s *Socket) resolveAddr(addr string) (net.Addr, error) {
 	}
 }
 
-func (s *Socket) DialContext(ctx context.Context, addr string) (net.Conn, error) {
-	ua, err := s.resolveAddr(addr)
+// Passing an empty network will use the network of the Socket's listener.
+func (s *Socket) DialContext(ctx context.Context, network, addr string) (net.Conn, error) {
+	ua, err := s.resolveAddr(network, addr)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("error resolving address: %v", err)
 	}
 	sa, sl := netAddrToLibSockaddr(ua)
 	mu.Lock()
@@ -220,6 +267,7 @@ func (s *Socket) DialContext(ctx context.Context, addr string) (net.Conn, error)
 	}
 	c := s.newConn(C.utp_create_socket(s.ctx))
 	C.utp_connect(c.s, sa, sl)
+	c.setRemoteAddr()
 	err = c.waitForConnect(ctx)
 	if err != nil {
 		c.close()
@@ -292,4 +340,10 @@ func (s *Socket) SetWriteBufferLen(len int) {
 	if i != 0 {
 		panic(i)
 	}
+}
+
+func (s *Socket) SetOption(opt Option, val int) int {
+	mu.Lock()
+	defer mu.Unlock()
+	return int(C.utp_context_set_option(s.ctx, opt, C.int(val)))
 }

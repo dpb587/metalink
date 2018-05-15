@@ -4,14 +4,14 @@
 [[projects]]
   name = "github.com/Masterminds/semver"
   packages = ["."]
-  revision = "15d8430ab86497c5c0da827b748823945e1cf1e1"
-  version = "v1.4.0"
+  revision = "c7af12943936e8c39859482e61f0574c2fd7fc75"
+  version = "v1.4.2"
 
 [[projects]]
   name = "github.com/RoaringBitmap/roaring"
   packages = ["."]
-  revision = "5930de397dc5823f13e026b6094668c2dd526530"
-  version = "v0.3.16"
+  revision = "1a28a7fa985680f9f4e1644c0a857ec359a444b0"
+  version = "v0.4.7"
 
 [[projects]]
   branch = "master"
@@ -20,21 +20,27 @@
     ".",
     "krpc"
   ]
-  revision = "d16ede1d837fae13f52778d556af12470249cfac"
+  revision = "24cbf25b72a4c565e49c4f3262cc47526fb5ebdf"
 
 [[projects]]
   branch = "master"
   name = "github.com/anacrolix/go-libutp"
   packages = ["."]
-  revision = "ab1d4f3b9abbf1bc88c1c2cce6defa7926b652cb"
+  revision = "66ee1312ae8ff6d0e3fd57cca7d654be6a4fad72"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/anacrolix/log"
+  packages = ["."]
+  revision = "2323884b361d84490c06cf5f4e8f8f3f8b6abd67"
 
 [[projects]]
   branch = "master"
   name = "github.com/anacrolix/missinggo"
   packages = [
     ".",
-    "assert",
     "bitmap",
+    "expect",
     "httptoo",
     "inproc",
     "iter",
@@ -48,7 +54,16 @@
     "slices",
     "x"
   ]
-  revision = "b41e3843fdeafb3c2840cb36fe9199c9beabf8ff"
+  revision = "ef490447bf2efe3b83e875f2722a2b74e6a8e756"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/anacrolix/mmsg"
+  packages = [
+    ".",
+    "socket"
+  ]
+  revision = "b6a9725daf1e3b189c5bd7cdc78dca5226750c78"
 
 [[projects]]
   branch = "master"
@@ -69,16 +84,21 @@
     "mse",
     "peer_protocol",
     "storage",
-    "tracker",
-    "util"
+    "tracker"
   ]
-  revision = "a41adc49b5fb2467f84f27b2395cb2bff052bfd5"
+  revision = "15b828515e6b1ccbdfdfe2d60926f48af2f1e4aa"
 
 [[projects]]
   branch = "master"
   name = "github.com/anacrolix/utp"
   packages = ["."]
-  revision = "87ba7933b8d7520e5e6e27460e25e42c2fccab9f"
+  revision = "9e0e1d1d0572f5a09a669d4ea0372d8e8078dcc9"
+
+[[projects]]
+  name = "github.com/bkaradzic/go-lz4"
+  packages = ["."]
+  revision = "74ddf82598bc4745b965729e9c6a463bedd33049"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/bmatcuk/doublestar"
@@ -97,6 +117,18 @@
   name = "github.com/bradfitz/iter"
   packages = ["."]
   revision = "454541ec3da2a73fc34fd049b19ee5777bf19345"
+
+[[projects]]
+  name = "github.com/calmh/du"
+  packages = ["."]
+  revision = "dd9dc2043353249b2910b29dcfd6f6d4e64f39be"
+  version = "v1.0.1"
+
+[[projects]]
+  name = "github.com/calmh/xdr"
+  packages = ["."]
+  revision = "08e072f9cb164f943a92eb59f90f3abc64ac6e8f"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
@@ -119,13 +151,19 @@
     "system",
     "system/fakes"
   ]
-  revision = "ed55b4546683cfb2a9c6177ba1bfaa8ee6b37782"
+  revision = "725aefa177b0b855fe54825e8251378d587738d8"
+
+[[projects]]
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/dustin/go-humanize"
   packages = ["."]
-  revision = "bb3d318650d48840a39aa21a027c6630e198e626"
+  revision = "02af3965c54e8cacf948b97fef38925c4120652c"
 
 [[projects]]
   branch = "master"
@@ -137,13 +175,23 @@
   branch = "master"
   name = "github.com/glycerine/go-unsnap-stream"
   packages = ["."]
-  revision = "62a9a9eb44fd8932157b1a8ace2149eff5971af6"
+  revision = "9f0cb55181dd3a0a4c168d3dbc72d4aca4853126"
 
 [[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
-  revision = "32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a"
-  version = "v1.32.0"
+  revision = "6529cf7c58879c08d927016dde4477f18a0634cb"
+  version = "v1.36.0"
+
+[[projects]]
+  name = "github.com/gogo/protobuf"
+  packages = [
+    "gogoproto",
+    "proto",
+    "protoc-gen-gogo/descriptor"
+  ]
+  revision = "1adfc126b41513cc696b209667c8656ea7aac67c"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -155,19 +203,37 @@
   branch = "master"
   name = "github.com/google/btree"
   packages = ["."]
-  revision = "316fb6d3f031ae8f4d457c6c5186b9e3ded70435"
+  revision = "e89373fe6b4a7413d7acd6da1725b83ef713e6e4"
+
+[[projects]]
+  name = "github.com/huandu/xstrings"
+  packages = ["."]
+  revision = "2bf18b218c51864a87384c06996e40ff9dcff8e1"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/jessevdk/go-flags"
   packages = ["."]
-  revision = "96dc06278ce32a0e9d957d590bb987c81ee66407"
-  version = "v1.3.0"
+  revision = "c6ca198ec95c841fdb89fc0de7496fed11ab854e"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/jlaffaye/ftp"
   packages = ["."]
-  revision = "299b7ff5b6096588cceca2edc1fc9f557002fb85"
+  revision = "2403248fa8cc9f7909862627aa7337f13f8e0bf1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/kardianos/osext"
+  packages = ["."]
+  revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/kballard/go-shellquote"
+  packages = ["."]
+  revision = "95032a82bc518f77982ea72343cc1ade730072f0"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -184,8 +250,8 @@
 [[projects]]
   name = "github.com/mattn/go-sqlite3"
   packages = ["."]
-  revision = "ed69081a91fd053f17672236b0dd52ba7485e1a3"
-  version = "v1.4.0"
+  revision = "6c771bb9887719704b210e87e934f08be014bdb1"
+  version = "v1.6.0"
 
 [[projects]]
   name = "github.com/minio/minio-go"
@@ -193,13 +259,18 @@
     ".",
     "pkg/credentials",
     "pkg/encrypt",
-    "pkg/policy",
     "pkg/s3signer",
     "pkg/s3utils",
     "pkg/set"
   ]
-  revision = "e163d8055f79cf2a9b8af9d358b2814f21fd0472"
-  version = "4.0.5"
+  revision = "c6108c47ba5d86548404ebf9e51c5ca18769fe79"
+  version = "6.0.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/minio/sha256-simd"
+  packages = ["."]
+  revision = "ad98a36ba0da87206e3378c556abbfeaeaa98668"
 
 [[projects]]
   branch = "master"
@@ -241,8 +312,8 @@
     "reporters/stenographer/support/go-isatty",
     "types"
   ]
-  revision = "9eda700730cba42af70d53180f9dcce9266bc2bc"
-  version = "v1.4.0"
+  revision = "fa5fabab2a1bfbd924faf4c067d07ae414e2aedf"
+  version = "v1.5.0"
 
 [[projects]]
   name = "github.com/onsi/gomega"
@@ -260,14 +331,20 @@
     "matchers/support/goraph/util",
     "types"
   ]
-  revision = "c893efa28eb45626cdaa76c9f653b62488858837"
-  version = "v1.2.0"
+  revision = "62bff4df71bdbc266561a0caee19f0594b17c240"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/petar/GoLLRB"
   packages = ["llrb"]
   revision = "53be0d36a84c2a886ca057d34b6aa4468df9ccb4"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/petermattis/goid"
+  packages = ["."]
+  revision = "b0b1615b78e5ee59739545bb38426383b2cda4c9"
 
 [[projects]]
   name = "github.com/philhofer/fwd"
@@ -288,16 +365,51 @@
   revision = "2dfbae5fcf46374f166f8969cb07e167f1be6273"
 
 [[projects]]
+  name = "github.com/sasha-s/go-deadlock"
+  packages = ["."]
+  revision = "03d40e5dbd5488667a13b3c2600b2f7c2886f02f"
+  version = "v0.2.0"
+
+[[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
-  version = "v1.0.4"
+  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
+  version = "v1.0.5"
 
 [[projects]]
   name = "github.com/spaolacci/murmur3"
   packages = ["."]
   revision = "9f5d223c60793748f04a9d5b4b4eacddfc1f755d"
   version = "v1.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/syncthing/notify"
+  packages = ["."]
+  revision = "b9ceffc925039c77cd9e0d38f248279ccc4399e2"
+
+[[projects]]
+  name = "github.com/syncthing/syncthing"
+  packages = [
+    "lib/config",
+    "lib/dialer",
+    "lib/events",
+    "lib/fs",
+    "lib/logger",
+    "lib/nat",
+    "lib/osutil",
+    "lib/protocol",
+    "lib/rand",
+    "lib/sha256",
+    "lib/signature",
+    "lib/sync",
+    "lib/upgrade",
+    "lib/upnp",
+    "lib/util",
+    "lib/versioner"
+  ]
+  revision = "a1b5a3d5c0d29cbf653804740cb2e0080284b8e4"
+  version = "v0.14.47"
 
 [[projects]]
   name = "github.com/tinylib/msgp"
@@ -321,6 +433,8 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = [
+    "argon2",
+    "blake2b",
     "cast5",
     "openpgp",
     "openpgp/armor",
@@ -330,32 +444,42 @@
     "openpgp/s2k",
     "ssh/terminal"
   ]
-  revision = "d585fd2cc9195196078f516b69daff6744ef5e84"
+  revision = "1a580b3eff7814fc9b40602fd35256c63b50f491"
 
 [[projects]]
-  branch = "master"
+  branch = "release-branch.go1.10"
   name = "golang.org/x/net"
   packages = [
+    "bpf",
     "context",
     "html",
     "html/atom",
-    "html/charset"
+    "html/charset",
+    "idna",
+    "internal/iana",
+    "internal/socket",
+    "ipv4",
+    "ipv6",
+    "lex/httplex",
+    "proxy"
   ]
-  revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
+  revision = "0ed95abb35c445290478a5348a7b38bb154135fd"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = [
+    "cpu",
     "unix",
     "windows"
   ]
-  revision = "83801418e1b59fb1880e363299581ee543af32ca"
+  revision = "7c87d13f8e835d2fb3a70a2912c811ed0c1d241b"
 
 [[projects]]
-  branch = "master"
   name = "golang.org/x/text"
   packages = [
+    "collate",
+    "collate/build",
     "encoding",
     "encoding/charmap",
     "encoding/htmlindex",
@@ -366,21 +490,29 @@
     "encoding/simplifiedchinese",
     "encoding/traditionalchinese",
     "encoding/unicode",
+    "internal/colltab",
     "internal/gen",
     "internal/tag",
+    "internal/triegen",
+    "internal/ucd",
     "internal/utf8internal",
     "language",
     "runes",
+    "secure/bidirule",
     "transform",
-    "unicode/cldr"
+    "unicode/bidi",
+    "unicode/cldr",
+    "unicode/norm",
+    "unicode/rangetable"
   ]
-  revision = "eb22672bea55af56d225d4e35405f4d2e9f062a0"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/time"
   packages = ["rate"]
-  revision = "6dc17368e09b0e8634d71cac8168d853e869a0c7"
+  revision = "fbb02b2291d28baffd63558aa44b4b56f178d650"
 
 [[projects]]
   name = "gopkg.in/VividCortex/ewma.v1"
@@ -397,8 +529,8 @@
 [[projects]]
   name = "gopkg.in/fatih/color.v1"
   packages = ["."]
-  revision = "570b54cabe6b8eb0bc2dfce68d964677d63b5260"
-  version = "v1.5.0"
+  revision = "507f6050b8568533fb3f5504de8e5205fa62a114"
+  version = "v1.6.0"
 
 [[projects]]
   name = "gopkg.in/mattn/go-colorable.v0"
@@ -419,14 +551,14 @@
   version = "v0.0.2"
 
 [[projects]]
-  branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "287cf08546ab5e7e37d55a84f7ed3fd1db036de5"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "69993f17a0f34e315f6a4e764c630cb4b8b8fc65278452c75c11759ae308dd7d"
+  inputs-digest = "053fdad736448ddd819a7c06f9b22e3c7fa6df433b45d46df4fbdc932ac6f9cc"
   solver-name = "gps-cdcl"
   solver-version = 1
