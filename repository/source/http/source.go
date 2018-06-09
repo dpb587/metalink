@@ -2,15 +2,14 @@ package http
 
 import (
 	"encoding/xml"
-	"errors"
 	"io"
 	"io/ioutil"
 	gohttp "net/http"
 
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
 	"github.com/dpb587/metalink/repository/source"
+	"github.com/pkg/errors"
 )
 
 type Source struct {

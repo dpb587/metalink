@@ -1,7 +1,6 @@
 package git
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -10,7 +9,6 @@ import (
 
 	"github.com/dpb587/metalink/repository/source"
 	minio "github.com/minio/minio-go"
-
 	"github.com/pkg/errors"
 )
 

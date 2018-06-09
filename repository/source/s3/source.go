@@ -6,12 +6,12 @@ import (
 	"path"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
 	"github.com/dpb587/metalink/repository/source"
 	minio "github.com/minio/minio-go"
+	"github.com/pkg/errors"
 )
 
 type Source struct {
