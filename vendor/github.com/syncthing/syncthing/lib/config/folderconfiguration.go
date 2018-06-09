@@ -52,6 +52,7 @@ type FolderConfiguration struct {
 	Paused                bool                        `xml:"paused" json:"paused"`
 	WeakHashThresholdPct  int                         `xml:"weakHashThresholdPct" json:"weakHashThresholdPct"` // Use weak hash if more than X percent of the file has changed. Set to -1 to always use weak hash.
 	MarkerName            string                      `xml:"markerName" json:"markerName"`
+	UseLargeBlocks        bool                        `xml:"useLargeBlocks" json:"useLargeBlocks"`
 
 	cachedFilesystem fs.Filesystem
 
@@ -276,4 +277,18 @@ func (l FolderDeviceConfigurationList) Len() int {
 
 func (f *FolderConfiguration) CheckFreeSpace() (err error) {
 	return checkFreeSpace(f.MinDiskFree, f.Filesystem())
+}
+
+type FolderConfigurationList []FolderConfiguration
+
+func (l FolderConfigurationList) Len() int {
+	return len(l)
+}
+
+func (l FolderConfigurationList) Less(a, b int) bool {
+	return l[a].ID < l[b].ID
+}
+
+func (l FolderConfigurationList) Swap(a, b int) {
+	l[a], l[b] = l[b], l[a]
 }
