@@ -58,7 +58,7 @@ func (s FileSystem) Get() (metalink.Metalink, error) {
 }
 
 func (s FileSystem) Put(receipt metalink.Metalink) error {
-	bytes, err := metalink.Marshal(receipt)
+	bytes, err := metalink.MarshalXML(receipt)
 	if err != nil {
 		return errors.Wrap(err, "Marshaling")
 	}
