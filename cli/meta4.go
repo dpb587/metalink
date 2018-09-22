@@ -41,6 +41,7 @@ func main() {
 		ImportMetalink cmd.ImportMetalink `command:"import-metalink" description:"Import files from an existing metalink"`
 		RemoveFile     cmd.RemoveFile     `command:"remove-file" description:"Remove an existing file by name"`
 		Files          cmd.Files          `command:"files" description:"List existing files by name"`
+		Checksums      cmd.Checksums      `command:"checksums" description:"List checksums for all files"`
 
 		Create cmd.Create `command:"create" description:"Create a new metalink file"`
 
@@ -66,6 +67,7 @@ func main() {
 		ImportMetalink: cmd.ImportMetalink{Meta4: meta4, StorageFactory: storageFactory},
 		RemoveFile:     cmd.RemoveFile{Meta4: meta4},
 		Files:          cmd.Files{Meta4: meta4},
+		Checksums:      cmd.Checksums{Meta4: meta4},
 
 		Create: cmd.Create{Meta4: meta4},
 
