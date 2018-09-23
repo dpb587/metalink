@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metalink xmlns="urn:ietf:params:xml:ns:metalink">
+  <file name="meta4-0.1.0-darwin-amd64">
+    <hash type="md5">e61c06cf2ddf967223c753e248e70309</hash>
+    <hash type="sha-1">89a982673eaa38a36c599825b92e3e5c88c5181a</hash>
+    <hash type="sha-256">fa424cfec54573b90438051f5477a35a60b08c6969d77d9ae2a1fb062eeb4909</hash>
+    <hash type="sha-512">974dff5c3525eb580968cd75490d3abdb5b9b0be5b8a8ffaaab885c911a7d025c6f2585aeb5b4678d2f3e4db3147796150b9542983a2c0758f6d0aae139dc833</hash>
+    <size>10034996</size>
+    <url>https://github.com/dpb587/metalink/releases/download/v0.1.0/meta4-0.1.0-darwin-amd64</url>
+  </file>
+  <file name="meta4-0.1.0-linux-amd64">
+    <hash type="md5">b1e16e7f2a3dd0ce7a3afdf0d5e6e26a</hash>
+    <hash type="sha-1">235bc60706793977446529830c2cb319e6aaf2da</hash>
+    <hash type="sha-256">5f09dc2fbf0b766b3645fb25781977303863893b9385b1074b8f989ca77e68ec</hash>
+    <hash type="sha-512">b06617a1a978ba96c004473f109c2f0fd6c7a01c2d0b19ece26c2f7091baf73b8de3ca58b267adfd78276a5d03069c396e130afaf097aee61710b7424b325209</hash>
+    <size>10043436</size>
+    <url>https://github.com/dpb587/metalink/releases/download/v0.1.0/meta4-0.1.0-linux-amd64</url>
+  </file>
+  <generator>metalink.dpb587.github.io/0.0.0</generator>
+</metalink>
