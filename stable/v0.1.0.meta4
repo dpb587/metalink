@@ -7,6 +7,7 @@
     <hash type="sha-512">974dff5c3525eb580968cd75490d3abdb5b9b0be5b8a8ffaaab885c911a7d025c6f2585aeb5b4678d2f3e4db3147796150b9542983a2c0758f6d0aae139dc833</hash>
     <size>10034996</size>
     <url>https://github.com/dpb587/metalink/releases/download/v0.1.0/meta4-0.1.0-darwin-amd64</url>
+    <version>0.1.0</version>
   </file>
   <file name="meta4-0.1.0-linux-amd64">
     <hash type="md5">b1e16e7f2a3dd0ce7a3afdf0d5e6e26a</hash>
@@ -15,6 +16,7 @@
     <hash type="sha-512">b06617a1a978ba96c004473f109c2f0fd6c7a01c2d0b19ece26c2f7091baf73b8de3ca58b267adfd78276a5d03069c396e130afaf097aee61710b7424b325209</hash>
     <size>10043436</size>
     <url>https://github.com/dpb587/metalink/releases/download/v0.1.0/meta4-0.1.0-linux-amd64</url>
+    <version>0.1.0</version>
   </file>
   <generator>metalink.dpb587.github.io/0.0.0</generator>
 </metalink>
