@@ -3,23 +3,32 @@ package s3
 import (
 	"fmt"
 	neturl "net/url"
-	"os"
 	"regexp"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
 	"github.com/dpb587/metalink/file/url"
 	minio "github.com/minio/minio-go"
+	"github.com/pkg/errors"
 )
 
 // http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
 var endpointRegex = regexp.MustCompile(`^s3(\.(dualstack\.)?|\-)[^\.]+\.amazonaws.com$`)
 
-type Loader struct{}
+type Loader struct {
+	accessKey string
+	secretKey string
+}
 
 var _ url.Loader = &Loader{}
+
+func NewLoader(accessKey, secretKey string) url.Loader {
+	return &Loader{
+		accessKey: accessKey,
+		secretKey: secretKey,
+	}
+}
 
 func (f Loader) Schemes() []string {
 	return []string{
@@ -45,7 +54,7 @@ func (f Loader) Load(source metalink.URL) (file.Reference, error) {
 		minioEndpoint = "s3.amazonaws.com"
 	}
 
-	client, err := minio.New(minioEndpoint, os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), secure)
+	client, err := minio.New(minioEndpoint, f.accessKey, f.secretKey, secure)
 	if err != nil {
 		return nil, errors.Wrap(err, "Creating s3 client")
 	}

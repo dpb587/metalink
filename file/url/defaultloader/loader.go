@@ -1,6 +1,8 @@
 package defaultloader
 
 import (
+	"os"
+
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink/file/url"
 	fileurl "github.com/dpb587/metalink/file/url/file"
@@ -16,7 +18,7 @@ func New(fs boshsys.FileSystem) url.Loader {
 	loader.Add(file)
 	loader.Add(ftpurl.Loader{})
 	loader.Add(httpurl.Loader{})
-	loader.Add(s3url.Loader{})
+	loader.Add(s3url.NewLoader(os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY")))
 	loader.Add(fileurl.NewEmptyLoader(file))
 
 	return loader
