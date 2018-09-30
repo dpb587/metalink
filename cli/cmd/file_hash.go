@@ -3,6 +3,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
+
+	"github.com/dpb587/metalink"
 )
 
 type FileHash struct {
@@ -11,7 +13,7 @@ type FileHash struct {
 }
 
 type FileHashArgs struct {
-	Type string `positional-arg-name:"TYPE" description:"Hash algorithm (md5 sha-256 sha-512)"`
+	Type metalink.HashType `positional-arg-name:"TYPE" description:"Hash algorithm (md5 sha-256 sha-512)"`
 }
 
 func (c *FileHash) Execute(_ []string) error {

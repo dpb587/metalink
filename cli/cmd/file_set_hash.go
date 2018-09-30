@@ -8,7 +8,7 @@ type FileSetHash struct {
 }
 
 type FileSetHashArgs struct {
-	Type string `positional-arg-name:"TYPE" description:"Hash algorithm (md5 sha-256 sha-512)"`
+	Type metalink.HashType `positional-arg-name:"TYPE" description:"Hash algorithm (md5 sha-256 sha-512)"`
 	Hash string `positional-arg-name:"HASH" description:"Hash"`
 }
 

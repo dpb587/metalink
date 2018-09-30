@@ -5,6 +5,15 @@ import (
 	"time"
 )
 
+type HashType string
+
+const (
+	HashTypeMD5    HashType = "md5"
+	HashTypeSHA1   HashType = "sha-1"
+	HashTypeSHA256 HashType = "sha-256"
+	HashTypeSHA512 HashType = "sha-512"
+)
+
 type Metalink struct {
 	XMLName   xml.Name   `xml:"urn:ietf:params:xml:ns:metalink metalink" json:"-" yaml:"-"`
 	Files     []File     `xml:"file" json:"files,omitempty" yaml:"files,omitempty"`
@@ -60,7 +69,7 @@ type Publisher struct {
 
 type Hash struct {
 	XMLName xml.Name `xml:"hash" json:"-" yaml:"-"`
-	Type    string   `xml:"type,attr" json:"type" yaml:"type"`
+	Type    HashType `xml:"type,attr" json:"type" yaml:"type"`
 	Hash    string   `xml:",chardata" json:"hash" yaml:"hash"`
 }
 

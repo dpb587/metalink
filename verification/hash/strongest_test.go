@@ -12,7 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("StrongestVerification", func() {
+var _ = Describe("StrongestSignerVerifier", func() {
 	var file filefakes.FakeReference
 
 	BeforeEach(func() {
@@ -22,16 +22,16 @@ var _ = Describe("StrongestVerification", func() {
 
 	Describe("Sign", func() {
 		It("prefers sha512", func() {
-			result, err := StrongestVerification.Sign(&file)
+			verification, err := StrongestSignerVerifier.Sign(&file)
 			Expect(err).ToNot(HaveOccurred())
 
 			meta4 := metalink.File{}
 
-			err = result.Apply(&meta4)
+			err = verification.Apply(&meta4)
 			Expect(err).ToNot(HaveOccurred())
 
 			Expect(meta4.Hashes).To(HaveLen(1))
-			Expect(meta4.Hashes[0].Type).To(Equal("sha-512"))
+			Expect(meta4.Hashes[0].Type).To(Equal(metalink.HashTypeSHA512))
 		})
 	})
 
@@ -43,8 +43,8 @@ var _ = Describe("StrongestVerification", func() {
 				},
 			}
 
-			err := StrongestVerification.Verify(&file, meta4)
-			Expect(err).To(HaveOccurred())
+			result := StrongestSignerVerifier.Verify(&file, meta4)
+			Expect(result.Error()).To(HaveOccurred())
 		})
 
 		It("prefers sha512", func() {
@@ -57,8 +57,10 @@ var _ = Describe("StrongestVerification", func() {
 				},
 			}
 
-			err := StrongestVerification.Verify(&file, meta4)
-			Expect(err).ToNot(HaveOccurred())
+			result := StrongestSignerVerifier.Verify(&file, meta4)
+			Expect(result.Error()).ToNot(HaveOccurred())
+			Expect(result.Verifier()).To(Equal("sha-512"))
+			Expect(result.Confirmation()).To(Equal("OK"))
 		})
 
 		It("prefers sha256 without sha512", func() {
@@ -70,8 +72,10 @@ var _ = Describe("StrongestVerification", func() {
 				},
 			}
 
-			err := StrongestVerification.Verify(&file, meta4)
-			Expect(err).ToNot(HaveOccurred())
+			result := StrongestSignerVerifier.Verify(&file, meta4)
+			Expect(result.Error()).ToNot(HaveOccurred())
+			Expect(result.Verifier()).To(Equal("sha-256"))
+			Expect(result.Confirmation()).To(Equal("OK"))
 		})
 
 		It("prefers sha1 without sha256", func() {
@@ -82,8 +86,10 @@ var _ = Describe("StrongestVerification", func() {
 				},
 			}
 
-			err := StrongestVerification.Verify(&file, meta4)
-			Expect(err).ToNot(HaveOccurred())
+			result := StrongestSignerVerifier.Verify(&file, meta4)
+			Expect(result.Error()).ToNot(HaveOccurred())
+			Expect(result.Verifier()).To(Equal("sha-1"))
+			Expect(result.Confirmation()).To(Equal("OK"))
 		})
 
 		It("prefers md5 without others", func() {
@@ -93,8 +99,10 @@ var _ = Describe("StrongestVerification", func() {
 				},
 			}
 
-			err := StrongestVerification.Verify(&file, meta4)
-			Expect(err).ToNot(HaveOccurred())
+			result := StrongestSignerVerifier.Verify(&file, meta4)
+			Expect(result.Error()).ToNot(HaveOccurred())
+			Expect(result.Verifier()).To(Equal("md5"))
+			Expect(result.Confirmation()).To(Equal("OK"))
 		})
 	})
 })

@@ -25,10 +25,10 @@ func NewDynamicVerifierImpl(fs boshsys.FileSystem) DynamicVerifierImpl {
 }
 
 func (v DynamicVerifierImpl) GetVerifier(meta4file metalink.File, skipHash bool, skipSignature bool, signatureTrustStore string) (verification.Verifier, error) {
-	verifiers := []verification.Verification{}
+	verifiers := []verification.Verifier{}
 
 	if !skipHash && len(meta4file.Hashes) > 0 {
-		verifiers = append(verifiers, hash.StrongestVerification)
+		verifiers = append(verifiers, hash.StrongestSignerVerifier)
 	}
 
 	if !skipSignature && meta4file.Signature != nil {
@@ -38,11 +38,11 @@ func (v DynamicVerifierImpl) GetVerifier(meta4file metalink.File, skipHash bool,
 				return nil, errors.Wrap(err, "Reading trust store")
 			}
 
-			verifiers = append(verifiers, signature.NewPGPVerification(bytes.NewReader(trustStore)))
+			verifiers = append(verifiers, signature.NewPGPVerifier(bytes.NewReader(trustStore)))
 		} else {
 			return nil, fmt.Errorf("Unsupported signature: %s", meta4file.Signature.MediaType)
 		}
 	}
 
-	return verification.MultipleVerification{Verifications: verifiers}, nil
+	return verification.MultiVerifier{Verifiers: verifiers}, nil
 }

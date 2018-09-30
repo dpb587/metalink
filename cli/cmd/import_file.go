@@ -69,10 +69,10 @@ func (c *ImportFile) Execute(_ []string) error {
 	}
 
 	hashmap := map[string]verification.Signer{
-		"sha-512": hash.SHA512Verification,
-		"sha-256": hash.SHA256Verification,
-		"sha-1":   hash.SHA1Verification,
-		"md5":     hash.MD5Verification,
+		"sha-512": hash.SHA512SignerVerifier,
+		"sha-256": hash.SHA256SignerVerifier,
+		"sha-1":   hash.SHA1SignerVerifier,
+		"md5":     hash.MD5SignerVerifier,
 	}
 
 	for _, hashType := range c.Hashes {

@@ -18,7 +18,7 @@ var _ = Describe("MD55Verification", func() {
 			file := filefakes.FakeReference{}
 			file.ReaderReturns(ioutil.NopCloser(strings.NewReader("the hash of crypt")), nil)
 
-			result, err := MD5Verification.Sign(&file)
+			result, err := MD5SignerVerifier.Sign(&file)
 			Expect(err).ToNot(HaveOccurred())
 
 			meta4 := metalink.File{}

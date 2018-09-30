@@ -18,7 +18,7 @@ var _ = Describe("SHA256Verification", func() {
 			file := filefakes.FakeReference{}
 			file.ReaderReturns(ioutil.NopCloser(strings.NewReader("the hash of crypt")), nil)
 
-			result, err := SHA256Verification.Sign(&file)
+			result, err := SHA256SignerVerifier.Sign(&file)
 			Expect(err).ToNot(HaveOccurred())
 
 			meta4 := metalink.File{}

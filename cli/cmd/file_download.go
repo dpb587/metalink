@@ -1,22 +1,25 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/cheggaaa/pb"
 	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
-	"github.com/dpb587/metalink/cli/verification"
+	cliverification "github.com/dpb587/metalink/cli/verification"
 	"github.com/dpb587/metalink/file/metaurl"
 	"github.com/dpb587/metalink/file/url"
 	"github.com/dpb587/metalink/transfer"
+	"github.com/dpb587/metalink/verification"
 )
 
 type FileDownload struct {
 	Meta4File
 	URLLoader     url.Loader                   `no-flag:"true"`
 	MetaURLLoader metaurl.Loader               `no-flag:"true"`
-	Verification  verification.DynamicVerifier `no-flag:"true"`
+	Verification  cliverification.DynamicVerifier `no-flag:"true"`
 
 	SkipHashVerification      bool   `long:"skip-hash-verification" description:"Skip hash verification after download"`
 	SkipSignatureVerification bool   `long:"skip-signature-verification" description:"Skip signature verification after download"`
@@ -47,5 +50,7 @@ func (c *FileDownload) Execute(_ []string) error {
 		return errors.Wrap(err, "Preparing verification")
 	}
 
-	return transfer.NewVerifiedTransfer(c.MetaURLLoader, c.URLLoader, verifier).TransferFile(file, local, progress)
+	verificationResultReporter := verification.NewPrefixedVerificationResultReporter(os.Stdout, fmt.Sprintf("%s: ", file.Name))
+
+	return transfer.NewVerifiedTransfer(c.MetaURLLoader, c.URLLoader, verifier).TransferFile(file, local, progress, verificationResultReporter)
 }

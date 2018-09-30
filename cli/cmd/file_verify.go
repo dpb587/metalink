@@ -1,16 +1,19 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
-	"github.com/dpb587/metalink/cli/verification"
+	cliverification "github.com/dpb587/metalink/cli/verification"
+	"github.com/dpb587/metalink/verification"
 	"github.com/dpb587/metalink/file/url"
 )
 
 type FileVerify struct {
 	Meta4File
 	FileLoader   url.Loader                   `no-flag:"true"`
-	Verification verification.DynamicVerifier `no-flag:"true"`
+	Verification cliverification.DynamicVerifier `no-flag:"true"`
 
 	SkipHashVerification      bool   `long:"skip-hash-verification" description:"Skip hash verification after download"`
 	SkipSignatureVerification bool   `long:"skip-signature-verification" description:"Skip signature verification after download"`
@@ -39,5 +42,9 @@ func (c *FileVerify) Execute(_ []string) error {
 		return errors.Wrap(err, "Preparing verification")
 	}
 
-	return verifier.Verify(local, file)
+	result := verifier.Verify(local, file)
+
+	verification.NewPrefixedVerificationResultReporter(os.Stdout, "").ReportVerificationResult(result)
+
+	return result.Error()
 }

@@ -2,12 +2,14 @@ package cmd
 
 import (
 	"fmt"
+
+	"github.com/dpb587/metalink"
 )
 
 type Checksums struct {
 	Meta4
 
-	Type string `long:"type" description:"Hash type to show" default:"sha-256"`
+	Type metalink.HashType `long:"type" description:"Hash type to show" default:"sha-256"`
 }
 
 func (c *Checksums) Execute(_ []string) error {

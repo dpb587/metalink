@@ -24,7 +24,7 @@ func NewVerifiedTransfer(metaurlLoader metaurl.Loader, urlLoader url.Loader, ver
 	}
 }
 
-func (t VerifiedTransfer) TransferFile(meta4file metalink.File, local file.Reference, progress *pb.ProgressBar) error {
+func (t VerifiedTransfer) TransferFile(meta4file metalink.File, local file.Reference, progress *pb.ProgressBar, verificationResultReporter verification.VerificationResultReporter) error {
 	sources := newSourceList(meta4file.MetaURLs, meta4file.URLs)
 
 	errs := []error{}
@@ -33,9 +33,9 @@ func (t VerifiedTransfer) TransferFile(meta4file metalink.File, local file.Refer
 		var err error
 
 		if source.URL != nil {
-			err = t.transferFileURL(meta4file, local, progress, *source.URL)
+			err = t.transferFileURL(meta4file, local, progress, verificationResultReporter, *source.URL)
 		} else if source.MetaURL != nil {
-			err = t.transferFileMetaURL(meta4file, local, progress, *source.MetaURL)
+			err = t.transferFileMetaURL(meta4file, local, progress, verificationResultReporter, *source.MetaURL)
 		} else {
 			panic("missing url or metaurl")
 		}
@@ -56,7 +56,7 @@ func (t VerifiedTransfer) TransferFile(meta4file metalink.File, local file.Refer
 	return errors.New(errs[0].Error())
 }
 
-func (t VerifiedTransfer) transferFileURL(meta4file metalink.File, local file.Reference, progress *pb.ProgressBar, source metalink.URL) error {
+func (t VerifiedTransfer) transferFileURL(meta4file metalink.File, local file.Reference, progress *pb.ProgressBar, verificationResultReporter verification.VerificationResultReporter, source metalink.URL) error {
 	remote, err := t.urlLoader.Load(source)
 	if err != nil {
 		return errors.Wrap(err, "Parsing source file")
@@ -69,17 +69,22 @@ func (t VerifiedTransfer) transferFileURL(meta4file metalink.File, local file.Re
 		return errors.Wrap(err, "Transferring file")
 	}
 
-	err = t.verifier.Verify(local, meta4file)
-	if err != nil {
-		return errors.Wrap(err, "Verifying file")
+	progress.Finish()
+
+	result := t.verifier.Verify(local, meta4file)
+
+	if verificationResultReporter != nil {
+		verificationResultReporter.ReportVerificationResult(result)
 	}
 
-	progress.Finish()
+	if result.Error() != nil {
+		return errors.Wrap(result.Error(), "Verifying file")
+	}
 
 	return nil
 }
 
-func (t VerifiedTransfer) transferFileMetaURL(meta4file metalink.File, local file.Reference, progress *pb.ProgressBar, source metalink.MetaURL) error {
+func (t VerifiedTransfer) transferFileMetaURL(meta4file metalink.File, local file.Reference, progress *pb.ProgressBar, _ verification.VerificationResultReporter, source metalink.MetaURL) error {
 	remote, err := t.metaurlLoader.Load(source)
 	if err != nil {
 		return errors.Wrap(err, "Parsing source file")
