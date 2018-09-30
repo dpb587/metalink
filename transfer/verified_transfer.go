@@ -74,7 +74,7 @@ func (t VerifiedTransfer) transferFileURL(meta4file metalink.File, local file.Re
 	result := t.verifier.Verify(local, meta4file)
 
 	if verificationResultReporter != nil {
-		verificationResultReporter.ReportVerificationResult(result)
+		verificationResultReporter.ReportVerificationResult(meta4file, result)
 	}
 
 	if result.Error() != nil {

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -50,7 +49,7 @@ func (c *FileDownload) Execute(_ []string) error {
 		return errors.Wrap(err, "Preparing verification")
 	}
 
-	verificationResultReporter := verification.NewPrefixedVerificationResultReporter(os.Stdout, fmt.Sprintf("%s: ", file.Name))
+	downloader := transfer.NewVerifiedTransfer(c.MetaURLLoader, c.URLLoader, verifier)
 
-	return transfer.NewVerifiedTransfer(c.MetaURLLoader, c.URLLoader, verifier).TransferFile(file, local, progress, verificationResultReporter)
+	return downloader.TransferFile(file, local, progress, verification.NewSimpleVerificationResultReporter(os.Stdout))
 }

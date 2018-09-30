@@ -44,7 +44,7 @@ func (c *FileVerify) Execute(_ []string) error {
 
 	result := verifier.Verify(local, file)
 
-	verification.NewPrefixedVerificationResultReporter(os.Stdout, "").ReportVerificationResult(result)
+	verification.NewSimpleVerificationResultReporter(os.Stdout).ReportVerificationResult(file, result)
 
 	return result.Error()
 }

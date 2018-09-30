@@ -43,5 +43,5 @@ type MultipleVerificationResults interface {
 
 //go:generate counterfeiter . VerificationResultReporter
 type VerificationResultReporter interface {
-	ReportVerificationResult(VerificationResult) error
+	ReportVerificationResult(metalink.File, VerificationResult) error
 }
