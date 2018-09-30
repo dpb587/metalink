@@ -19,7 +19,7 @@ func main() {
 	logger := boshlog.NewLogger(boshlog.LevelError)
 	fs := boshsys.NewOsFileSystem(logger)
 
-	urlLoader := urldefaultloader.New(fs)
+	urlLoader := urldefaultloader.New()
 	// metaurlLoader := metaurldefaultloader.New()
 	metaurlLoader := metaurl.NewLoaderFactory()
 	storageFactory := storage.NewDefaultFactory(fs)

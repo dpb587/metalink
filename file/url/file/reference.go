@@ -8,20 +8,17 @@ import (
 
 	"github.com/cheggaaa/pb"
 	"github.com/pkg/errors"
-	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink/file"
 )
 
 type Reference struct {
-	fs   boshsys.FileSystem
 	path string
 }
 
 var _ file.Reference = Reference{}
 
-func NewReference(fs boshsys.FileSystem, path string) Reference {
+func NewReference(path string) Reference {
 	return Reference{
-		fs:   fs,
 		path: path,
 	}
 }
@@ -31,7 +28,7 @@ func (o Reference) Name() (string, error) {
 }
 
 func (o Reference) Size() (uint64, error) {
-	stat, err := o.fs.Stat(o.path)
+	stat, err := os.Stat(o.path)
 	if err != nil {
 		return 0, errors.Wrap(err, "Checking file size")
 	}
@@ -40,7 +37,7 @@ func (o Reference) Size() (uint64, error) {
 }
 
 func (o Reference) Reader() (io.ReadCloser, error) {
-	reader, err := o.fs.OpenFile(o.path, os.O_RDONLY, 0000)
+	reader, err := os.OpenFile(o.path, os.O_RDONLY, 0000)
 	if err != nil {
 		return nil, errors.Wrap(err, "Opening file for reading")
 	}
@@ -60,7 +57,7 @@ func (o Reference) WriteFrom(from file.Reference, progress *pb.ProgressBar) erro
 
 	defer reader.Close()
 
-	writer, err := o.fs.OpenFile(o.path, os.O_CREATE|os.O_WRONLY, 0666)
+	writer, err := os.OpenFile(o.path, os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return errors.Wrap(err, "Opening file for writing")
 	}

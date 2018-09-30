@@ -5,23 +5,18 @@ import (
 	"path/filepath"
 	"strings"
 
-	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
 	"github.com/dpb587/metalink/file/url"
 	"github.com/pkg/errors"
 )
 
-type Loader struct {
-	fs boshsys.FileSystem
-}
+type Loader struct {}
 
 var _ url.Loader = &Loader{}
 
-func NewLoader(fs boshsys.FileSystem) Loader {
-	return Loader{
-		fs: fs,
-	}
+func NewLoader() Loader {
+	return Loader{}
 }
 
 func (f Loader) Schemes() []string {
@@ -42,10 +37,10 @@ func (f Loader) Load(source metalink.URL) (file.Reference, error) {
 		path = filepath.Join(".", path)
 	}
 
-	path, err = f.fs.ExpandPath(path)
+	path, err = filepath.Abs(path)
 	if err != nil {
 		return nil, errors.Wrap(err, "Expanding path")
 	}
 
-	return NewReference(f.fs, path), nil
+	return NewReference(path), nil
 }
