@@ -35,7 +35,7 @@ func (l *filteredLoader) SupportsURL(source metalink.URL) bool {
     }
   }
 
-	return l.loader.SupportsURL(source)
+	return false
 }
 
 func (l *filteredLoader) LoadURL(source metalink.URL) (file.Reference, error) {
