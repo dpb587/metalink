@@ -57,7 +57,7 @@ func (t VerifiedTransfer) TransferFile(meta4file metalink.File, local file.Refer
 }
 
 func (t VerifiedTransfer) transferFileURL(meta4file metalink.File, local file.Reference, progress *pb.ProgressBar, verificationResultReporter verification.VerificationResultReporter, source metalink.URL) error {
-	remote, err := t.urlLoader.Load(source)
+	remote, err := t.urlLoader.LoadURL(source)
 	if err != nil {
 		return errors.Wrap(err, "Parsing source file")
 	}
@@ -85,7 +85,7 @@ func (t VerifiedTransfer) transferFileURL(meta4file metalink.File, local file.Re
 }
 
 func (t VerifiedTransfer) transferFileMetaURL(meta4file metalink.File, local file.Reference, progress *pb.ProgressBar, _ verification.VerificationResultReporter, source metalink.MetaURL) error {
-	remote, err := t.metaurlLoader.Load(source)
+	remote, err := t.metaurlLoader.LoadMetaURL(source)
 	if err != nil {
 		return errors.Wrap(err, "Parsing source file")
 	}

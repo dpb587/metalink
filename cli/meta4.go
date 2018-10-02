@@ -21,7 +21,7 @@ func main() {
 
 	urlLoader := urldefaultloader.New()
 	// metaurlLoader := metaurldefaultloader.New()
-	metaurlLoader := metaurl.NewLoaderFactory()
+	metaurlLoader := metaurl.NewMultiLoader()
 	storageFactory := storage.NewDefaultFactory(fs)
 
 	meta4 := cmd.Meta4{

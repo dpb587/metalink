@@ -37,7 +37,7 @@ func (c *FileDownload) Execute(_ []string) error {
 		return err
 	}
 
-	local, err := c.URLLoader.Load(metalink.URL{URL: c.Args.Local})
+	local, err := c.URLLoader.LoadURL(metalink.URL{URL: c.Args.Local})
 	if err != nil {
 		return errors.Wrap(err, "Parsing download destination")
 	}

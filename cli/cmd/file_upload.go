@@ -29,12 +29,12 @@ func (c *FileUpload) Execute(_ []string) error {
 		return err
 	}
 
-	local, err := c.URLLoader.Load(metalink.URL{URL: c.Args.Local})
+	local, err := c.URLLoader.LoadURL(metalink.URL{URL: c.Args.Local})
 	if err != nil {
 		return errors.Wrap(err, "Parsing origin destination")
 	}
 
-	remote, err := c.URLLoader.Load(metalink.URL{URL: c.Args.Remote})
+	remote, err := c.URLLoader.LoadURL(metalink.URL{URL: c.Args.Remote})
 	if err != nil {
 		return errors.Wrap(err, "Parsing source blob")
 	}

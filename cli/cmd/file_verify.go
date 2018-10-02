@@ -32,7 +32,7 @@ func (c *FileVerify) Execute(_ []string) error {
 		return err
 	}
 
-	local, err := c.FileLoader.Load(metalink.URL{URL: c.Args.Local})
+	local, err := c.FileLoader.LoadURL(metalink.URL{URL: c.Args.Local})
 	if err != nil {
 		return errors.Wrap(err, "Parsing origin destination")
 	}

@@ -6,8 +6,7 @@ import (
 )
 
 func New() metaurl.Loader {
-	loader := metaurl.NewLoaderFactory()
-	loader.Add(torrentmetaurl.Loader{})
-
-	return loader
+	return metaurl.NewMultiLoader(
+		torrentmetaurl.Loader{},
+	)
 }

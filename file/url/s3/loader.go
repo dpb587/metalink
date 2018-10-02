@@ -16,27 +16,34 @@ import (
 // http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
 var endpointRegex = regexp.MustCompile(`^s3(\.(dualstack\.)?|\-)[^\.]+\.amazonaws.com$`)
 
-type Loader struct {
-	accessKey string
-	secretKey string
+type loader struct {
+	options Options
 }
 
-var _ url.Loader = &Loader{}
+var _ url.Loader = &loader{}
 
-func NewLoader(accessKey, secretKey string) url.Loader {
-	return &Loader{
-		accessKey: accessKey,
-		secretKey: secretKey,
+func NewLoader(options Options) url.Loader {
+	return &loader{options}
+}
+
+func (f loader) SupportsURL(source metalink.URL) bool {
+	parsed, err := neturl.Parse(source.URL)
+	if err != nil {
+		return false
 	}
-}
 
-func (f Loader) Schemes() []string {
-	return []string{
-		"s3",
+	if parsed.Scheme == "s3" {
+		return true
 	}
+
+	if endpointRegex.MatchString(parsed.Hostname()) {
+		return true
+	}
+
+	return false
 }
 
-func (f Loader) Load(source metalink.URL) (file.Reference, error) {
+func (f loader) LoadURL(source metalink.URL) (file.Reference, error) {
 	parsed, err := neturl.Parse(source.URL)
 	if err != nil {
 		return nil, errors.Wrap(err, "Parsing URI")
@@ -54,7 +61,7 @@ func (f Loader) Load(source metalink.URL) (file.Reference, error) {
 		minioEndpoint = "s3.amazonaws.com"
 	}
 
-	client, err := minio.New(minioEndpoint, f.accessKey, f.secretKey, secure)
+	client, err := minio.New(minioEndpoint, f.options.AccessKey, f.options.SecretKey, secure)
 	if err != nil {
 		return nil, errors.Wrap(err, "Creating s3 client")
 	}

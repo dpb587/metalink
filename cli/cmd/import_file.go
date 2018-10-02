@@ -58,7 +58,7 @@ func (c *ImportFile) Execute(_ []string) error {
 		break
 	}
 
-	origin, err := c.URLLoader.Load(metalink.URL{URL: c.Args.Path})
+	origin, err := c.URLLoader.LoadURL(metalink.URL{URL: c.Args.Path})
 	if err != nil {
 		return errors.Wrap(err, "Loading origin")
 	}

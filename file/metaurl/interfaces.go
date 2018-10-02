@@ -7,6 +7,6 @@ import (
 
 //go:generate counterfeiter . Loader
 type Loader interface {
-	Load(metalink.MetaURL) (file.Reference, error)
-	MediaTypes() []string
+	SupportsMetaURL(metalink.MetaURL) bool
+	LoadMetaURL(metalink.MetaURL) (file.Reference, error)
 }
