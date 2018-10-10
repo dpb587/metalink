@@ -12,22 +12,24 @@ import (
 )
 
 type Reference struct {
-	client   *minio.Client
-	endpoint string
-	bucket   string
-	object   string
-	secure   bool
+	client        *minio.Client
+	endpoint      string
+	bucket        string
+	object        string
+	secure        bool
+	privateBucket bool
 }
 
 var _ file.Reference = Reference{}
 
-func NewReference(client *minio.Client, secure bool, endpoint string, bucket string, object string) Reference {
+func NewReference(client *minio.Client, secure bool, endpoint string, bucket string, object string, privateBucket bool) Reference {
 	return Reference{
-		client:   client,
-		secure:   secure,
-		endpoint: endpoint,
-		bucket:   bucket,
-		object:   object,
+		client:        client,
+		secure:        secure,
+		endpoint:      endpoint,
+		bucket:        bucket,
+		object:        object,
+		privateBucket: privateBucket,
 	}
 }
 
@@ -54,6 +56,10 @@ func (o Reference) ReaderURI() string {
 
 	if !o.secure {
 		scheme = "http"
+	}
+
+	if o.privateBucket {
+		scheme = "s3"
 	}
 
 	return fmt.Sprintf("%s://%s/%s/%s", scheme, o.endpoint, o.bucket, o.object)

@@ -21,6 +21,7 @@ func New() url.Loader {
 		s3url.NewLoader(s3url.Options{
 			AccessKey: os.Getenv("AWS_ACCESS_KEY_ID"),
 			SecretKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
+			Private:   os.Getenv("AWS_PRIVATE_BUCKET") == "true",
 		}),
 		urlutil.NewEmptySchemeLoader(file),
 	)

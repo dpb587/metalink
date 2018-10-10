@@ -66,5 +66,5 @@ func (f loader) LoadURL(source metalink.URL) (file.Reference, error) {
 		return nil, errors.Wrap(err, "Creating s3 client")
 	}
 
-	return NewReference(client, secure, parsed.Hostname(), split[1], split[2]), nil
+	return NewReference(client, secure, parsed.Hostname(), split[1], split[2], f.options.Private), nil
 }
