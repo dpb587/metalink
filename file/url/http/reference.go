@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"strconv"
 
 	"github.com/cheggaaa/pb"
 	"github.com/dpb587/metalink/file"
@@ -36,8 +37,26 @@ func (o Reference) Name() (string, error) {
 }
 
 func (o Reference) Size() (uint64, error) {
-	// @todo
-	return 0, errors.New("Unsupported")
+	response, err := o.client.Head(o.url)
+	if err != nil {
+		return 0, errors.Wrap(err, "Loading URL")
+	}
+
+	if response.StatusCode != 200 {
+		return 0, fmt.Errorf("Unexpected response code: %d", response.StatusCode)
+	}
+
+	lengthString := response.Header.Get("content-length")
+	if lengthString == "" {
+		return 0, errors.New("Content-Length not returned")
+	}
+
+	length, err := strconv.ParseUint(lengthString, 10, 64)
+	if err != nil {
+		return 0, errors.Wrap(err, "Converting Content-Length to int")
+	}
+
+	return length, nil
 }
 
 func (o Reference) Reader() (io.ReadCloser, error) {
