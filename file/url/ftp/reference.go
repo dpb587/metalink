@@ -30,8 +30,17 @@ func (o Reference) Name() (string, error) {
 }
 
 func (o Reference) Size() (uint64, error) {
-	// @todo
-	return 0, errors.New("Unsupported")
+	srv, err := o.connect()
+	if err != nil {
+		return 0, errors.Wrap(err, "Connecting to server")
+	}
+
+	size, err := srv.FileSize(o.url.Path)
+	if err != nil {
+		return 0, errors.Wrap(err, "Getting file size")
+	}
+
+	return uint64(size), nil
 }
 
 func (o Reference) Reader() (io.ReadCloser, error) {

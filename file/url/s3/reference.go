@@ -36,8 +36,12 @@ func (o Reference) Name() (string, error) {
 }
 
 func (o Reference) Size() (uint64, error) {
-	// @todo
-	return 0, errors.New("Unsupported")
+	info, err := o.client.StatObject(o.bucket, o.object, minio.StatObjectOptions{})
+	if err != nil {
+		return 0, errors.Wrap(err, "Getting object stat")
+	}
+
+	return uint64(info.Size), nil
 }
 
 func (o Reference) Reader() (io.ReadCloser, error) {
