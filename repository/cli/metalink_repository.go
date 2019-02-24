@@ -33,12 +33,17 @@ func main() {
 	c := struct {
 		Filter cmd.Filter `command:"filter" description:"Filter metalinks from a repository"`
 		Show   cmd.Show   `command:"show" description:"Show a metalink from a repository"`
+		Put    cmd.Put    `command:"put" description:"Put a metalink to a repository"`
 	}{
 		Filter: cmd.Filter{
 			SourceFactory: sourceFactory,
 			FilterManager: filterManager,
 		},
 		Show: cmd.Show{
+			SourceFactory: sourceFactory,
+			FilterManager: filterManager,
+		},
+		Put: cmd.Put{
 			SourceFactory: sourceFactory,
 			FilterManager: filterManager,
 		},
