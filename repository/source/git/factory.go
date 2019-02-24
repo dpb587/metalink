@@ -3,12 +3,13 @@ package git
 import (
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/dpb587/metalink/repository/source"
 
-	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
+	"github.com/pkg/errors"
 )
 
 var schemes = map[string]string{
@@ -95,6 +96,24 @@ func (f Factory) Create(uri string, options map[string]interface{}) (source.Sour
 
 	if val, found := options["message"]; found {
 		commits.message = val.(string)
+	}
+
+	commits.rebase = 3 // default to rebasing
+
+	if val, found := options["rebase"]; found {
+		b, err1 := strconv.ParseBool(val.(string))
+		if err1 != nil {
+			commits.rebase = map[bool]uint64{true: commits.rebase, false: 0}[b]
+		}
+
+		u, err2 := strconv.ParseUint(val.(string), 10, 8)
+		if err2 != nil {
+			commits.rebase = u
+		}
+
+		if err1 != nil && err2 != nil {
+			return nil, fmt.Errorf("failed to parse rebase option: %s", val)
+		}
 	}
 
 	return NewSource(uri, strings.TrimPrefix(fmt.Sprintf("%s://%s%s%s", schemes[parsedURI.Scheme], auth, parsedURI.Host, gitpath), "ssh://"), parsedURI.Fragment, fspath, privateKey, commits, f.fs, f.cmdRunner), nil

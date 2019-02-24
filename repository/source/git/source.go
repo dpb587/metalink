@@ -8,13 +8,14 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
-	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
 	"github.com/dpb587/metalink/repository/source"
+	"github.com/pkg/errors"
 )
 
 type Source struct {
@@ -39,6 +40,7 @@ type sourceCommitSettings struct {
 	authorName     string
 	authorEmail    string
 	message        string
+	rebase         uint64
 }
 
 var _ source.Source = &Source{}
@@ -151,6 +153,13 @@ func (s Source) Put(name string, data io.Reader) error {
 		return fmt.Errorf("git add exit status: %d", exitStatus)
 	}
 
+	commitEnv := map[string]string{
+		"GIT_AUTHOR_EMAIL":    s.commits.authorEmail,
+		"GIT_AUTHOR_NAME":     s.commits.authorName,
+		"GIT_COMMITTER_EMAIL": s.commits.committerEmail,
+		"GIT_COMMITTER_NAME":  s.commits.committerName,
+	}
+
 	_, _, exitStatus, err = s.cmdRunner.RunComplexCommand(boshsys.Command{
 		Name: "git",
 		Args: []string{
@@ -160,12 +169,7 @@ func (s Source) Put(name string, data io.Reader) error {
 			filepath,
 		},
 		WorkingDir: s.clonedir,
-		Env: map[string]string{
-			"GIT_AUTHOR_EMAIL":    s.commits.authorEmail,
-			"GIT_AUTHOR_NAME":     s.commits.authorName,
-			"GIT_COMMITTER_EMAIL": s.commits.committerEmail,
-			"GIT_COMMITTER_NAME":  s.commits.committerName,
-		},
+		Env:        commitEnv,
 	})
 	if err != nil {
 		return errors.Wrap(err, "Creating commit")
@@ -173,18 +177,69 @@ func (s Source) Put(name string, data io.Reader) error {
 		return fmt.Errorf("git commit exit status: %d", exitStatus)
 	}
 
-	_, _, exitStatus, err = s.cmdRunner.RunComplexCommand(boshsys.Command{
-		Name:       s.clonegit,
-		Args:       []string{"push"},
-		WorkingDir: s.clonedir,
-	})
-	if err != nil {
-		return errors.Wrap(err, "Pushing repository")
-	} else if exitStatus != 0 {
-		return fmt.Errorf("git push exit status: %d", exitStatus)
+	attempts := s.commits.rebase
+
+	var finalError error
+
+	for true {
+		_, _, exitStatus, err = s.cmdRunner.RunComplexCommand(boshsys.Command{
+			Name:       s.clonegit,
+			Args:       []string{"push"},
+			WorkingDir: s.clonedir,
+		})
+		if err != nil {
+			err = errors.Wrap(err, "Pushing repository")
+		} else if exitStatus != 0 {
+			err = fmt.Errorf("git push exit status: %d", exitStatus)
+		} else {
+			break
+		}
+
+		if attempts <= 0 {
+			finalError = err
+
+			break
+		}
+
+		time.Sleep(5 * time.Second)
+
+		_, _, exitStatus, err = s.cmdRunner.RunComplexCommand(boshsys.Command{
+			Name: s.clonegit,
+			Args: []string{
+				"pull",
+				"--rebase",
+				s.uri,
+				s.branch,
+			},
+			WorkingDir: s.clonedir,
+		})
+		if err != nil {
+			return errors.Wrap(err, "rebasing")
+		} else if exitStatus != 0 {
+			return fmt.Errorf("git pull exit status: %d", exitStatus)
+		}
+
+		_, _, exitStatus, err = s.cmdRunner.RunComplexCommand(boshsys.Command{
+			Name: s.clonegit,
+			Args: []string{
+				"commit",
+				"--amend",
+				"--reset-author",
+				"--no-edit",
+			},
+			Env:        commitEnv,
+			WorkingDir: s.clonedir,
+		})
+		if err != nil {
+			return errors.Wrap(err, "rebasing")
+		} else if exitStatus != 0 {
+			return fmt.Errorf("git pull exit status: %d", exitStatus)
+		}
+
+		attempts--
 	}
 
-	return nil
+	return finalError
 }
 
 func (s *Source) requireClone() error {
