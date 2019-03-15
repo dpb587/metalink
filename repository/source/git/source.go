@@ -212,6 +212,7 @@ func (s Source) Put(name string, data io.Reader) error {
 				s.branch,
 			},
 			WorkingDir: s.clonedir,
+			Env:        commitEnv,
 		})
 		if err != nil {
 			return errors.Wrap(err, "rebasing")
