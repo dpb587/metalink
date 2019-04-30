@@ -1,2 +1,4 @@
+/tmp
+
 # https://github.com/golang/dep/issues/1625
 /vendor/github.com/bmatcuk/doublestar/test
