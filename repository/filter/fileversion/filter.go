@@ -26,6 +26,10 @@ func CreateFilter(version string) (Filter, error) {
 
 func (f Filter) IsTrue(meta4 repository.RepositoryMetalink) (bool, error) {
 	for _, file := range meta4.Metalink.Files {
+		if file.Version == "" {
+			continue
+		}
+
 		version, err := semver.NewVersion(utility.RewriteSemiSemVer(file.Version))
 		if err != nil {
 			return false, err
