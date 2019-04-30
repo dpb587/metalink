@@ -64,7 +64,6 @@ func (s *Source) Load() error {
 			Reference: repository.RepositoryMetalinkReference{
 				Repository: uri,
 				Path:       strings.TrimPrefix(object.Key, s.prefix),
-				// Version: etag?
 			},
 		}
 

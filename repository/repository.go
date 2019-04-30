@@ -14,7 +14,6 @@ type RepositoryMetalink struct {
 type RepositoryMetalinkReference struct {
 	Repository string `xml:"repository,,omitempty" json:"repository"`
 	Path       string `xml:"path,,omitempty" json:"path"`
-	Version    string `xml:"version,,omitempty" json:"version"`
 }
 
 type Repository struct {

@@ -94,25 +94,6 @@ func (s *Source) Load() error {
 		s.metalinks = []repository.RepositoryMetalink{}
 
 		for _, file := range files {
-			command := boshsys.Command{
-				Name: "git",
-				Args: []string{
-					"log",
-					"--pretty=format:%H",
-					"-n1",
-					"--",
-					file,
-				},
-				WorkingDir: s.clonedir,
-			}
-
-			version, _, exitStatus, err := s.cmdRunner.RunComplexCommand(command)
-			if err != nil {
-				return errors.Wrap(err, "Getting version of file")
-			} else if exitStatus != 0 {
-				return fmt.Errorf("git log exit status: %d", exitStatus)
-			}
-
 			metalinkBytes, err := s.fs.ReadFile(file)
 			if err != nil {
 				return errors.Wrap(err, "Reading metalink")
@@ -122,7 +103,6 @@ func (s *Source) Load() error {
 				Reference: repository.RepositoryMetalinkReference{
 					Repository: uri,
 					Path:       strings.TrimPrefix(strings.TrimPrefix(file, legacyPath), "/"),
-					Version:    version,
 				},
 			}
 

@@ -7,7 +7,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"time"
 
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink"
@@ -63,11 +62,6 @@ func (s *Source) Load() error {
 		}
 
 		for _, file := range files {
-			stat, err := s.fs.Stat(file)
-			if err != nil {
-				return errors.Wrap(err, "Stat receipt")
-			}
-
 			metalinkBytes, err := s.fs.ReadFile(file)
 			if err != nil {
 				return errors.Wrap(err, "Reading metalink")
@@ -77,7 +71,6 @@ func (s *Source) Load() error {
 				Reference: repository.RepositoryMetalinkReference{
 					Repository: uri,
 					Path:       strings.TrimPrefix(strings.TrimPrefix(file, legacyPath), "/"),
-					Version:    stat.ModTime().Format(time.RFC3339),
 				},
 			}
 
