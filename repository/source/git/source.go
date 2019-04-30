@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -64,53 +65,74 @@ func (s *Source) Load() error {
 		return errors.Wrap(err, "Cloning repository")
 	}
 
-	files, err := s.fs.Glob(fmt.Sprintf("%s/%s/*.meta4", s.clonedir, s.path))
+	localdir := filepath.Join(s.clonedir, s.path)
+
+	legacyPaths, err := filepath.Glob(localdir)
 	if err != nil {
-		return errors.Wrap(err, "Listing metalinks")
+		return errors.Wrap(err, "Globbing path")
 	}
 
-	uri := s.URI()
-	s.metalinks = []repository.RepositoryMetalink{}
+	for _, legacyPath := range legacyPaths {
+		var files []string
 
-	for _, file := range files {
-		command := boshsys.Command{
-			Name: "git",
-			Args: []string{
-				"log",
-				"--pretty=format:%H",
-				"-n1",
-				"--",
-				file,
-			},
-			WorkingDir: s.clonedir,
-		}
+		err = s.fs.Walk(legacyPath, func(p string, _ os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			} else if path.Ext(p) != ".meta4" {
+				return nil
+			}
 
-		version, _, exitStatus, err := s.cmdRunner.RunComplexCommand(command)
+			files = append(files, p)
+
+			return nil
+		})
 		if err != nil {
-			return errors.Wrap(err, "Getting version of file")
-		} else if exitStatus != 0 {
-			return fmt.Errorf("git log exit status: %d", exitStatus)
+			return errors.Wrap(err, "Walking path")
 		}
 
-		metalinkBytes, err := s.fs.ReadFile(file)
-		if err != nil {
-			return errors.Wrap(err, "Reading metalink")
-		}
+		uri := s.URI()
+		s.metalinks = []repository.RepositoryMetalink{}
 
-		repometa4 := repository.RepositoryMetalink{
-			Reference: repository.RepositoryMetalinkReference{
-				Repository: uri,
-				Path:       strings.TrimPrefix(file, fmt.Sprintf("%s/%s/", s.clonedir, s.path)),
-				Version:    version,
-			},
-		}
+		for _, file := range files {
+			command := boshsys.Command{
+				Name: "git",
+				Args: []string{
+					"log",
+					"--pretty=format:%H",
+					"-n1",
+					"--",
+					file,
+				},
+				WorkingDir: s.clonedir,
+			}
 
-		err = metalink.Unmarshal(metalinkBytes, &repometa4.Metalink)
-		if err != nil {
-			return errors.Wrap(err, "Unmarshaling")
-		}
+			version, _, exitStatus, err := s.cmdRunner.RunComplexCommand(command)
+			if err != nil {
+				return errors.Wrap(err, "Getting version of file")
+			} else if exitStatus != 0 {
+				return fmt.Errorf("git log exit status: %d", exitStatus)
+			}
 
-		s.metalinks = append(s.metalinks, repometa4)
+			metalinkBytes, err := s.fs.ReadFile(file)
+			if err != nil {
+				return errors.Wrap(err, "Reading metalink")
+			}
+
+			repometa4 := repository.RepositoryMetalink{
+				Reference: repository.RepositoryMetalinkReference{
+					Repository: uri,
+					Path:       strings.TrimPrefix(strings.TrimPrefix(file, legacyPath), "/"),
+					Version:    version,
+				},
+			}
+
+			err = metalink.Unmarshal(metalinkBytes, &repometa4.Metalink)
+			if err != nil {
+				return errors.Wrap(err, "Unmarshaling")
+			}
+
+			s.metalinks = append(s.metalinks, repometa4)
+		}
 	}
 
 	return nil

@@ -1,18 +1,20 @@
 package fs
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"path"
+	"path/filepath"
+	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
 	"github.com/dpb587/metalink/repository/source"
+	"github.com/pkg/errors"
 )
 
 type Source struct {
@@ -37,36 +39,55 @@ func (s *Source) Load() error {
 	uri := s.URI()
 	s.metalinks = []repository.RepositoryMetalink{}
 
-	files, err := s.fs.Glob(fmt.Sprintf("%s/*.meta4", s.path))
+	legacyPaths, err := filepath.Glob(s.path)
 	if err != nil {
-		return errors.Wrap(err, "Listing metalinks")
+		return errors.Wrap(err, "Globbing path")
 	}
 
-	for _, file := range files {
-		stat, err := s.fs.Stat(file)
+	for _, legacyPath := range legacyPaths {
+		var files []string
+
+		err := s.fs.Walk(legacyPath, func(p string, _ os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			} else if path.Ext(p) != ".meta4" {
+				return nil
+			}
+
+			files = append(files, p)
+
+			return nil
+		})
 		if err != nil {
-			return errors.Wrap(err, "Stat receipt")
+			return errors.Wrap(err, "Walking path")
 		}
 
-		metalinkBytes, err := s.fs.ReadFile(file)
-		if err != nil {
-			return errors.Wrap(err, "Reading metalink")
-		}
+		for _, file := range files {
+			stat, err := s.fs.Stat(file)
+			if err != nil {
+				return errors.Wrap(err, "Stat receipt")
+			}
 
-		repometa4 := repository.RepositoryMetalink{
-			Reference: repository.RepositoryMetalinkReference{
-				Repository: uri,
-				Path:       path.Base(file),
-				Version:    stat.ModTime().Format(time.RFC3339),
-			},
-		}
+			metalinkBytes, err := s.fs.ReadFile(file)
+			if err != nil {
+				return errors.Wrap(err, "Reading metalink")
+			}
 
-		err = metalink.Unmarshal(metalinkBytes, &repometa4.Metalink)
-		if err != nil {
-			return errors.Wrap(err, "Unmarshaling")
-		}
+			repometa4 := repository.RepositoryMetalink{
+				Reference: repository.RepositoryMetalinkReference{
+					Repository: uri,
+					Path:       strings.TrimPrefix(strings.TrimPrefix(file, legacyPath), "/"),
+					Version:    stat.ModTime().Format(time.RFC3339),
+				},
+			}
 
-		s.metalinks = append(s.metalinks, repometa4)
+			err = metalink.Unmarshal(metalinkBytes, &repometa4.Metalink)
+			if err != nil {
+				return errors.Wrap(err, "Unmarshaling")
+			}
+
+			s.metalinks = append(s.metalinks, repometa4)
+		}
 	}
 
 	return nil
