@@ -9,7 +9,8 @@ import (
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
 	"github.com/dpb587/metalink/file/url"
-	minio "github.com/minio/minio-go"
+	minio "github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/pkg/errors"
 )
 
@@ -61,7 +62,14 @@ func (f loader) LoadURL(source metalink.URL) (file.Reference, error) {
 		minioEndpoint = "s3.amazonaws.com"
 	}
 
-	client, err := minio.New(minioEndpoint, f.options.AccessKey, f.options.SecretKey, secure)
+	minioCreds := credentials.NewStaticV4(f.options.AccessKey, f.options.SecretKey, "")
+
+	minioOptions := &minio.Options{
+		Creds:  minioCreds,
+		Secure: true,
+	}
+
+	client, err := minio.New(minioEndpoint, minioOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "Creating s3 client")
 	}
