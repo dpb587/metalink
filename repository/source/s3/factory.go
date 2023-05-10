@@ -8,7 +8,8 @@ import (
 	"strings"
 
 	"github.com/dpb587/metalink/repository/source"
-	minio "github.com/minio/minio-go"
+	minio "github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/pkg/errors"
 )
 
@@ -72,7 +73,14 @@ func (f Factory) Create(uri string, options map[string]interface{}) (source.Sour
 		secretKey, _ = parsed.User.Password()
 	}
 
-	client, err := minio.New(minioEndpoint, accessKey, secretKey, secure)
+	minioCreds := credentials.NewStaticV4(accessKey, secretKey, "")
+
+	minioOptions := &minio.Options{
+		Creds:  minioCreds,
+		Secure: true,
+	}
+
+	client, err := minio.New(minioEndpoint, minioOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "Creating s3 client")
 	}
