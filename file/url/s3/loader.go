@@ -62,7 +62,29 @@ func (f loader) LoadURL(source metalink.URL) (file.Reference, error) {
 		minioEndpoint = "s3.amazonaws.com"
 	}
 
-	minioCreds := credentials.NewStaticV4(f.options.AccessKey, f.options.SecretKey, "")
+	var minioCreds *credentials.Credentials
+
+	if f.options.RoleARN == "" {
+		minioCreds = credentials.NewStaticV4(f.options.AccessKey, f.options.SecretKey, "")
+	} else {
+		if minioEndpoint != "s3.amazonaws.com" {
+			return nil, errors.New("Role ARN is only supported for S3 endpoints")
+		}
+
+		minioCreds, err = credentials.NewSTSAssumeRole(
+			"https://sts.amazonaws.com",
+			credentials.STSAssumeRoleOptions{
+				AccessKey:       f.options.AccessKey,
+				SecretKey:       f.options.SecretKey,
+				Location:        "us-east-1",
+				RoleARN:         f.options.RoleARN,
+				RoleSessionName: "metalink-session",
+			},
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "Unable to authenticate as assumed role")
+		}
+	}
 
 	minioOptions := &minio.Options{
 		Creds:  minioCreds,

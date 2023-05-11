@@ -21,6 +21,7 @@ func New() url.Loader {
 		s3url.NewLoader(s3url.Options{
 			AccessKey: os.Getenv("AWS_ACCESS_KEY_ID"),
 			SecretKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
+			RoleARN:   os.Getenv("AWS_ROLE_ARN"),
 		}),
 		urlutil.NewEmptySchemeLoader(file),
 	)
