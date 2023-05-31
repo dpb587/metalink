@@ -1,7 +1,6 @@
 package torrent
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,8 +11,8 @@ import (
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/cheggaaa/pb"
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink/file"
+	"github.com/pkg/errors"
 )
 
 type Reference struct {
