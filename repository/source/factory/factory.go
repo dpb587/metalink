@@ -2,10 +2,10 @@ package factory
 
 import (
 	"fmt"
-	"net/url"
 
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink/repository/source"
+	"github.com/dpb587/metalink/repository/utility"
+	"github.com/pkg/errors"
 )
 
 type Factory struct {
@@ -31,7 +31,7 @@ func (s *Factory) Schemes() []string {
 }
 
 func (s *Factory) Create(uri string, options map[string]interface{}) (source.Source, error) {
-	parsedURI, err := url.Parse(uri)
+	parsedURI, err := utility.ParseUriOrGitCloneArg(uri)
 	if err != nil {
 		return nil, errors.Wrap(err, "Parsing source URI")
 	}

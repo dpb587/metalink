@@ -2,11 +2,11 @@ package git
 
 import (
 	"fmt"
-	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/dpb587/metalink/repository/source"
+	"github.com/dpb587/metalink/repository/utility"
 
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/pkg/errors"
@@ -45,7 +45,7 @@ func (f Factory) Schemes() []string {
 }
 
 func (f Factory) Create(uri string, options map[string]interface{}) (source.Source, error) {
-	parsedURI, err := url.Parse(uri)
+	parsedURI, err := utility.ParseUriOrGitCloneArg(uri)
 	if err != nil {
 		return nil, errors.Wrap(err, "Parsing source URI")
 	}

@@ -49,6 +49,13 @@ var _ = Describe("Factory", func() {
 			Expect(isCorrectType).To(BeTrue())
 		})
 
+		It("supports git SSH clone-format URLs", func() {
+			source, err := subject.Create("git+ssh://git@github.com:some-org/some-repo", map[string]interface{}{})
+			Expect(err).ToNot(HaveOccurred())
+			_, isCorrectType := source.(*source_git.Source)
+			Expect(isCorrectType).To(BeTrue())
+		})
+
 		It("supports git SSH URLs", func() {
 			source, err := subject.Create("git+ssh://github.com/some-org/some-repo", map[string]interface{}{})
 			Expect(err).ToNot(HaveOccurred())
