@@ -12,13 +12,13 @@ type Loader struct{}
 var _ metaurl.Loader = &Loader{}
 
 func (f Loader) SupportsMetaURL(source metalink.MetaURL) bool {
-  return source.MediaType == "application/x-bittorrent" || source.MediaType == "torrent"
+	return source.MediaType == "application/x-bittorrent" || source.MediaType == "torrent"
 }
 
 func (f Loader) LoadMetaURL(source metalink.MetaURL) (file.Reference, error) {
 	return NewReference(
 		func() (*torrent.Client, error) {
-			return torrent.NewClient(&torrent.Config{})
+			return torrent.NewClient(nil)
 		},
 		source.URL,
 		source.Name,

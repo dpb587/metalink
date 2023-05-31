@@ -4,64 +4,43 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/anacrolix/missinggo/bitmap"
+	"github.com/anacrolix/chansync"
+	"github.com/anacrolix/missinggo/v2/bitmap"
 
 	"github.com/anacrolix/torrent/metainfo"
 	pp "github.com/anacrolix/torrent/peer_protocol"
 	"github.com/anacrolix/torrent/storage"
 )
 
-// Describes the importance of obtaining a particular piece.
-type piecePriority byte
-
-func (pp *piecePriority) Raise(maybe piecePriority) bool {
-	if maybe > *pp {
-		*pp = maybe
-		return true
-	}
-	return false
-}
-
-// Priority for use in PriorityBitmap
-func (me piecePriority) BitmapPriority() int {
-	return -int(me)
-}
-
-const (
-	PiecePriorityNone      piecePriority = iota // Not wanted. Must be the zero value.
-	PiecePriorityNormal                         // Wanted.
-	PiecePriorityHigh                           // Wanted a lot.
-	PiecePriorityReadahead                      // May be required soon.
-	// Succeeds a piece where a read occurred. Currently the same as Now,
-	// apparently due to issues with caching.
-	PiecePriorityNext
-	PiecePriorityNow // A Reader is reading in this piece. Highest urgency.
-)
-
 type Piece struct {
 	// The completed piece SHA1 hash, from the metainfo "pieces" field.
-	hash  metainfo.Hash
+	hash  *metainfo.Hash
 	t     *Torrent
-	index int
+	index pieceIndex
 	files []*File
-	// Chunks we've written to since the last check. The chunk offset and
-	// length can be determined by the request chunkSize in use.
-	dirtyChunks bitmap.Bitmap
 
-	hashing             bool
+	readerCond chansync.BroadcastCond
+
 	numVerifies         int64
+	hashing             bool
+	marking             bool
 	storageCompletionOk bool
 
 	publicPieceState PieceState
 	priority         piecePriority
+	// Availability adjustment for this piece relative to len(Torrent.connsWithAllPieces). This is
+	// incremented for any piece a peer has when a peer has a piece, Torrent.haveInfo is true, and
+	// the Peer isn't recorded in Torrent.connsWithAllPieces.
+	relativeAvailability int
 
+	// This can be locked when the Client lock is taken, but probably not vice versa.
 	pendingWritesMutex sync.Mutex
 	pendingWrites      int
 	noPendingWrites    sync.Cond
 
 	// Connections that have written data to this piece since its last check.
 	// This can include connections that have closed.
-	dirtiers map[*connection]struct{}
+	dirtiers map[*Peer]struct{}
 }
 
 func (p *Piece) String() string {
@@ -69,46 +48,51 @@ func (p *Piece) String() string {
 }
 
 func (p *Piece) Info() metainfo.Piece {
-	return p.t.info.Piece(p.index)
+	return p.t.info.Piece(int(p.index))
 }
 
 func (p *Piece) Storage() storage.Piece {
 	return p.t.storage.Piece(p.Info())
 }
 
-func (p *Piece) pendingChunkIndex(chunkIndex int) bool {
-	return !p.dirtyChunks.Contains(chunkIndex)
+func (p *Piece) Flush() {
+	if p.t.storage.Flush != nil {
+		_ = p.t.storage.Flush()
+	}
 }
 
-func (p *Piece) pendingChunk(cs chunkSpec, chunkSize pp.Integer) bool {
-	return p.pendingChunkIndex(chunkIndex(cs, chunkSize))
+func (p *Piece) pendingChunkIndex(chunkIndex chunkIndexType) bool {
+	return !p.chunkIndexDirty(chunkIndex)
+}
+
+func (p *Piece) pendingChunk(cs ChunkSpec, chunkSize pp.Integer) bool {
+	return p.pendingChunkIndex(chunkIndexFromChunkSpec(cs, chunkSize))
 }
 
 func (p *Piece) hasDirtyChunks() bool {
-	return p.dirtyChunks.Len() != 0
+	return p.numDirtyChunks() != 0
 }
 
-func (p *Piece) numDirtyChunks() (ret int) {
-	return p.dirtyChunks.Len()
+func (p *Piece) numDirtyChunks() chunkIndexType {
+	return chunkIndexType(roaringBitmapRangeCardinality[RequestIndex](
+		&p.t.dirtyChunks,
+		p.requestIndexOffset(),
+		p.t.pieceRequestIndexOffset(p.index+1)))
 }
 
-func (p *Piece) unpendChunkIndex(i int) {
-	p.dirtyChunks.Add(i)
-	p.t.tickleReaders()
+func (p *Piece) unpendChunkIndex(i chunkIndexType) {
+	p.t.dirtyChunks.Add(p.requestIndexOffset() + i)
+	p.t.updatePieceRequestOrder(p.index)
+	p.readerCond.Broadcast()
 }
 
-func (p *Piece) pendChunkIndex(i int) {
-	p.dirtyChunks.Remove(i)
+func (p *Piece) pendChunkIndex(i RequestIndex) {
+	p.t.dirtyChunks.Remove(p.requestIndexOffset() + i)
+	p.t.updatePieceRequestOrder(p.index)
 }
 
-func (p *Piece) numChunks() int {
+func (p *Piece) numChunks() chunkIndexType {
 	return p.t.pieceNumChunks(p.index)
-}
-
-func (p *Piece) undirtiedChunkIndices() (ret bitmap.Bitmap) {
-	ret = p.dirtyChunks.Copy()
-	ret.FlipRange(0, p.numChunks())
-	return
 }
 
 func (p *Piece) incrementPendingWrites() {
@@ -137,12 +121,12 @@ func (p *Piece) waitNoPendingWrites() {
 	p.pendingWritesMutex.Unlock()
 }
 
-func (p *Piece) chunkIndexDirty(chunk int) bool {
-	return p.dirtyChunks.Contains(chunk)
+func (p *Piece) chunkIndexDirty(chunk chunkIndexType) bool {
+	return p.t.dirtyChunks.Contains(p.requestIndexOffset() + chunk)
 }
 
-func (p *Piece) chunkIndexSpec(chunk int) chunkSpec {
-	return chunkIndexSpec(chunk, p.length(), p.chunkSize())
+func (p *Piece) chunkIndexSpec(chunk chunkIndexType) ChunkSpec {
+	return chunkIndexSpec(pp.Integer(chunk), p.length(), p.chunkSize())
 }
 
 func (p *Piece) numDirtyBytes() (ret pp.Integer) {
@@ -168,7 +152,7 @@ func (p *Piece) chunkSize() pp.Integer {
 	return p.t.chunkSize
 }
 
-func (p *Piece) lastChunkIndex() int {
+func (p *Piece) lastChunkIndex() chunkIndexType {
 	return p.numChunks() - 1
 }
 
@@ -179,24 +163,28 @@ func (p *Piece) bytesLeft() (ret pp.Integer) {
 	return p.length() - p.numDirtyBytes()
 }
 
+// Forces the piece data to be rehashed.
 func (p *Piece) VerifyData() {
-	p.t.cl.mu.Lock()
-	defer p.t.cl.mu.Unlock()
+	p.t.cl.lock()
+	defer p.t.cl.unlock()
 	target := p.numVerifies + 1
 	if p.hashing {
 		target++
 	}
 	// log.Printf("target: %d", target)
 	p.t.queuePieceCheck(p.index)
-	for p.numVerifies < target {
+	for {
 		// log.Printf("got %d verifies", p.numVerifies)
+		if p.numVerifies >= target {
+			break
+		}
 		p.t.cl.event.Wait()
 	}
 	// log.Print("done")
 }
 
 func (p *Piece) queuedForHash() bool {
-	return p.t.piecesQueuedForHash.Get(p.index)
+	return p.t.piecesQueuedForHash.Get(bitmap.BitIndex(p.index))
 }
 
 func (p *Piece) torrentBeginOffset() int64 {
@@ -208,34 +196,62 @@ func (p *Piece) torrentEndOffset() int64 {
 }
 
 func (p *Piece) SetPriority(prio piecePriority) {
-	p.t.cl.mu.Lock()
-	defer p.t.cl.mu.Unlock()
+	p.t.cl.lock()
+	defer p.t.cl.unlock()
 	p.priority = prio
-	p.t.updatePiecePriority(p.index)
+	p.t.updatePiecePriority(p.index, "Piece.SetPriority")
 }
 
-func (p *Piece) uncachedPriority() (ret piecePriority) {
-	if p.t.pieceComplete(p.index) {
-		return PiecePriorityNone
-	}
+func (p *Piece) purePriority() (ret piecePriority) {
 	for _, f := range p.files {
 		ret.Raise(f.prio)
 	}
-	if p.t.readerNowPieces.Contains(p.index) {
+	if p.t.readerNowPieces().Contains(bitmap.BitIndex(p.index)) {
 		ret.Raise(PiecePriorityNow)
 	}
-	// if t.readerNowPieces.Contains(piece - 1) {
+	// if t._readerNowPieces.Contains(piece - 1) {
 	// 	return PiecePriorityNext
 	// }
-	if p.t.readerReadaheadPieces.Contains(p.index) {
+	if p.t.readerReadaheadPieces().Contains(bitmap.BitIndex(p.index)) {
 		ret.Raise(PiecePriorityReadahead)
 	}
 	ret.Raise(p.priority)
 	return
 }
 
+func (p *Piece) uncachedPriority() (ret piecePriority) {
+	if p.hashing || p.marking || p.t.pieceComplete(p.index) || p.queuedForHash() {
+		return PiecePriorityNone
+	}
+	return p.purePriority()
+}
+
+// Tells the Client to refetch the completion status from storage, updating priority etc. if
+// necessary. Might be useful if you know the state of the piece data has changed externally.
+func (p *Piece) UpdateCompletion() {
+	p.t.cl.lock()
+	defer p.t.cl.unlock()
+	p.t.updatePieceCompletion(p.index)
+}
+
 func (p *Piece) completion() (ret storage.Completion) {
 	ret.Complete = p.t.pieceComplete(p.index)
 	ret.Ok = p.storageCompletionOk
 	return
+}
+
+func (p *Piece) allChunksDirty() bool {
+	return p.numDirtyChunks() == p.numChunks()
+}
+
+func (p *Piece) State() PieceState {
+	return p.t.PieceState(p.index)
+}
+
+func (p *Piece) requestIndexOffset() RequestIndex {
+	return p.t.pieceRequestIndexOffset(p.index)
+}
+
+func (p *Piece) availability() int {
+	return len(p.t.connsWithAllPieces) + p.relativeAvailability
 }

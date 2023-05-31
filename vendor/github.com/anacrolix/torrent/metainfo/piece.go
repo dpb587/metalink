@@ -1,14 +1,14 @@
 package metainfo
 
-import "github.com/anacrolix/missinggo"
-
 type Piece struct {
-	Info *Info
-	i    int
+	Info *Info // Can we embed the fields here instead, or is it something to do with saving memory?
+	i    pieceIndex
 }
 
+type pieceIndex = int
+
 func (p Piece) Length() int64 {
-	if p.i == p.Info.NumPieces()-1 {
+	if int(p.i) == p.Info.NumPieces()-1 {
 		return p.Info.TotalLength() - int64(p.i)*p.Info.PieceLength
 	}
 	return p.Info.PieceLength
@@ -19,10 +19,10 @@ func (p Piece) Offset() int64 {
 }
 
 func (p Piece) Hash() (ret Hash) {
-	missinggo.CopyExact(&ret, p.Info.Pieces[p.i*HashSize:(p.i+1)*HashSize])
+	copy(ret[:], p.Info.Pieces[p.i*HashSize:(p.i+1)*HashSize])
 	return
 }
 
-func (p Piece) Index() int {
+func (p Piece) Index() pieceIndex {
 	return p.i
 }

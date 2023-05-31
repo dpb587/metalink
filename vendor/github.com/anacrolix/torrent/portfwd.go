@@ -1,40 +1,45 @@
 package torrent
 
 import (
-	"log"
+	"fmt"
 	"time"
 
-	flog "github.com/anacrolix/log"
-	"github.com/syncthing/syncthing/lib/nat"
-	"github.com/syncthing/syncthing/lib/upnp"
+	"github.com/anacrolix/log"
+	"github.com/anacrolix/upnp"
 )
 
-func addPortMapping(d nat.Device, proto nat.Protocol, internalPort int, debug bool) {
-	externalPort, err := d.AddPortMapping(proto, internalPort, internalPort, "anacrolix/torrent", 0)
+const UpnpDiscoverLogTag = "upnp-discover"
+
+func (cl *Client) addPortMapping(d upnp.Device, proto upnp.Protocol, internalPort int, upnpID string) {
+	logger := cl.logger.WithContextText(fmt.Sprintf("UPnP device at %v: mapping internal %v port %v", d.GetLocalIPAddress(), proto, internalPort))
+	externalPort, err := d.AddPortMapping(proto, internalPort, internalPort, upnpID, 0)
 	if err != nil {
-		log.Printf("error adding %s port mapping: %s", proto, err)
-	} else if externalPort != internalPort {
-		log.Printf("external port %d does not match internal port %d in port mapping", externalPort, internalPort)
-	} else if debug {
-		log.Printf("forwarded external %s port %d", proto, externalPort)
+		logger.WithDefaultLevel(log.Warning).Printf("error: %v", err)
+		return
 	}
+	level := log.Info
+	if externalPort != internalPort {
+		level = log.Warning
+	}
+	logger.WithDefaultLevel(level).Printf("success: external port %v", externalPort)
 }
 
 func (cl *Client) forwardPort() {
-	cl.mu.Lock()
-	defer cl.mu.Unlock()
+	cl.lock()
+	defer cl.unlock()
 	if cl.config.NoDefaultPortForwarding {
 		return
 	}
-	cl.mu.Unlock()
-	ds := upnp.Discover(0, 2*time.Second)
-	cl.mu.Lock()
-	flog.Default.Handle(flog.Fmsg("discovered %d upnp devices", len(ds)))
+	cl.unlock()
+	ds := upnp.Discover(0, 2*time.Second, cl.logger.WithValues(UpnpDiscoverLogTag))
+	cl.lock()
+	cl.logger.WithDefaultLevel(log.Debug).Printf("discovered %d upnp devices", len(ds))
 	port := cl.incomingPeerPort()
-	cl.mu.Unlock()
+	id := cl.config.UpnpID
+	cl.unlock()
 	for _, d := range ds {
-		go addPortMapping(d, nat.TCP, port, cl.config.Debug)
-		go addPortMapping(d, nat.UDP, port, cl.config.Debug)
+		go cl.addPortMapping(d, upnp.TCP, port, id)
+		go cl.addPortMapping(d, upnp.UDP, port, id)
 	}
-	cl.mu.Lock()
+	cl.lock()
 }

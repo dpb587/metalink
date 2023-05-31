@@ -1,83 +1,117 @@
 package torrent
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
-	"sync"
+	"reflect"
+	"sync/atomic"
 
 	pp "github.com/anacrolix/torrent/peer_protocol"
 )
 
-// Various connection-level metrics. At the Torrent level these are
-// aggregates. Chunks are messages with data payloads. Data is actual torrent
-// content without any overhead. Useful is something we needed locally.
-// Unwanted is something we didn't ask for (but may still be useful). Written
-// is things sent to the peer, and Read is stuff received from them.
+// Various connection-level metrics. At the Torrent level these are aggregates. Chunks are messages
+// with data payloads. Data is actual torrent content without any overhead. Useful is something we
+// needed locally. Unwanted is something we didn't ask for (but may still be useful). Written is
+// things sent to the peer, and Read is stuff received from them. Due to the implementation of
+// Count, must be aligned on some platforms: See https://github.com/anacrolix/torrent/issues/262.
 type ConnStats struct {
 	// Total bytes on the wire. Includes handshakes and encryption.
-	BytesWritten     int64
-	BytesWrittenData int64
+	BytesWritten     Count
+	BytesWrittenData Count
 
-	BytesRead           int64
-	BytesReadData       int64
-	BytesReadUsefulData int64
+	BytesRead                   Count
+	BytesReadData               Count
+	BytesReadUsefulData         Count
+	BytesReadUsefulIntendedData Count
 
-	ChunksWritten int64
+	ChunksWritten Count
 
-	ChunksRead         int64
-	ChunksReadUseful   int64
-	ChunksReadUnwanted int64
+	ChunksRead       Count
+	ChunksReadUseful Count
+	ChunksReadWasted Count
+
+	MetadataChunksRead Count
 
 	// Number of pieces data was written to, that subsequently passed verification.
-	PiecesDirtiedGood int64
-	// Number of pieces data was written to, that subsequently failed
-	// verification. Note that a connection may not have been the sole dirtier
-	// of a piece.
-	PiecesDirtiedBad int64
+	PiecesDirtiedGood Count
+	// Number of pieces data was written to, that subsequently failed verification. Note that a
+	// connection may not have been the sole dirtier of a piece.
+	PiecesDirtiedBad Count
+}
+
+func (me *ConnStats) Copy() (ret ConnStats) {
+	for i := 0; i < reflect.TypeOf(ConnStats{}).NumField(); i++ {
+		n := reflect.ValueOf(me).Elem().Field(i).Addr().Interface().(*Count).Int64()
+		reflect.ValueOf(&ret).Elem().Field(i).Addr().Interface().(*Count).Add(n)
+	}
+	return
+}
+
+type Count struct {
+	n int64
+}
+
+var _ fmt.Stringer = (*Count)(nil)
+
+func (me *Count) Add(n int64) {
+	atomic.AddInt64(&me.n, n)
+}
+
+func (me *Count) Int64() int64 {
+	return atomic.LoadInt64(&me.n)
+}
+
+func (me *Count) String() string {
+	return fmt.Sprintf("%v", me.Int64())
+}
+
+func (me *Count) MarshalJSON() ([]byte, error) {
+	return json.Marshal(me.n)
 }
 
 func (cs *ConnStats) wroteMsg(msg *pp.Message) {
 	// TODO: Track messages and not just chunks.
 	switch msg.Type {
 	case pp.Piece:
-		cs.ChunksWritten++
-		cs.BytesWrittenData += int64(len(msg.Piece))
+		cs.ChunksWritten.Add(1)
+		cs.BytesWrittenData.Add(int64(len(msg.Piece)))
 	}
 }
 
-func (cs *ConnStats) readMsg(msg *pp.Message) {
-	switch msg.Type {
-	case pp.Piece:
-		cs.ChunksRead++
-		cs.BytesReadData += int64(len(msg.Piece))
+func (cs *ConnStats) receivedChunk(size int64) {
+	cs.ChunksRead.Add(1)
+	cs.BytesReadData.Add(size)
+}
+
+func (cs *ConnStats) incrementPiecesDirtiedGood() {
+	cs.PiecesDirtiedGood.Add(1)
+}
+
+func (cs *ConnStats) incrementPiecesDirtiedBad() {
+	cs.PiecesDirtiedBad.Add(1)
+}
+
+func add(n int64, f func(*ConnStats) *Count) func(*ConnStats) {
+	return func(cs *ConnStats) {
+		p := f(cs)
+		p.Add(n)
 	}
-}
-
-func (cs *ConnStats) wroteBytes(n int64) {
-	cs.BytesWritten += n
-}
-
-func (cs *ConnStats) readBytes(n int64) {
-	cs.BytesRead += n
 }
 
 type connStatsReadWriter struct {
 	rw io.ReadWriter
-	l  sync.Locker
-	c  *connection
+	c  *PeerConn
 }
 
 func (me connStatsReadWriter) Write(b []byte) (n int, err error) {
 	n, err = me.rw.Write(b)
-	me.l.Lock()
 	me.c.wroteBytes(int64(n))
-	me.l.Unlock()
 	return
 }
 
 func (me connStatsReadWriter) Read(b []byte) (n int, err error) {
 	n, err = me.rw.Read(b)
-	me.l.Lock()
 	me.c.readBytes(int64(n))
-	me.l.Unlock()
 	return
 }

@@ -143,8 +143,8 @@ func toBitmapContainer(c container) container {
 func appenderRoutine(bitmapChan chan<- *Bitmap, resultChan <-chan keyedContainer, expectedKeysChan <-chan int) {
 	expectedKeys := -1
 	appendedKeys := 0
-	keys := make([]uint16, 0)
-	containers := make([]container, 0)
+	var keys []uint16
+	var containers []container
 	for appendedKeys != expectedKeys {
 		select {
 		case item := <-resultChan:
@@ -166,7 +166,6 @@ func appenderRoutine(bitmapChan chan<- *Bitmap, resultChan <-chan keyedContainer
 			make([]container, 0, expectedKeys),
 			make([]bool, 0, expectedKeys),
 			false,
-			nil,
 		},
 	}
 	for i := range keys {
@@ -286,14 +285,14 @@ func ParAnd(parallelism int, bitmaps ...*Bitmap) *Bitmap {
 		for input := range inputChan {
 			c := input.containers[0].and(input.containers[1])
 			for _, next := range input.containers[2:] {
-				if c.getCardinality() == 0 {
+				if c.isEmpty() {
 					break
 				}
 				c = c.iand(next)
 			}
 
 			// Send a nil explicitly if the result of the intersection is an empty container
-			if c.getCardinality() == 0 {
+			if c.isEmpty() {
 				c = nil
 			}
 
@@ -337,7 +336,7 @@ func ParAnd(parallelism int, bitmaps ...*Bitmap) *Bitmap {
 // (if it is set to 0, a default number of workers is chosen)
 func ParOr(parallelism int, bitmaps ...*Bitmap) *Bitmap {
 	var lKey uint16 = MaxUint16
-	var hKey uint16 = 0
+	var hKey uint16
 
 	bitmapsFiltered := bitmaps[:0]
 	for _, b := range bitmaps {
@@ -355,10 +354,10 @@ func ParOr(parallelism int, bitmaps ...*Bitmap) *Bitmap {
 	if lKey == MaxUint16 && hKey == 0 {
 		return New()
 	} else if len(bitmaps) == 1 {
-		return bitmaps[0]
+		return bitmaps[0].Clone()
 	}
 
-	keyRange := hKey - lKey + 1
+	keyRange := int(hKey) - int(lKey) + 1
 	if keyRange == 1 {
 		// revert to FastOr. Since the key range is 0
 		// no container-level aggregation parallelism is achievable

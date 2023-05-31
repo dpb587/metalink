@@ -12,6 +12,11 @@ func (mt MessageType) FastExtension() bool {
 	return mt >= Suggest && mt <= AllowedFast
 }
 
+func (mt *MessageType) UnmarshalBinary(b []byte) error {
+	*mt = MessageType(b[0])
+	return nil
+}
+
 const (
 	// BEP 3
 	Choke         MessageType = 0
@@ -23,9 +28,11 @@ const (
 	Request       MessageType = 6
 	Piece         MessageType = 7
 	Cancel        MessageType = 8
-	Port          MessageType = 9
 
-	// BEP 6
+	// BEP 5
+	Port MessageType = 9
+
+	// BEP 6 - Fast extension
 	Suggest     MessageType = 0x0d // 13
 	HaveAll     MessageType = 0x0e // 14
 	HaveNone    MessageType = 0x0f // 15
@@ -39,7 +46,7 @@ const (
 const (
 	HandshakeExtendedID = 0
 
-	RequestMetadataExtensionMsgType = 0
-	DataMetadataExtensionMsgType    = 1
-	RejectMetadataExtensionMsgType  = 2
+	RequestMetadataExtensionMsgType ExtendedMetadataRequestMsgType = 0
+	DataMetadataExtensionMsgType    ExtendedMetadataRequestMsgType = 1
+	RejectMetadataExtensionMsgType  ExtendedMetadataRequestMsgType = 2
 )

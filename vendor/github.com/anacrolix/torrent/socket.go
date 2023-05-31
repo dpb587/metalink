@@ -2,101 +2,107 @@ package torrent
 
 import (
 	"context"
-	"fmt"
 	"net"
-	"net/url"
 	"strconv"
-	"strings"
+	"syscall"
 
-	"golang.org/x/net/proxy"
-
-	"github.com/anacrolix/missinggo"
+	"github.com/anacrolix/log"
+	"github.com/anacrolix/missinggo/perf"
+	"github.com/anacrolix/missinggo/v2"
+	"github.com/pkg/errors"
 )
 
-type dialer interface {
-	dial(_ context.Context, addr string) (net.Conn, error)
+type Listener interface {
+	// Accept waits for and returns the next connection to the listener.
+	Accept() (net.Conn, error)
+
+	// Addr returns the listener's network address.
+	Addr() net.Addr
 }
 
 type socket interface {
-	net.Listener
-	dialer
+	Listener
+	Dialer
+	Close() error
 }
 
-func getProxyDialer(proxyURL string) (proxy.Dialer, error) {
-	fixedURL, err := url.Parse(proxyURL)
-	if err != nil {
-		return nil, err
-	}
-
-	return proxy.FromURL(fixedURL, proxy.Direct)
-}
-
-func listen(network, addr, proxyURL string) (socket, error) {
-	if isTcpNetwork(network) {
-		return listenTcp(network, addr, proxyURL)
-	} else if isUtpNetwork(network) {
-		return listenUtp(network, addr, proxyURL)
-	} else {
-		panic(fmt.Sprintf("unknown network %q", network))
+func listen(n network, addr string, f firewallCallback, logger log.Logger) (socket, error) {
+	switch {
+	case n.Tcp:
+		return listenTcp(n.String(), addr)
+	case n.Udp:
+		return listenUtp(n.String(), addr, f, logger)
+	default:
+		panic(n)
 	}
 }
 
-func isTcpNetwork(s string) bool {
-	return strings.Contains(s, "tcp")
-}
-
-func isUtpNetwork(s string) bool {
-	return strings.Contains(s, "utp") || strings.Contains(s, "udp")
-}
-
-func listenTcp(network, address, proxyURL string) (s socket, err error) {
-	l, err := net.Listen(network, address)
-	if err != nil {
-		return
-	}
-
-	// If we don't need the proxy - then we should return default net.Dialer,
-	// otherwise, let's try to parse the proxyURL and return proxy.Dialer
-	if len(proxyURL) != 0 {
-		if dialer, err := getProxyDialer(proxyURL); err == nil {
-			return tcpSocket{l, dialer}, nil
+var tcpListenConfig = net.ListenConfig{
+	Control: func(network, address string, c syscall.RawConn) (err error) {
+		controlErr := c.Control(func(fd uintptr) {
+			err = setReusePortSockOpts(fd)
+		})
+		if err != nil {
+			return
 		}
-	}
+		err = controlErr
+		return
+	},
+	// BitTorrent connections manage their own keep-alives.
+	KeepAlive: -1,
+}
 
-	return tcpSocket{l, nil}, nil
+func listenTcp(network, address string) (s socket, err error) {
+	l, err := tcpListenConfig.Listen(context.Background(), network, address)
+	return tcpSocket{
+		Listener: l,
+		NetworkDialer: NetworkDialer{
+			Network: network,
+			Dialer: &net.Dialer{
+				// Dialling TCP from a local port limits us to a single outgoing TCP connection to
+				// each remote client. Instead this should be a last resort if we need to use holepunching, and only then to connect to other clients that actually try to holepunch TCP.
+				//LocalAddr: l.Addr(),
+
+				// We don't want fallback, as we explicitly manage the IPv4/IPv6 distinction
+				// ourselves, although it's probably not triggered as I think the network is already
+				// constrained to tcp4 or tcp6 at this point.
+				FallbackDelay: -1,
+				// BitTorrent connections manage their own keep-alives.
+				KeepAlive: tcpListenConfig.KeepAlive,
+				Control: func(network, address string, c syscall.RawConn) (err error) {
+					controlErr := c.Control(func(fd uintptr) {
+						err = setSockNoLinger(fd)
+						if err != nil {
+							// Failing to disable linger is undesirable, but not fatal.
+							log.Printf("error setting linger socket option on tcp socket: %v", err)
+						}
+						err = setReusePortSockOpts(fd)
+					})
+					if err == nil {
+						err = controlErr
+					}
+					return
+				},
+			},
+		},
+	}, err
 }
 
 type tcpSocket struct {
 	net.Listener
-	d proxy.Dialer
+	NetworkDialer
 }
 
-func (me tcpSocket) dial(ctx context.Context, addr string) (net.Conn, error) {
-	if me.d != nil {
-		return me.d.Dial(me.Addr().Network(), addr)
-	}
-
-	return net.Dial(me.Addr().Network(), addr)
-}
-
-func setPort(addr string, port int) string {
-	host, _, err := net.SplitHostPort(addr)
-	if err != nil {
-		panic(err)
-	}
-	return net.JoinHostPort(host, strconv.FormatInt(int64(port), 10))
-}
-
-func listenAll(networks []string, getHost func(string) string, port int, proxyURL string) ([]socket, error) {
+func listenAll(networks []network, getHost func(string) string, port int, f firewallCallback, logger log.Logger) ([]socket, error) {
 	if len(networks) == 0 {
 		return nil, nil
 	}
 	var nahs []networkAndHost
 	for _, n := range networks {
-		nahs = append(nahs, networkAndHost{n, getHost(n)})
+		nahs = append(nahs, networkAndHost{n, getHost(n.String())})
 	}
 	for {
-		ss, retry, err := listenAllRetry(nahs, port, proxyURL)
+		ss, retry, err := listenAllRetry(nahs, port, f, logger)
 		if !retry {
 			return ss, err
 		}
@@ -104,16 +110,16 @@ func listenAll(networks []string, getHost func(string) string, port int, proxyUR
 }
 
 type networkAndHost struct {
-	Network string
+	Network network
 	Host    string
 }
 
-func listenAllRetry(nahs []networkAndHost, port int, proxyURL string) (ss []socket, retry bool, err error) {
+func listenAllRetry(nahs []networkAndHost, port int, f firewallCallback, logger log.Logger) (ss []socket, retry bool, err error) {
 	ss = make([]socket, 1, len(nahs))
 	portStr := strconv.FormatInt(int64(port), 10)
-	ss[0], err = listen(nahs[0].Network, net.JoinHostPort(nahs[0].Host, portStr), proxyURL)
+	ss[0], err = listen(nahs[0].Network, net.JoinHostPort(nahs[0].Host, portStr), f, logger)
 	if err != nil {
-		return nil, false, fmt.Errorf("first listen: %s", err)
+		return nil, false, errors.Wrap(err, "first listen")
 	}
 	defer func() {
 		if err != nil || retry {
@@ -125,44 +131,36 @@ func listenAllRetry(nahs []networkAndHost, port int, proxyURL string) (ss []sock
 	}()
 	portStr = strconv.FormatInt(int64(missinggo.AddrPort(ss[0].Addr())), 10)
 	for _, nah := range nahs[1:] {
-		s, err := listen(nah.Network, net.JoinHostPort(nah.Host, portStr), proxyURL)
+		s, err := listen(nah.Network, net.JoinHostPort(nah.Host, portStr), f, logger)
 		if err != nil {
 			return ss,
 				missinggo.IsAddrInUse(err) && port == 0,
-				fmt.Errorf("subsequent listen: %s", err)
+				errors.Wrap(err, "subsequent listen")
 		}
 		ss = append(ss, s)
 	}
 	return
 }
 
-func listenUtp(network, addr, proxyURL string) (s socket, err error) {
-	us, err := NewUtpSocket(network, addr)
-	if err != nil {
-		return
-	}
+// This isn't aliased from go-libutp since that assumes CGO.
+type firewallCallback func(net.Addr) bool
 
-	// If we don't need the proxy - then we should return default net.Dialer,
-	// otherwise, let's try to parse the proxyURL and return proxy.Dialer
-	if len(proxyURL) != 0 {
-		if dialer, err := getProxyDialer(proxyURL); err == nil {
-			return utpSocketSocket{us, network, dialer}, nil
-		}
-	}
-
-	return utpSocketSocket{us, network, nil}, nil
+func listenUtp(network, addr string, fc firewallCallback, logger log.Logger) (socket, error) {
+	us, err := NewUtpSocket(network, addr, fc, logger)
+	return utpSocketSocket{us, network}, err
 }
 
+// utpSocket wrapper, additionally wrapped for the torrent package's socket interface.
 type utpSocketSocket struct {
 	utpSocket
 	network string
-	d       proxy.Dialer
 }
 
-func (me utpSocketSocket) dial(ctx context.Context, addr string) (net.Conn, error) {
-	if me.d != nil {
-		return me.d.Dial(me.network, addr)
-	}
+func (me utpSocketSocket) DialerNetwork() string {
+	return me.network
+}
 
+func (me utpSocketSocket) Dial(ctx context.Context, addr string) (conn net.Conn, err error) {
+	defer perf.ScopeTimerErr(&err)()
 	return me.utpSocket.DialContext(ctx, me.network, addr)
 }

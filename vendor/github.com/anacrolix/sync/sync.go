@@ -20,12 +20,10 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"runtime"
 	"runtime/pprof"
-	"sort"
+	"strings"
 	"sync"
 	"text/tabwriter"
-	"time"
 
 	"github.com/anacrolix/missinggo"
 )
@@ -33,43 +31,15 @@ import (
 var (
 	// Protects initialization and enabling of the package.
 	enableMu sync.Mutex
-	// Whether any of this package is to be active.
-	enabled = false
+	// Whether shared locks must be handled as exclusive locks.
+	noSharedLocking = false
+	contentionOn    = false
+	lockTimesOn     = false
 	// Current lock holders.
 	lockHolders *pprof.Profile
 	// Those blocked on acquiring a lock.
 	lockBlockers *pprof.Profile
-
-	// Stats on lock usage by call graph.
-	lockStatsMu      sync.Mutex
-	lockStatsByStack map[lockStackKey]lockStats
 )
-
-type (
-	lockStats struct {
-		maxTime time.Duration
-		count   lockCount
-	}
-	lockStackKey = [32]uintptr
-	lockCount    = int64
-)
-
-type stackLockStats struct {
-	stack lockStackKey
-	lockStats
-}
-
-func sortedLockTimes() (ret []stackLockStats) {
-	lockStatsMu.Lock()
-	for stack, stats := range lockStatsByStack {
-		ret = append(ret, stackLockStats{stack, stats})
-	}
-	lockStatsMu.Unlock()
-	sort.Slice(ret, func(i, j int) bool {
-		return ret[i].maxTime > ret[j].maxTime
-	})
-	return
-}
 
 // Writes out the longest time a Mutex remains locked for each stack trace
 // that locks a Mutex.
@@ -79,74 +49,44 @@ func PrintLockTimes(w io.Writer) {
 	defer tw.Flush()
 	w = tw
 	for _, elem := range lockTimes {
-		fmt.Fprintf(w, "%s * %d\n", elem.maxTime, elem.count)
+		fmt.Fprintf(w, "%s (%s * %d [%s, %s])\n", elem.Total, elem.MeanTime(), elem.Count, elem.Min, elem.Max)
 		missinggo.WriteStack(w, elem.stack[:])
 	}
 }
 
 func Enable() {
-	enableMu.Lock()
-	defer enableMu.Unlock()
-	if enabled {
-		return
-	}
-	lockStatsByStack = make(map[lockStackKey]lockStats)
+	EnableContention()
+	EnableLockTimes()
+}
+
+func EnableContention() {
 	lockHolders = pprof.NewProfile("lockHolders")
 	lockBlockers = pprof.NewProfile("lockBlockers")
+	noSharedLocking = true
+	contentionOn = true
+}
+
+func EnableLockTimes() {
+	lockStatsByStack = make(map[lockStackKey]lockStats)
 	http.DefaultServeMux.HandleFunc("/debug/lockTimes", func(w http.ResponseWriter, r *http.Request) {
 		PrintLockTimes(w)
 	})
-	enabled = true
+	noSharedLocking = true
+	lockTimesOn = true
 }
 
 func init() {
-	if os.Getenv("PPROF_SYNC") != "" {
+	env := os.Getenv("PPROF_SYNC")
+	all := true
+	if strings.Contains(env, "times") {
+		EnableLockTimes()
+		all = false
+	}
+	if strings.Contains(env, "contention") {
+		EnableContention()
+		all = false
+	}
+	if all && env != "" {
 		Enable()
 	}
 }
-
-type Mutex struct {
-	mu      sync.Mutex
-	hold    *int        // Unique value for passing to pprof.
-	stack   [32]uintptr // The stack for the current holder.
-	start   time.Time   // When the lock was obtained.
-	entries int         // Number of entries returned from runtime.Callers.
-}
-
-func (m *Mutex) Lock() {
-	if !enabled {
-		m.mu.Lock()
-		return
-	}
-	v := new(int)
-	lockBlockers.Add(v, 0)
-	m.mu.Lock()
-	lockBlockers.Remove(v)
-	m.hold = v
-	lockHolders.Add(v, 0)
-	m.entries = runtime.Callers(2, m.stack[:])
-	m.start = time.Now()
-}
-
-func (m *Mutex) Unlock() {
-	if enabled {
-		d := time.Since(m.start)
-		var key [32]uintptr
-		copy(key[:], m.stack[:m.entries])
-		lockStatsMu.Lock()
-		v := lockStatsByStack[key]
-		if d > v.maxTime {
-			v.maxTime = d
-		}
-		v.count++
-		lockStatsByStack[key] = v
-		lockStatsMu.Unlock()
-		lockHolders.Remove(m.hold)
-	}
-	m.mu.Unlock()
-}
-
-type (
-	WaitGroup = sync.WaitGroup
-	Cond      = sync.Cond
-)

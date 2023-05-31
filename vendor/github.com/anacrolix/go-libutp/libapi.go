@@ -4,9 +4,11 @@ package utp
 #include "utp.h"
 */
 import "C"
+
 import (
 	"errors"
-	"sync"
+
+	"github.com/anacrolix/sync"
 )
 
 type Option = C.int

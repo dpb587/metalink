@@ -1,6 +1,7 @@
 package roaring
 
 import (
+	"math"
 	"math/rand"
 	"sort"
 )
@@ -15,11 +16,15 @@ const (
 	noOffsetThreshold          = 4
 
 	// MaxUint32 is the largest uint32 value.
-	MaxUint32 = 4294967295
+	MaxUint32 = math.MaxUint32
+
+	// MaxRange is One more than the maximum allowed bitmap bit index. For use as an upper
+	// bound for ranges.
+	MaxRange uint64 = MaxUint32 + 1
 
 	// MaxUint16 is the largest 16 bit unsigned int.
 	// This is the largest value an interval16 can store.
-	MaxUint16 = 65535
+	MaxUint16 = math.MaxUint16
 
 	// Compute wordSizeInBytes, the size of a word in bytes.
 	_m              = ^uint64(0)
@@ -108,7 +113,7 @@ func highbits(x uint32) uint16 {
 	return uint16(x >> 16)
 }
 func lowbits(x uint32) uint16 {
-	return uint16(x & 0xFFFF)
+	return uint16(x & maxLowBit)
 }
 
 const maxLowBit = 0xFFFF
@@ -121,7 +126,6 @@ func flipBitmapRange(bitmap []uint64, start int, end int) {
 	endword := (end - 1) / 64
 	bitmap[firstword] ^= ^(^uint64(0) << uint(start%64))
 	for i := firstword; i < endword; i++ {
-		//p("flipBitmapRange on i=%v", i)
 		bitmap[i] = ^bitmap[i]
 	}
 	bitmap[endword] ^= ^uint64(0) >> (uint(-end) % 64)
@@ -294,27 +298,6 @@ func maxOfUint16(a, b uint16) uint16 {
 }
 
 func minOfUint16(a, b uint16) uint16 {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func maxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func maxUint16(a, b uint16) uint16 {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func minUint16(a, b uint16) uint16 {
 	if a < b {
 		return a
 	}

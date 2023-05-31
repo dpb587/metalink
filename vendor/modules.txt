@@ -1,76 +1,139 @@
+# crawshaw.io/sqlite v0.3.3-0.20220618202545-d1964889ea3c
+## explicit; go 1.12
+crawshaw.io/sqlite
+crawshaw.io/sqlite/c
+crawshaw.io/sqlite/sqlitex
 # github.com/Masterminds/semver v1.4.2
 ## explicit
 github.com/Masterminds/semver
-# github.com/RoaringBitmap/roaring v0.4.9
-## explicit
+# github.com/RoaringBitmap/roaring v1.2.3
+## explicit; go 1.14
 github.com/RoaringBitmap/roaring
-# github.com/anacrolix/dht v0.0.0-20180609081455-3a61693189d8
-## explicit
-github.com/anacrolix/dht
-github.com/anacrolix/dht/krpc
-# github.com/anacrolix/go-libutp v0.0.0-20180529092413-6189d518d39b
-## explicit
+github.com/RoaringBitmap/roaring/BitSliceIndexing
+github.com/RoaringBitmap/roaring/internal
+# github.com/ajwerner/btree v0.0.0-20211221152037-f427b3e689c0
+## explicit; go 1.18
+github.com/ajwerner/btree
+github.com/ajwerner/btree/internal/abstract
+# github.com/alecthomas/atomic v0.1.0-alpha2
+## explicit; go 1.18
+github.com/alecthomas/atomic
+# github.com/anacrolix/chansync v0.3.0
+## explicit; go 1.16
+github.com/anacrolix/chansync
+github.com/anacrolix/chansync/events
+# github.com/anacrolix/dht/v2 v2.19.2-0.20221121215055-066ad8494444
+## explicit; go 1.18
+github.com/anacrolix/dht/v2
+github.com/anacrolix/dht/v2/bep44
+github.com/anacrolix/dht/v2/containers
+github.com/anacrolix/dht/v2/int160
+github.com/anacrolix/dht/v2/k-nearest-nodes
+github.com/anacrolix/dht/v2/krpc
+github.com/anacrolix/dht/v2/peer-store
+github.com/anacrolix/dht/v2/traversal
+github.com/anacrolix/dht/v2/types
+# github.com/anacrolix/envpprof v1.2.1
+## explicit; go 1.12
+github.com/anacrolix/envpprof
+# github.com/anacrolix/generics v0.0.0-20230428105757-683593396d68
+## explicit; go 1.18
+github.com/anacrolix/generics
+# github.com/anacrolix/go-libutp v1.2.0
+## explicit; go 1.14
 github.com/anacrolix/go-libutp
-# github.com/anacrolix/log v0.0.0-20180412014343-2323884b361d
-## explicit
+# github.com/anacrolix/log v0.14.0
+## explicit; go 1.18
 github.com/anacrolix/log
-# github.com/anacrolix/missinggo v0.0.0-20180525074307-ca16e9f398a9
-## explicit
+# github.com/anacrolix/missinggo v1.3.0
+## explicit; go 1.16
 github.com/anacrolix/missinggo
-github.com/anacrolix/missinggo/bitmap
 github.com/anacrolix/missinggo/expect
 github.com/anacrolix/missinggo/httptoo
 github.com/anacrolix/missinggo/inproc
 github.com/anacrolix/missinggo/iter
 github.com/anacrolix/missinggo/mime
-github.com/anacrolix/missinggo/orderedmap
-github.com/anacrolix/missinggo/perf
 github.com/anacrolix/missinggo/pproffd
-github.com/anacrolix/missinggo/prioritybitmap
-github.com/anacrolix/missinggo/pubsub
-github.com/anacrolix/missinggo/resource
 github.com/anacrolix/missinggo/slices
-github.com/anacrolix/missinggo/x
-# github.com/anacrolix/mmsg v0.0.0-20180515031531-a4a3ba1fc8bb
+# github.com/anacrolix/missinggo/perf v1.0.0
+## explicit; go 1.12
+github.com/anacrolix/missinggo/perf
+# github.com/anacrolix/missinggo/v2 v2.7.2-0.20230527121029-a582b4f397b9
+## explicit; go 1.18
+github.com/anacrolix/missinggo/v2
+github.com/anacrolix/missinggo/v2/bitmap
+github.com/anacrolix/missinggo/v2/iter
+github.com/anacrolix/missinggo/v2/pproffd
+github.com/anacrolix/missinggo/v2/pubsub
+github.com/anacrolix/missinggo/v2/resource
+github.com/anacrolix/missinggo/v2/slices
+# github.com/anacrolix/mmsg v1.0.0
 ## explicit
 github.com/anacrolix/mmsg
 github.com/anacrolix/mmsg/socket
-# github.com/anacrolix/sync v0.0.0-20180525101250-3870fa5b90c5
-## explicit
+# github.com/anacrolix/multiless v0.3.0
+## explicit; go 1.13
+github.com/anacrolix/multiless
+# github.com/anacrolix/stm v0.4.0
+## explicit; go 1.18
+github.com/anacrolix/stm
+github.com/anacrolix/stm/stmutil
+# github.com/anacrolix/sync v0.4.0
+## explicit; go 1.13
 github.com/anacrolix/sync
-# github.com/anacrolix/torrent v0.0.0-20180608105236-f6ed514c3b73
-## explicit
+# github.com/anacrolix/torrent v1.52.0
+## explicit; go 1.20
 github.com/anacrolix/torrent
 github.com/anacrolix/torrent/bencode
+github.com/anacrolix/torrent/common
+github.com/anacrolix/torrent/dialer
+github.com/anacrolix/torrent/internal/alloclim
+github.com/anacrolix/torrent/internal/check
+github.com/anacrolix/torrent/internal/limiter
+github.com/anacrolix/torrent/internal/nestedmaps
+github.com/anacrolix/torrent/internal/testutil
 github.com/anacrolix/torrent/iplist
 github.com/anacrolix/torrent/logonce
 github.com/anacrolix/torrent/metainfo
 github.com/anacrolix/torrent/mmap_span
 github.com/anacrolix/torrent/mse
 github.com/anacrolix/torrent/peer_protocol
+github.com/anacrolix/torrent/peer_protocol/ut-holepunch
+github.com/anacrolix/torrent/request-strategy
+github.com/anacrolix/torrent/segments
+github.com/anacrolix/torrent/smartban
 github.com/anacrolix/torrent/storage
 github.com/anacrolix/torrent/tracker
+github.com/anacrolix/torrent/tracker/http
+github.com/anacrolix/torrent/tracker/shared
+github.com/anacrolix/torrent/tracker/udp
+github.com/anacrolix/torrent/typed-roaring
+github.com/anacrolix/torrent/types
+github.com/anacrolix/torrent/types/infohash
+github.com/anacrolix/torrent/version
+github.com/anacrolix/torrent/webseed
+github.com/anacrolix/torrent/webtorrent
+# github.com/anacrolix/upnp v0.1.3-0.20220123035249-922794e51c96
+## explicit; go 1.12
+github.com/anacrolix/upnp
 # github.com/anacrolix/utp v0.1.0
 ## explicit
 github.com/anacrolix/utp
-# github.com/bkaradzic/go-lz4 v1.0.0
-## explicit
-github.com/bkaradzic/go-lz4
+# github.com/bahlo/generic-list-go v0.2.0
+## explicit; go 1.18
+github.com/bahlo/generic-list-go
+# github.com/benbjohnson/immutable v0.3.0
+## explicit; go 1.12
+github.com/benbjohnson/immutable
+# github.com/bits-and-blooms/bitset v1.2.2
+## explicit; go 1.14
+github.com/bits-and-blooms/bitset
 # github.com/bmatcuk/doublestar v1.3.4
 ## explicit; go 1.12
 github.com/bmatcuk/doublestar
-# github.com/boltdb/bolt v1.3.1
-## explicit
-github.com/boltdb/bolt
-# github.com/bradfitz/iter v0.0.0-20140124041915-454541ec3da2
-## explicit
+# github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8
+## explicit; go 1.11
 github.com/bradfitz/iter
-# github.com/calmh/du v1.0.1
-## explicit
-github.com/calmh/du
-# github.com/calmh/xdr v1.1.0
-## explicit
-github.com/calmh/xdr
 # github.com/charlievieth/fs v0.0.3
 ## explicit; go 1.18
 github.com/charlievieth/fs
@@ -82,32 +145,27 @@ github.com/cheggaaa/pb
 github.com/cloudfoundry/bosh-utils/errors
 github.com/cloudfoundry/bosh-utils/logger
 github.com/cloudfoundry/bosh-utils/system
-# github.com/d4l3k/messagediff v1.2.1
-## explicit
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
 # github.com/dustin/go-humanize v1.0.1
 ## explicit; go 1.16
 github.com/dustin/go-humanize
-# github.com/edsrzf/mmap-go v0.0.0-20170320065105-0bce6a688712
-## explicit
+# github.com/edsrzf/mmap-go v1.1.0
+## explicit; go 1.17
 github.com/edsrzf/mmap-go
-# github.com/glycerine/go-unsnap-stream v0.0.0-20180323001048-9f0cb55181dd
-## explicit
-github.com/glycerine/go-unsnap-stream
-# github.com/glycerine/goconvey v0.0.0-20190410193231-58a59202ab31
-## explicit
-# github.com/gogo/protobuf v1.0.0
-## explicit
-github.com/gogo/protobuf/gogoproto
-github.com/gogo/protobuf/proto
-github.com/gogo/protobuf/protoc-gen-gogo/descriptor
-# github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db
-## explicit
-github.com/golang/snappy
-# github.com/google/btree v0.0.0-20180124185431-e89373fe6b4a
-## explicit
+# github.com/fsnotify/fsnotify v1.6.0
+## explicit; go 1.16
+github.com/fsnotify/fsnotify
+# github.com/go-logr/logr v1.2.4
+## explicit; go 1.16
+github.com/go-logr/logr
+github.com/go-logr/logr/funcr
+# github.com/go-logr/stdr v1.2.2
+## explicit; go 1.16
+github.com/go-logr/stdr
+# github.com/google/btree v1.1.2
+## explicit; go 1.18
 github.com/google/btree
 # github.com/google/go-cmp v0.5.9
 ## explicit; go 1.13
@@ -119,21 +177,17 @@ github.com/google/go-cmp/cmp/internal/value
 # github.com/google/uuid v1.3.0
 ## explicit
 github.com/google/uuid
+# github.com/gorilla/websocket v1.5.0
+## explicit; go 1.12
+github.com/gorilla/websocket
 # github.com/hashicorp/errwrap v1.1.0
 ## explicit
 github.com/hashicorp/errwrap
 # github.com/hashicorp/go-multierror v1.1.1
 ## explicit; go 1.13
 github.com/hashicorp/go-multierror
-# github.com/hpcloud/tail v1.0.0
-## explicit
-github.com/hpcloud/tail
-github.com/hpcloud/tail/ratelimiter
-github.com/hpcloud/tail/util
-github.com/hpcloud/tail/watch
-github.com/hpcloud/tail/winfile
-# github.com/huandu/xstrings v1.0.0
-## explicit
+# github.com/huandu/xstrings v1.3.2
+## explicit; go 1.12
 github.com/huandu/xstrings
 # github.com/jessevdk/go-flags v1.5.0
 ## explicit; go 1.15
@@ -144,29 +198,21 @@ github.com/jlaffaye/ftp
 # github.com/json-iterator/go v1.1.12
 ## explicit; go 1.12
 github.com/json-iterator/go
-# github.com/kardianos/osext v0.0.0-20170510131534-ae77be60afb1
-## explicit
-github.com/kardianos/osext
-# github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-## explicit
-github.com/kballard/go-shellquote
 # github.com/klauspost/compress v1.16.5
 ## explicit; go 1.18
 github.com/klauspost/compress/s2
 # github.com/klauspost/cpuid/v2 v2.2.4
 ## explicit; go 1.15
 github.com/klauspost/cpuid/v2
-# github.com/kr/text v0.2.0
-## explicit
+# github.com/lispad/go-generics-tools v1.1.0
+## explicit; go 1.18
+github.com/lispad/go-generics-tools/binheap
 # github.com/mattn/go-colorable v0.1.13
 ## explicit; go 1.15
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.18
 ## explicit; go 1.15
 github.com/mattn/go-isatty
-# github.com/mattn/go-sqlite3 v1.7.0
-## explicit
-github.com/mattn/go-sqlite3
 # github.com/maxbrunsfeld/counterfeiter/v6 v6.6.1
 ## explicit; go 1.17
 github.com/maxbrunsfeld/counterfeiter/v6
@@ -198,17 +244,26 @@ github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.2
 ## explicit; go 1.12
 github.com/modern-go/reflect2
-# github.com/mschoch/smat v0.1.0
-## explicit
+# github.com/mschoch/smat v0.2.0
+## explicit; go 1.13
 github.com/mschoch/smat
-# github.com/onsi/ginkgo v1.7.0
-## explicit
+# github.com/nxadm/tail v1.4.8
+## explicit; go 1.13
+github.com/nxadm/tail
+github.com/nxadm/tail/ratelimiter
+github.com/nxadm/tail/util
+github.com/nxadm/tail/watch
+github.com/nxadm/tail/winfile
+# github.com/onsi/ginkgo v1.16.5
+## explicit; go 1.16
 github.com/onsi/ginkgo
 github.com/onsi/ginkgo/config
 github.com/onsi/ginkgo/extensions/table
+github.com/onsi/ginkgo/formatter
 github.com/onsi/ginkgo/internal/codelocation
 github.com/onsi/ginkgo/internal/containernode
 github.com/onsi/ginkgo/internal/failer
+github.com/onsi/ginkgo/internal/global
 github.com/onsi/ginkgo/internal/leafnodes
 github.com/onsi/ginkgo/internal/remote
 github.com/onsi/ginkgo/internal/spec
@@ -234,75 +289,154 @@ github.com/onsi/gomega/matchers/support/goraph/edge
 github.com/onsi/gomega/matchers/support/goraph/node
 github.com/onsi/gomega/matchers/support/goraph/util
 github.com/onsi/gomega/types
-# github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5
-## explicit
-github.com/petermattis/goid
-# github.com/philhofer/fwd v1.0.0
-## explicit
-github.com/philhofer/fwd
+# github.com/pion/datachannel v1.5.2
+## explicit; go 1.13
+github.com/pion/datachannel
+# github.com/pion/dtls/v2 v2.2.4
+## explicit; go 1.13
+github.com/pion/dtls/v2
+github.com/pion/dtls/v2/internal/ciphersuite
+github.com/pion/dtls/v2/internal/ciphersuite/types
+github.com/pion/dtls/v2/internal/closer
+github.com/pion/dtls/v2/internal/util
+github.com/pion/dtls/v2/pkg/crypto/ccm
+github.com/pion/dtls/v2/pkg/crypto/ciphersuite
+github.com/pion/dtls/v2/pkg/crypto/clientcertificate
+github.com/pion/dtls/v2/pkg/crypto/elliptic
+github.com/pion/dtls/v2/pkg/crypto/fingerprint
+github.com/pion/dtls/v2/pkg/crypto/hash
+github.com/pion/dtls/v2/pkg/crypto/prf
+github.com/pion/dtls/v2/pkg/crypto/signature
+github.com/pion/dtls/v2/pkg/crypto/signaturehash
+github.com/pion/dtls/v2/pkg/protocol
+github.com/pion/dtls/v2/pkg/protocol/alert
+github.com/pion/dtls/v2/pkg/protocol/extension
+github.com/pion/dtls/v2/pkg/protocol/handshake
+github.com/pion/dtls/v2/pkg/protocol/recordlayer
+# github.com/pion/ice/v2 v2.2.6
+## explicit; go 1.13
+github.com/pion/ice/v2
+# github.com/pion/interceptor v0.1.11
+## explicit; go 1.15
+github.com/pion/interceptor
+github.com/pion/interceptor/pkg/nack
+github.com/pion/interceptor/pkg/report
+github.com/pion/interceptor/pkg/twcc
+# github.com/pion/logging v0.2.2
+## explicit; go 1.12
+github.com/pion/logging
+# github.com/pion/mdns v0.0.5
+## explicit; go 1.12
+github.com/pion/mdns
+# github.com/pion/randutil v0.1.0
+## explicit; go 1.14
+github.com/pion/randutil
+# github.com/pion/rtcp v1.2.9
+## explicit; go 1.13
+github.com/pion/rtcp
+# github.com/pion/rtp v1.7.13
+## explicit; go 1.13
+github.com/pion/rtp
+github.com/pion/rtp/codecs
+github.com/pion/rtp/pkg/obu
+# github.com/pion/sctp v1.8.2
+## explicit; go 1.13
+github.com/pion/sctp
+# github.com/pion/sdp/v3 v3.0.5
+## explicit; go 1.13
+github.com/pion/sdp/v3
+# github.com/pion/srtp/v2 v2.0.9
+## explicit; go 1.14
+github.com/pion/srtp/v2
+# github.com/pion/stun v0.3.5
+## explicit; go 1.12
+github.com/pion/stun
+github.com/pion/stun/internal/hmac
+# github.com/pion/transport v0.13.1
+## explicit; go 1.12
+github.com/pion/transport/deadline
+github.com/pion/transport/packetio
+github.com/pion/transport/replaydetector
+github.com/pion/transport/vnet
+# github.com/pion/transport/v2 v2.0.0
+## explicit; go 1.12
+github.com/pion/transport/v2/connctx
+github.com/pion/transport/v2/deadline
+github.com/pion/transport/v2/packetio
+github.com/pion/transport/v2/replaydetector
+# github.com/pion/turn/v2 v2.0.8
+## explicit; go 1.13
+github.com/pion/turn/v2
+github.com/pion/turn/v2/internal/allocation
+github.com/pion/turn/v2/internal/client
+github.com/pion/turn/v2/internal/ipnet
+github.com/pion/turn/v2/internal/proto
+github.com/pion/turn/v2/internal/server
+# github.com/pion/udp v0.1.4
+## explicit; go 1.14
+github.com/pion/udp
+github.com/pion/udp/pkg/sync
+# github.com/pion/webrtc/v3 v3.1.42
+## explicit; go 1.13
+github.com/pion/webrtc/v3
+github.com/pion/webrtc/v3/internal/fmtp
+github.com/pion/webrtc/v3/internal/mux
+github.com/pion/webrtc/v3/internal/util
+github.com/pion/webrtc/v3/pkg/media
+github.com/pion/webrtc/v3/pkg/rtcerr
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
 # github.com/rogpeppe/go-internal v1.10.0
 ## explicit; go 1.19
+# github.com/rs/dnscache v0.0.0-20211102005908-e0241e321417
+## explicit; go 1.12
+github.com/rs/dnscache
 # github.com/rs/xid v1.5.0
 ## explicit; go 1.12
 github.com/rs/xid
-# github.com/ryszard/goskiplist v0.0.0-20150312221310-2dfbae5fcf46
-## explicit
-github.com/ryszard/goskiplist/skiplist
-# github.com/sasha-s/go-deadlock v0.2.0
-## explicit
-github.com/sasha-s/go-deadlock
 # github.com/sirupsen/logrus v1.9.0
 ## explicit; go 1.13
 github.com/sirupsen/logrus
-# github.com/smartystreets/goconvey v1.8.0
-## explicit; go 1.18
-# github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72
-## explicit
-github.com/spaolacci/murmur3
-# github.com/syncthing/notify v0.0.0-20180420143630-b9ceffc92503
-## explicit
-github.com/syncthing/notify
-# github.com/syncthing/syncthing v0.14.48
-## explicit
-github.com/syncthing/syncthing/lib/config
-github.com/syncthing/syncthing/lib/dialer
-github.com/syncthing/syncthing/lib/events
-github.com/syncthing/syncthing/lib/fs
-github.com/syncthing/syncthing/lib/logger
-github.com/syncthing/syncthing/lib/nat
-github.com/syncthing/syncthing/lib/osutil
-github.com/syncthing/syncthing/lib/protocol
-github.com/syncthing/syncthing/lib/rand
-github.com/syncthing/syncthing/lib/sha256
-github.com/syncthing/syncthing/lib/signature
-github.com/syncthing/syncthing/lib/sync
-github.com/syncthing/syncthing/lib/upgrade
-github.com/syncthing/syncthing/lib/upnp
-github.com/syncthing/syncthing/lib/util
-github.com/syncthing/syncthing/lib/versioner
-# github.com/tinylib/msgp v1.0.2
-## explicit
-github.com/tinylib/msgp/msgp
-# github.com/willf/bitset v1.1.3
-## explicit
-github.com/willf/bitset
-# github.com/willf/bloom v2.0.3+incompatible
-## explicit
-github.com/willf/bloom
+# github.com/tidwall/btree v1.6.0
+## explicit; go 1.19
+github.com/tidwall/btree
+# go.etcd.io/bbolt v1.3.6
+## explicit; go 1.12
+go.etcd.io/bbolt
+# go.opentelemetry.io/otel v1.8.0
+## explicit; go 1.17
+go.opentelemetry.io/otel
+go.opentelemetry.io/otel/attribute
+go.opentelemetry.io/otel/baggage
+go.opentelemetry.io/otel/codes
+go.opentelemetry.io/otel/internal
+go.opentelemetry.io/otel/internal/baggage
+go.opentelemetry.io/otel/internal/global
+go.opentelemetry.io/otel/propagation
+# go.opentelemetry.io/otel/trace v1.8.0
+## explicit; go 1.17
+go.opentelemetry.io/otel/trace
 # golang.org/x/crypto v0.9.0
 ## explicit; go 1.17
 golang.org/x/crypto/argon2
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/cast5
+golang.org/x/crypto/cryptobyte
+golang.org/x/crypto/cryptobyte/asn1
+golang.org/x/crypto/curve25519
+golang.org/x/crypto/curve25519/internal/field
 golang.org/x/crypto/openpgp
 golang.org/x/crypto/openpgp/armor
 golang.org/x/crypto/openpgp/elgamal
 golang.org/x/crypto/openpgp/errors
 golang.org/x/crypto/openpgp/packet
 golang.org/x/crypto/openpgp/s2k
+# golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d
+## explicit; go 1.18
+golang.org/x/exp/constraints
+golang.org/x/exp/maps
+golang.org/x/exp/slices
 # golang.org/x/mod v0.10.0
 ## explicit; go 1.17
 golang.org/x/mod/internal/lazyregexp
@@ -311,7 +445,7 @@ golang.org/x/mod/semver
 # golang.org/x/net v0.10.0
 ## explicit; go 1.17
 golang.org/x/net/bpf
-golang.org/x/net/context
+golang.org/x/net/dns/dnsmessage
 golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/html/charset
@@ -321,9 +455,11 @@ golang.org/x/net/internal/iana
 golang.org/x/net/internal/socket
 golang.org/x/net/internal/socks
 golang.org/x/net/ipv4
-golang.org/x/net/ipv6
 golang.org/x/net/proxy
 golang.org/x/net/publicsuffix
+# golang.org/x/sync v0.1.0
+## explicit
+golang.org/x/sync/singleflight
 # golang.org/x/sys v0.8.0
 ## explicit; go 1.17
 golang.org/x/sys/cpu
@@ -353,7 +489,7 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2
+# golang.org/x/time v0.0.0-20220609170525-579cf78fd858
 ## explicit
 golang.org/x/time/rate
 # golang.org/x/tools v0.8.0
@@ -388,9 +524,6 @@ gopkg.in/cheggaaa/pb.v2/termutil
 # gopkg.in/fatih/color.v1 v1.7.0
 ## explicit
 gopkg.in/fatih/color.v1
-# gopkg.in/fsnotify.v1 v1.4.7
-## explicit
-gopkg.in/fsnotify.v1
 # gopkg.in/ini.v1 v1.67.0
 ## explicit
 gopkg.in/ini.v1
