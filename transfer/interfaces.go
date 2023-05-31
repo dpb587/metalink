@@ -7,7 +7,7 @@ import (
 	"github.com/dpb587/metalink/verification"
 )
 
-//go:generate counterfeiter . Transfer
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Transfer
 type Transfer interface {
 	TransferFile(metalink.File, file.Reference, *pb.ProgressBar, verification.VerificationResultReporter) error
 }
