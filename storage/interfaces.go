@@ -2,7 +2,7 @@ package storage
 
 import "github.com/dpb587/metalink"
 
-//go:generate counterfeiter . Storage
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Storage
 type Storage interface {
 	String() string
 
@@ -11,7 +11,7 @@ type Storage interface {
 	Put(metalink.Metalink) error
 }
 
-//go:generate counterfeiter . StorageFactory
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . StorageFactory
 type StorageFactory interface {
 	New(string) (Storage, error)
 }
