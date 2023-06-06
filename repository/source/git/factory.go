@@ -2,11 +2,11 @@ package git
 
 import (
 	"fmt"
-	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/dpb587/metalink/repository/source"
+	"github.com/dpb587/metalink/repository/utility"
 
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/pkg/errors"
@@ -45,7 +45,7 @@ func (f Factory) Schemes() []string {
 }
 
 func (f Factory) Create(uri string, options map[string]interface{}) (source.Source, error) {
-	parsedURI, err := url.Parse(uri)
+	parsedURI, err := utility.ParseUriOrGitCloneArg(uri)
 	if err != nil {
 		return nil, errors.Wrap(err, "Parsing source URI")
 	}
@@ -116,5 +116,12 @@ func (f Factory) Create(uri string, options map[string]interface{}) (source.Sour
 		}
 	}
 
-	return NewSource(uri, strings.TrimPrefix(fmt.Sprintf("%s://%s%s%s", schemes[parsedURI.Scheme], auth, parsedURI.Host, gitpath), "ssh://"), parsedURI.Fragment, fspath, privateKey, commits, f.fs, f.cmdRunner), nil
+	var cloneUrl string
+	if parsedURI.Scheme == "git+ssh" {
+		cloneUrl = fmt.Sprintf("%s%s:%s", auth, parsedURI.Host, gitpath)
+	} else {
+		cloneUrl = fmt.Sprintf("%s://%s%s%s", schemes[parsedURI.Scheme], auth, parsedURI.Host, gitpath)
+	}
+
+	return NewSource(uri, cloneUrl, parsedURI.Fragment, fspath, privateKey, commits, f.fs, f.cmdRunner), nil
 }

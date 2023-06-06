@@ -1,13 +1,14 @@
 package s3
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"path/filepath"
 
 	"github.com/cheggaaa/pb"
 	"github.com/dpb587/metalink/file"
-	minio "github.com/minio/minio-go"
+	minio "github.com/minio/minio-go/v7"
 	"github.com/pkg/errors"
 )
 
@@ -36,7 +37,7 @@ func (o Reference) Name() (string, error) {
 }
 
 func (o Reference) Size() (uint64, error) {
-	info, err := o.client.StatObject(o.bucket, o.object, minio.StatObjectOptions{})
+	info, err := o.client.StatObject(context.Background(), o.bucket, o.object, minio.StatObjectOptions{})
 	if err != nil {
 		return 0, errors.Wrap(err, "Getting object stat")
 	}
@@ -45,7 +46,7 @@ func (o Reference) Size() (uint64, error) {
 }
 
 func (o Reference) Reader() (io.ReadCloser, error) {
-	reader, err := o.client.GetObject(o.bucket, o.object, minio.GetObjectOptions{})
+	reader, err := o.client.GetObject(context.Background(), o.bucket, o.object, minio.GetObjectOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "Opening for reading")
 	}
@@ -78,7 +79,7 @@ func (o Reference) WriteFrom(from file.Reference, progress *pb.ProgressBar) erro
 
 	proxyReader := progress.NewProxyReader(reader)
 
-	_, err = o.client.PutObject(o.bucket, o.object, proxyReader, int64(size), minio.PutObjectOptions{ContentType: "application/octet-stream"})
+	_, err = o.client.PutObject(context.Background(), o.bucket, o.object, proxyReader, int64(size), minio.PutObjectOptions{ContentType: "application/octet-stream"})
 	if err != nil {
 		return errors.Wrap(err, "Uploading")
 	}

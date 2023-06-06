@@ -8,7 +8,8 @@ import (
 	"strings"
 
 	"github.com/dpb587/metalink/repository/source"
-	minio "github.com/minio/minio-go"
+	minio "github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/pkg/errors"
 )
 
@@ -49,11 +50,12 @@ func (f Factory) Create(uri string, options map[string]interface{}) (source.Sour
 		minioEndpoint = fmt.Sprintf("%s:%s", minioEndpoint, parsed.Port())
 	}
 
-	var accessKey, secretKey string
+	var accessKey, secretKey, roleArn string
 	var optionValid bool
 
 	accessKey = os.Getenv("AWS_ACCESS_KEY_ID")
 	secretKey = os.Getenv("AWS_SECRET_ACCESS_KEY")
+	roleArn = os.Getenv("AWS_ROLE_ARN")
 
 	if accessKeyOpt, found := options["access_key"]; found {
 		if accessKey, optionValid = accessKeyOpt.(string); !optionValid {
@@ -67,12 +69,47 @@ func (f Factory) Create(uri string, options map[string]interface{}) (source.Sour
 		}
 	}
 
+	if roleArnOpt, found := options["role_arn"]; found {
+		if roleArn, optionValid = roleArnOpt.(string); !optionValid {
+			return nil, errors.New("Option 'role_arn' must be a string")
+		}
+	}
+
 	if parsed.User != nil {
 		accessKey = parsed.User.Username()
 		secretKey, _ = parsed.User.Password()
 	}
 
-	client, err := minio.New(minioEndpoint, accessKey, secretKey, secure)
+	var minioCreds *credentials.Credentials
+
+	if roleArn == "" {
+		minioCreds = credentials.NewStaticV4(accessKey, secretKey, "")
+	} else {
+		if minioEndpoint != "s3.amazonaws.com" {
+			return nil, errors.New("Role ARN is only supported for S3 endpoints")
+		}
+
+		minioCreds, err = credentials.NewSTSAssumeRole(
+			"https://sts.amazonaws.com",
+			credentials.STSAssumeRoleOptions{
+				AccessKey:       accessKey,
+				SecretKey:       secretKey,
+				Location:        "us-east-1",
+				RoleARN:         roleArn,
+				RoleSessionName: "metalink-session",
+			},
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "Unable to authenticate as assumed role")
+		}
+	}
+
+	minioOptions := &minio.Options{
+		Creds:  minioCreds,
+		Secure: true,
+	}
+
+	client, err := minio.New(minioEndpoint, minioOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "Creating s3 client")
 	}

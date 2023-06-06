@@ -1,6 +1,7 @@
 package git
 
 import (
+	"context"
 	"io"
 	"io/ioutil"
 	"path"
@@ -10,7 +11,7 @@ import (
 	"github.com/dpb587/metalink/repository"
 	"github.com/dpb587/metalink/repository/filter"
 	"github.com/dpb587/metalink/repository/source"
-	minio "github.com/minio/minio-go"
+	minio "github.com/minio/minio-go/v7"
 	"github.com/pkg/errors"
 )
 
@@ -37,20 +38,20 @@ func NewSource(rawURI string, client *minio.Client, secure bool, bucket string, 
 }
 
 func (s *Source) Load() error {
-	doneCh := make(chan struct{})
-	defer close(doneCh)
-
 	uri := s.URI()
 	s.metalinks = []repository.RepositoryMetalink{}
-
-	for object := range s.client.ListObjects(s.bucket, s.prefix, s.secure, doneCh) {
+	listOptions := minio.ListObjectsOptions{
+		Prefix:    s.prefix,
+		Recursive: true,
+	}
+	for object := range s.client.ListObjects(context.Background(), s.bucket, listOptions) {
 		if object.Err != nil {
 			return errors.Wrap(object.Err, "Listing objects")
 		} else if !strings.HasSuffix(object.Key, ".meta4") {
 			continue
 		}
 
-		get, err := s.client.GetObject(s.bucket, object.Key, minio.GetObjectOptions{})
+		get, err := s.client.GetObject(context.Background(), s.bucket, object.Key, minio.GetObjectOptions{})
 		if err != nil {
 			return errors.Wrap(err, "Getting object")
 		}
@@ -87,7 +88,7 @@ func (s Source) Filter(f filter.Filter) ([]repository.RepositoryMetalink, error)
 }
 
 func (s Source) Put(name string, data io.Reader) error {
-	_, err := s.client.PutObject(s.bucket, path.Join(s.prefix, name), data, 0, minio.PutObjectOptions{ContentType: "application/octet-stream"})
+	_, err := s.client.PutObject(context.Background(), s.bucket, path.Join(s.prefix, name), data, 0, minio.PutObjectOptions{ContentType: "application/octet-stream"})
 
 	return errors.Wrap(err, "Writing object")
 }
