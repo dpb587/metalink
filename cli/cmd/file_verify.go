@@ -3,16 +3,16 @@ package cmd
 import (
 	"os"
 
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	cliverification "github.com/dpb587/metalink/cli/verification"
-	"github.com/dpb587/metalink/verification"
 	"github.com/dpb587/metalink/file/url"
+	"github.com/dpb587/metalink/verification"
+	"github.com/pkg/errors"
 )
 
 type FileVerify struct {
 	Meta4File
-	FileLoader   url.Loader                   `no-flag:"true"`
+	FileLoader   url.Loader                      `no-flag:"true"`
 	Verification cliverification.DynamicVerifier `no-flag:"true"`
 
 	SkipHashVerification      bool   `long:"skip-hash-verification" description:"Skip hash verification after download"`

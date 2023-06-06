@@ -2,12 +2,12 @@
 //
 // **Supported schemes**
 //
-//  * `http`
-//  * `https`
+//   - `http`
+//   - `https`
 //
 // **Example URIs**
 //
 // Simple example...
 //
-//     https://acmecorp.github.io/metalink-repository/releases/bosh/index.xml
+//	https://acmecorp.github.io/metalink-repository/releases/bosh/index.xml
 package git

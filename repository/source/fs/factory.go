@@ -6,8 +6,8 @@ import (
 
 	"github.com/dpb587/metalink/repository/source"
 
-	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
+	"github.com/pkg/errors"
 )
 
 type Factory struct {

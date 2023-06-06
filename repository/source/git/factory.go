@@ -37,7 +37,7 @@ func NewFactory(fs boshsys.FileSystem, cmdRunner boshsys.CmdRunner) Factory {
 func (f Factory) Schemes() []string {
 	var schemeKeys = []string{}
 
-	for scheme, _ := range schemes {
+	for scheme := range schemes {
 		schemeKeys = append(schemeKeys, scheme)
 	}
 

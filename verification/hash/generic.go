@@ -5,10 +5,10 @@ import (
 	"hash"
 	"io"
 
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
 	"github.com/dpb587/metalink/verification"
+	"github.com/pkg/errors"
 )
 
 type hashNewer func() hash.Hash

@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Loader struct {}
+type Loader struct{}
 
 var _ url.Loader = &Loader{}
 

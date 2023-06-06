@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/cheggaaa/pb"
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink/file"
+	"github.com/pkg/errors"
 )
 
 type Reference struct {

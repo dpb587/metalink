@@ -2,11 +2,11 @@
 //
 // **Supported schemes**
 //
-//  * `git`
-//  * `git+file`
-//  * `git+http`
-//  * `git+https`
-//  * `git+ssh`
+//   - `git`
+//   - `git+file`
+//   - `git+http`
+//   - `git+https`
+//   - `git+ssh`
 //
 // **URI components**
 //
@@ -19,13 +19,13 @@
 //
 // Use a non-default branch of `metalink-repository`...
 //
-//     git+https://github.com/acmecorp/prod-assets.git#metalink-repository
+//	git+https://github.com/acmecorp/prod-assets.git#metalink-repository
 //
 // Use a subpath within a repository...
 //
-//     git+ssh://git.example.com/prod.git//assets/metalink-repository
+//	git+ssh://git.example.com/prod.git//assets/metalink-repository
 //
 // **Notes**
 //
-//  * for SSH-based connections, the user's default SSH configuration/key/agent is used
+//   - for SSH-based connections, the user's default SSH configuration/key/agent is used
 package git

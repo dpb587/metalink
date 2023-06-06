@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/verification"
 	"github.com/dpb587/metalink/verification/hash"
 	"github.com/dpb587/metalink/verification/signature"
+	"github.com/pkg/errors"
 )
 
 type DynamicVerifierImpl struct {

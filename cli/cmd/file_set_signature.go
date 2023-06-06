@@ -4,9 +4,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/pkg/errors"
 	boshsys "github.com/cloudfoundry/bosh-utils/system"
 	"github.com/dpb587/metalink"
+	"github.com/pkg/errors"
 )
 
 type FileSetSignature struct {

@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink/storage"
+	"github.com/pkg/errors"
 )
 
 type ImportMetalink struct {

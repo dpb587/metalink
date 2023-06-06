@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/storage"
+	"github.com/pkg/errors"
 )
 
 type Meta4 struct {

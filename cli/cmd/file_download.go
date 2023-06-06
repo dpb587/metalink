@@ -5,19 +5,19 @@ import (
 	"time"
 
 	"github.com/cheggaaa/pb"
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	cliverification "github.com/dpb587/metalink/cli/verification"
 	"github.com/dpb587/metalink/file/metaurl"
 	"github.com/dpb587/metalink/file/url"
 	"github.com/dpb587/metalink/transfer"
 	"github.com/dpb587/metalink/verification"
+	"github.com/pkg/errors"
 )
 
 type FileDownload struct {
 	Meta4File
-	URLLoader     url.Loader                   `no-flag:"true"`
-	MetaURLLoader metaurl.Loader               `no-flag:"true"`
+	URLLoader     url.Loader                      `no-flag:"true"`
+	MetaURLLoader metaurl.Loader                  `no-flag:"true"`
 	Verification  cliverification.DynamicVerifier `no-flag:"true"`
 
 	SkipHashVerification      bool   `long:"skip-hash-verification" description:"Skip hash verification after download"`

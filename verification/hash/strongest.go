@@ -7,11 +7,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-type strongestSignerVerifierSignerVerifier interface{
+type strongestSignerVerifierSignerVerifier interface {
 	verification.SignerVerifier
 	HashType() metalink.HashType
 }
-
 
 type strongestSignerVerifier struct {
 	strengths []strongestSignerVerifierSignerVerifier

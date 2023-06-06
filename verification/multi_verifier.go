@@ -6,7 +6,7 @@ import (
 )
 
 type MultiVerifier struct {
-	Verifiers      []Verifier
+	Verifiers []Verifier
 }
 
 func (v MultiVerifier) Verify(expected file.Reference, meta4file metalink.File) VerificationResult {

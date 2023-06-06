@@ -3,10 +3,10 @@ package ftp
 import (
 	neturl "net/url"
 
-	"github.com/pkg/errors"
 	"github.com/dpb587/metalink"
 	"github.com/dpb587/metalink/file"
 	"github.com/dpb587/metalink/file/url"
+	"github.com/pkg/errors"
 )
 
 type Loader struct{}

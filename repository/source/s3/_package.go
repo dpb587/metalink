@@ -2,7 +2,7 @@
 //
 // **Supported schemes**
 //
-//  * `s3`
+//   - `s3`
 //
 // **URI components**
 //
@@ -15,15 +15,15 @@
 //
 // Simple example...
 //
-//     s3://s3.amazonaws.com/acmecorp-metalink-repository/prod
+//	s3://s3.amazonaws.com/acmecorp-metalink-repository/prod
 //
 // Custom S3 server...
 //
-//     s3://minio.example.com:9000/prod-metalink-repository
+//	s3://minio.example.com:9000/prod-metalink-repository
 //
 // **Notes**
 //
-//  * this repository will download all `*.meta4` files within the repository URI whenever it is loaded
-//  * insecure S3 endpoints are not supported
-//  * environment variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are used when present
+//   - this repository will download all `*.meta4` files within the repository URI whenever it is loaded
+//   - insecure S3 endpoints are not supported
+//   - environment variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are used when present
 package git
