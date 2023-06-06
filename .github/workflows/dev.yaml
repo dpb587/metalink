@@ -1,0 +1,30 @@
+name: dev
+permissions:
+  contents: write # unused, but required by shared action
+on:
+  push:
+    branches:
+    - main
+jobs:
+  code-quality:
+    name: code-quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+    - name: setup-go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.20.4
+    - name: strict-fmt
+      run: gofmt -s -w . && git diff --exit-code
+    - name: strict-mod-tidy
+      run: go mod tidy && git diff --exit-code
+    - name: test
+      run: go test -v -count=1 -race -shuffle=on ./...
+  exports:
+    name: exports
+    needs:
+    - code-quality
+    uses: ./.github/workflows/common-exports.yaml

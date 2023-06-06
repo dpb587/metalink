@@ -1,0 +1,77 @@
+name: exports-upload-github-release
+inputs:
+  exports_path:
+    default: exports
+  repository_path:
+    default: repository
+  release:
+    default: ${{ github.ref_name }}
+  upload_docker_image:
+    default: false
+  docker_image_registry:
+    default: ghcr.io
+  docker_image_username:
+    default: ${{ github.actor }}
+  docker_image_password:
+    default: ${{ github.token }}
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        # artifacts
+
+        cd "${{ inputs.exports_path }}"
+
+        find artifacts -type f -mindepth 2 -maxdepth 2 -exec mv {} artifacts/ \;
+
+        cd artifacts
+        find . -type f -maxdepth 1 -exec sha256sum {} \; | sed 's#  \./#  #' | sort -k2 > ../sha256sum.txt
+        
+        if [ -s ../sha256sum.txt ]
+        then
+          mv ../sha256sum.txt ./
+        else
+          rm ../sha256sum.txt
+        fi
+
+    # upload_docker_image
+    - name: docker-login
+      if: inputs.upload_docker_image == 'true'
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ inputs.docker_image_registry }}
+        username: ${{ inputs.docker_image_username }}
+        password: ${{ inputs.docker_image_password }}
+    - name: docker-push
+      if: inputs.upload_docker_image == 'true'
+      shell: bash
+      run: |
+        cd "${{ inputs.exports_path }}/artifacts"
+
+        echo 'image,tag,digest' > metadata-docker-images.csv
+
+        for refsfile in $( find . -type f -path '*/docker-image/refs' -maxdepth 3 -mindepth 3 )
+        do
+          while read -r image
+          do
+            docker push "${image}"
+            echo "$( sed -E 's/(.+):([^:]+)/\1,\2/' <<< "${image}" ),$( docker inspect --format='{{ index .RepoDigests 0 }}' "${image}" | cut -d@ -f2 )" >> metadata-docker-images.csv
+          done < "${refsfile}"
+        done
+
+    # github-release
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        # github-release-upload
+
+        stepdir="${PWD}"
+
+        cd "${{ inputs.repository_path }}"
+
+        find "${stepdir}/${{ inputs.exports_path }}/artifacts" -type f -maxdepth 1 \
+          -exec \
+            gh release upload "${{ inputs.release }}" {} \
+          \;

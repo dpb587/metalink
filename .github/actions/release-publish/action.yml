@@ -1,0 +1,57 @@
+name: exports-upload-github-release
+inputs:
+  notes_path:
+    default:
+  repository_path:
+    default: repository
+  is_latest_release:
+    default: "true"
+runs:
+  using: "composite"
+  steps:
+    - name: publish-release
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        # publish-release
+
+        publish_notes_path="${PWD}/publish-notes.md"
+
+        if [[ ! -z "${{ inputs.notes_path }}" ]] && [[ -e "${{ inputs.notes_path }}" ]]
+        then
+          cat "${{ inputs.notes_path }}" >> "${publish_notes_path}"
+          echo >> "${publish_notes_path}"
+        fi
+
+        cd "${{ inputs.repository_path }}"
+
+        gh release download "${{ github.ref_name }}" -p metadata-docker-images.csv -p sha256sum.txt
+
+        if [[ -e metadata-docker-images.csv ]]
+        then
+          (
+            echo '<details open><summary><code>metadata-docker-images.csv</code> (<a href="${{ github.server_url }}/${{ github.repository }}/releases/download/${{ github.ref_name }}/metadata-docker-images.csv">download</a>)</summary>'
+            echo
+            echo '| image | tag | digest |'
+            echo '| ----- | --- | ------ |'
+            sed -E '1d;s/,/ | /g;s/(.+)/| \1 |/' metadata-docker-images.csv
+          ) >> "${publish_notes_path}"
+        fi
+
+        if [[ -e sha256sum.txt ]]
+        then
+          (
+            echo '<details open><summary><code>sha256sum.txt</code> (<a href="${{ github.server_url }}/${{ github.repository }}/releases/download/${{ github.ref_name }}/sha256sum.txt">download</a>)</summary>'
+            echo
+            echo '```'
+            cat sha256sum.txt
+            echo '```'
+          ) >> "${publish_notes_path}"
+        fi
+
+        cd "${{ inputs.repository_path }}"
+        gh release edit "${{ github.ref_name }}" \
+          --draft=false \
+          --notes-file="${publish_notes_path}" \
+          --latest=${{ inputs.is_latest_release }}

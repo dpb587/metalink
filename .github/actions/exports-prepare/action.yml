@@ -1,0 +1,41 @@
+name: exports-prepare
+inputs:
+  path:
+    default: exports
+outputs:
+  build_gitref:
+    value: ${{ steps.metadata.outputs.build_gitref }}
+  build_gitsha:
+    value: ${{ steps.metadata.outputs.build_gitsha }}
+  version_number:
+    value: ${{ steps.metadata.outputs.version_number }}
+  version_labels:
+    value: ${{ steps.metadata.outputs.version_labels }}
+runs:
+  using: "composite"
+  steps:
+    - if: inputs.path != ''
+      shell: bash
+      run: |
+        mkdir ${{ inputs.path }}
+        mkdir ${{ inputs.path }}/artifacts
+    - id: metadata
+      shell: bash
+      run: |
+        echo "build_gitref=${GITHUB_REF}" >> "${GITHUB_OUTPUT}"
+        echo "build_gitsha=${GITHUB_SHA}" >> "${GITHUB_OUTPUT}"
+
+        if [[ "${GITHUB_REF}" =~ ^refs/tags/v ]]
+        then
+          echo "version_number=${GITHUB_REF#$"refs/tags/v"}" >> "${GITHUB_OUTPUT}"
+          echo "version_labels=" >> "${GITHUB_OUTPUT}"
+        elif [[ "${GITHUB_REF}" =~ ^refs/heads/ ]]
+        then
+          devkey=$( sha256sum <<< "${GITHUB_REF}" | cut -c-8 )
+
+          echo "version_number=0.0.0" >> "${GITHUB_OUTPUT}"
+          echo "version_labels=-dev.${devkey}+time.$( date -u +%Y%m%d%H%M%S ).sha.$( cut -c-8 <<< "${GITHUB_SHA}" )" >> "${GITHUB_OUTPUT}"
+        else
+          echo "unsupported: GITHUB_REF=${GITHUB_REF}" >&1
+          exit 1
+        fi

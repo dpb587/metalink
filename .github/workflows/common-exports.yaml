@@ -1,0 +1,32 @@
+name: exports
+permissions:
+  contents: write
+on:
+  workflow_call: {}
+jobs:
+  main:
+    name: main
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        path: repository
+    - id: exports
+      name: exports-prepare
+      uses: ./repository/.github/actions/exports-prepare
+    - name: exports-build-cli
+      env:
+        EXPORTS_BUILD_GITREF: ${{ steps.exports.outputs.build_gitref }}
+        EXPORTS_BUILD_GITSHA: ${{ steps.exports.outputs.build_gitsha }}
+        EXPORTS_VERSION_NUMBER: ${{ steps.exports.outputs.version_number }}
+        EXPORTS_VERSION_LABELS: ${{ steps.exports.outputs.version_labels }}
+      run: |
+        exportdir="${PWD}/exports/artifacts/cli"
+        mkdir -p "${exportdir}"
+
+        cd repository/
+        ./scripts/build-cli.sh ../exports/artifacts/cli
+    - name: exports-upload-github-release
+      if: github.ref_type == 'tag'
+      uses: ./repository/.github/actions/exports-upload-github-release

@@ -1,0 +1,44 @@
+name: release
+permissions:
+  contents: write
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  prepare:
+    name: prepare
+    runs-on: ubuntu-latest
+    outputs:
+      is_latest_release: ${{ steps.prepare.outputs.is_latest_release }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        path: repository
+    - id: prepare
+      name: prepare
+      uses: ./repository/.github/actions/release-prepare
+  exports:
+    name: exports
+    uses: ./.github/workflows/common-exports.yaml
+    needs:
+    - prepare
+  publish:
+    name: publish
+    runs-on: ubuntu-latest
+    needs:
+    - prepare
+    - exports
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        path: repository
+    - name: publish
+      uses: ./repository/.github/actions/release-publish
+      with:
+        is_latest_release: ${{ needs.prepare.outputs.is_latest_release }}
+        notes_path: repository/internal/releasenotes/${{ github.ref_name }}.md
