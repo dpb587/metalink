@@ -88,7 +88,7 @@ func (s Source) Filter(f filter.Filter) ([]repository.RepositoryMetalink, error)
 }
 
 func (s Source) Put(name string, data io.Reader) error {
-	_, err := s.client.PutObject(context.Background(), s.bucket, path.Join(s.prefix, name), data, 0, minio.PutObjectOptions{ContentType: "application/octet-stream"})
+	_, err := s.client.PutObject(context.Background(), s.bucket, path.Join(s.prefix, name), data, -1, minio.PutObjectOptions{ContentType: "application/octet-stream"})
 
 	return errors.Wrap(err, "Writing object")
 }
